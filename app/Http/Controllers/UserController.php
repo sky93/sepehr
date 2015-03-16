@@ -53,7 +53,7 @@ class UserController extends Controller {
         }
 
         $credentials = $request->only('username', 'password');
-        $credentials['active'] = 1; //unconfirmed users or banned users cannot login
+        $credentials['active'] = 1; //Now unconfirmed users or banned users cannot login
 
         if (Auth::attempt($credentials, $request->has('remember')))
         {
