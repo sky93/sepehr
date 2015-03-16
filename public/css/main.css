@@ -1,0 +1,62 @@
+@font-face {
+    font-family: 'Varela Round';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Varela Round'), local('VarelaRound-Regular'), url('../fonts/VarelaRound.woff2') format('woff2'), url(../fonts/VarelaRound2.woff) format('woff');
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    margin-bottom: 65px;
+    padding-top: 70px;
+}
+
+.bw {
+    width: 250px !important;
+}
+
+#footer {
+    margin-top: 20px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    overflow: hidden;
+    /*padding-top: 20px;*/
+    white-space: nowrap;
+    border: 1px solid #ddd;
+
+
+    background-image: -webkit-linear-gradient(top,#fff 0, #eeeeee 100%);
+    background-image: -o-linear-gradient(top,#fff 0,#eeeeee 100%);
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#fff),to(#f8f8f8));
+    background-image: linear-gradient(to bottom,#fff 0,#eeeeee 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff8f8f8', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 5px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 5px rgba(0,0,0,.075);
+}
+.container .text-muted {
+    margin: 10px 0;
+}
+.progress {
+    top: 20px;
+    margin-bottom: -30px;
+    background: rgba(245, 245, 245, 1); border: 0px solid rgba(245, 231, 231, 1); border-radius: 3px; height: 10px;}
+.progress-bar-custom {background: rgba(65, 201, 119, 1); background: -webkit-linear-gradient(top, rgba(23, 153, 29, 1) 0%, rgba(65, 201, 119, 1) 100%); background: linear-gradient(to bottom, rgba(23, 153, 29, 1) 0%, rgba(65, 201, 119, 1) 100%);}
+
+.dl-list, .dl-list thead tr th, .dl-list tr td {
+    text-align: center;
+    font-size: 11px;
+    vertical-align:middle !important;
+}
+
+
+*{
+    font-family: "Varela Round", Tahoma, Arial, sans-serif;
+}
+
