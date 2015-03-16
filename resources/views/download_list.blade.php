@@ -5,8 +5,6 @@
     $aria2 = new aria2(); //We Check it in the controller
     ?>
 
-
-
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -22,6 +20,7 @@
                                 <th style="width: 8%">@lang('messages.size')</th>
                                 <th style="width: 15%">@lang('messages.progress')</th>
                                 <th style="width: 10%">@lang('messages.speed')</th>
+                                <th style="width: 12%">@lang('messages.date')</th>
                                 <th style="width: 12%">@lang('messages.date')</th>
                             </tr>
                             </thead>
