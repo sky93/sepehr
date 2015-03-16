@@ -11,7 +11,8 @@
                 <div class="panel-heading">{{ Lang::get('messages.dl.list') }}</div>
                 <div class="panel-body">
 
-                    <div class="table-responsive" dir="ltr">
+
+                <div class="table-responsive" dir="ltr">
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
