@@ -58,7 +58,7 @@
                             <div class="col-md-1">
                                 <button type="submit" name="action" value="delete" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> Delete</button>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-11">
                                 <button type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> Public</button>
                             </div>
                         </div><br />

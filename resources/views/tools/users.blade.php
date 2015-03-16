@@ -4,34 +4,49 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading">@lang('messages.files.list')</div>
+                <div class="panel-heading">User Management</div>
                 <div class="panel-body">
                     <div class="table-responsive" dir="ltr">
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
-                                <th style="width: 47%">ID</th>
-                                <th style="width: 8%">Username</th>
-                                <th style="width: 8%">Name</th>
-                                <th style="width: 15%">Credits</th>
-                                <th style="width: 10%">Queue Credits</th>
-                                <th style="width: 12%">E-mail</th>
-                                <th style="width: 12%">Active</th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Credits</th>
+                                <th>Queue Credits</th>
+                                <th>E-mail</th>
+                                <th>Role</th>
+                                <th>Active</th>
                             </tr>
                             </thead>
                             @foreach($users as $user)
                                 <tr>
                                     <td>{{ $user->id }}</td>
+                                    <td>{{ $user->name }}</td>
                                     <td>{{ $user->username }}</td>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->name }}</td>
+                                    <td>{{ $main->formatBytes($user->credit,1) }}</td>
+                                    <td>{{ $main->formatBytes($user->queue_credit,1) }}</td>
                                     <td>{{ $user->email }}</td>
-                                    <td>{{ $user->name }}</td>
+                                    <td>
+                                        @if($user->role == 1)
+                                            User
+                                        @elseif($user->role == 2)
+                                            Admin
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    <td>{{ $user->active ? "YES" : "NO" }}</td>
                                 </tr>
                             @endforeach
                         </table>
-
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <a href="{{ url('/tools/register') }}" class="btn btn-success"><i
+                                        class="fa fa-plus fa-lg"></i> Add New User</a>
+                        </div>
                     </div>
                 </div>
             </div>
