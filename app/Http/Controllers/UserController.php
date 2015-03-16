@@ -11,6 +11,13 @@ use Hash;
 use main;
 
 class UserController extends Controller {
+    /**
+     * The registrar implementation.
+     *
+     * @var Registrar
+     */
+    protected $registrar;
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -25,12 +32,6 @@ class UserController extends Controller {
     {
         return view('auth.login', array('main' => new main()));
     }
-    /**
-     * The registrar implementation.
-     *
-     * @var Registrar
-     */
-    protected $registrar;
 
     /**
      * Handle a login request to the application.
@@ -52,6 +53,7 @@ class UserController extends Controller {
         }
 
         $credentials = $request->only('username', 'password');
+        $credentials['active'] = 1; //unconfirmed users or banned users cannot login
 
         if (Auth::attempt($credentials, $request->has('remember')))
         {
@@ -118,64 +120,54 @@ class UserController extends Controller {
     }
 
     /**
-     * Get the failed login message.
+     * Show the form for creating a new resource.
      *
-     * @return string
+     * @return Response
      */
-    protected function getFailedLoginMesssage()
+    public function create()
     {
-        return '';
+        //
     }
 
 	/**
-	 * Show the form for creating a new resource.
+     * Store a newly created resource in storage.
 	 *
 	 * @return Response
 	 */
-	public function create()
+    public function store()
 	{
 		//
 	}
 
 	/**
-	 * Store a newly created resource in storage.
+     * Display the specified resource.
 	 *
+     * @param  int $id
 	 * @return Response
 	 */
-	public function store()
+    public function show($id)
 	{
 		//
 	}
 
 	/**
-	 * Display the specified resource.
+     * Show the form for editing the specified resource.
 	 *
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+    public function edit($id)
 	{
 		//
 	}
 
 	/**
-	 * Show the form for editing the specified resource.
+     * Update the specified resource in storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
-	{
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
+    public function update($id)
 	{
 		//
 	}
@@ -191,5 +183,15 @@ class UserController extends Controller {
         Auth::logout();
         return redirect('/');
 	}
+
+    /**
+     * Get the failed login message.
+     *
+     * @return string
+     */
+    protected function getFailedLoginMesssage()
+    {
+        return '';
+    }
 
 }
