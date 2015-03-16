@@ -140,8 +140,9 @@ class HomeController extends Controller
         $main = new main();
         if (!$main->aria2_online()) abort(404);
 
-        if (Auth::user()->role == 2)
+        if (Auth::user()->role == 2) //Admins need to see all downloads + username
             $users = DB::table('download_list')
+                ->join('users', 'download_list.user_id', '=', 'users.id')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();

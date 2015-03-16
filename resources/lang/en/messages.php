@@ -61,6 +61,7 @@ return [
     'tools'                 => 'Admin Tools',
     'operations' => 'Operations',
     'manage.users' => 'Manage Users',
+    'username' => 'Username'
 
 
 
