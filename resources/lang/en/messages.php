@@ -59,6 +59,8 @@ return [
     'files.public'          => 'Public Files',
     'files'                 => 'Files',
     'tools'                 => 'Admin Tools',
+    'operations' => 'Operations',
+    'manage.users' => 'Manage Users',
 
 
 

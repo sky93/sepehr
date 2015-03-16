@@ -22,7 +22,7 @@
                                 <th style="width: 15%">@lang('messages.progress')</th>
                                 <th style="width: 10%">@lang('messages.speed')</th>
                                 <th style="width: 12%">@lang('messages.date')</th>
-                                <th style="width: 12%">@lang('messages.date')</th>
+                                <th style="width: 12%">@lang('messages.operations')</th>
                             </tr>
                             </thead>
                             @foreach($files as $file)
@@ -63,6 +63,7 @@
                                     </td>
                                     <td>{{ $downloaded_speed }}</td>
                                     <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
+                                        <td>{{ time() }}</td>
                                 </tr>
                             @endforeach
                         </table>
