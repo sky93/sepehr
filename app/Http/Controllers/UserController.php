@@ -53,7 +53,9 @@ class UserController extends Controller {
         }
 
         $credentials = $request->only('username', 'password');
-        $credentials['active'] = 1; //Now unconfirmed users or banned users cannot login
+
+        //Now unconfirmed users or banned users cannot login
+        $credentials['active'] = 1;
 
         if (Auth::attempt($credentials, $request->has('remember')))
         {
@@ -100,7 +102,7 @@ class UserController extends Controller {
         $this->validate($request, [
             'name' => 'required|min:2|max:32',
             'username' => 'required|min:5|max:16|unique:users,username',
-            'credit' => 'required|between:-1,2000000',
+            'credit' => 'required|numeric',
             'password' => 'required|min:6|confirmed:password_confirmation',
             'email' => 'required|email|unique:users,email'
         ]);
@@ -111,7 +113,7 @@ class UserController extends Controller {
         $user->username = $request['username'];
         $user->email = $request['email'];
         $user->password = Hash::make($request['password']);
-        $user->credit = $request['credit'] * 1024 *1024;
+        $user->credit = $request['credit'] * 1024 * 1024;
 
 
         $user->save();
