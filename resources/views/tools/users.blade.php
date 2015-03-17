@@ -39,6 +39,7 @@
                                         @else
                                             N/A
                                         @endif
+                                            {{--//o.w.--}}
                                     </td>
                                     <td>{{ $user->active ? 'YES' : 'NO' }}</td>
                                     <td>
