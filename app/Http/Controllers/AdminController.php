@@ -23,6 +23,19 @@ class AdminController extends Controller
         //
     }
 
+    public function user_details($user_name)
+    {
+        $users = DB::table('users')
+            ->where('username','=',$user_name)
+            ->get();
+
+        if ($users == null)
+            return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'));
+
+
+        return $user_name;
+    }
+
     public function users()
     {
         $main = new main();

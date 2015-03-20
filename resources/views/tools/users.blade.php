@@ -65,8 +65,7 @@
                     <div class="row">
                         <div class="col-md-offset-10 col-md-2">
 
-                            <a style="width: 100%" href="{{ url('/tools/register') }}" class="btn btn-success"><i
-                                        class="fa fa-user-plus fa-lg"></i> Add New User</a>
+                            <a style="width: 100%" href="{{ url('/tools/register') }}" class="btn btn-success"><i class="fa fa-user-plus fa-lg"></i> Add New User</a>
                         </div>
 
                     </div>

@@ -63,6 +63,8 @@ return [
     'manage.users' => 'Manage Users',
     'username' => 'Username',
     'delete' => 'Delete',
+    'error' => 'Whoops! Something went wrong!',
+    'tbk' => 'Take me back',
 
 
 
