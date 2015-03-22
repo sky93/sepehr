@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="col-sm-3">
                             <img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive img-thumbnail" src="{{ url('/img/default_avi.png') }}"><br />
-                            @if($user->active === 1)
+                            @if($user->active == 1)
                                 <p style="text-align: center">User is <span style="color: #2ca02c; font-weight: bold">Active</span>.</p>
                             @else
                                 <p style="text-align: center">User is <span style="color: #b92c28; font-weight: bold">Inactive</span>.</p>
