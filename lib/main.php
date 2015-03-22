@@ -12,7 +12,7 @@ class main
      *
      * @return array|bool(false)
      */
-    public function get_info($url, $timeout = 10, $http_username = '', $http_password = ''){
+    public function get_info($url, $timeout = 10, $http_username = '', $http_password = ''){ //fixed issue #2
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
         stream_context_set_default(
