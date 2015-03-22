@@ -56,6 +56,12 @@ class Authenticate {
                 }
             }
         }
+        if(!Auth::user()->active)
+        {
+            Auth::logout();
+
+            return redirect()->guest('login');
+        }
 		return $next($request);
 	}
 

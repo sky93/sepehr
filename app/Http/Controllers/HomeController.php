@@ -138,10 +138,11 @@ class HomeController extends Controller
     public function downloads()
     {
         $main = new main();
-        if (!$main->aria2_online()) abort(404);
+        if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
 
-        if (Auth::user()->role == 2)
+        if (Auth::user()->role == 2) //Admins need to see all downloads + username
             $users = DB::table('download_list')
+                ->join('users', 'download_list.user_id', '=', 'users.id')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();
@@ -160,7 +161,7 @@ class HomeController extends Controller
     {
         $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold');
 
-        if (Auth::user()->role != 2) {
+        if (Auth::user()->role !== 2) { //for debug only we don't check url validation for admins
             $this->validate($request, [
                 'link' => 'required|url',
                 'comment' => 'max:140'
@@ -179,205 +180,47 @@ class HomeController extends Controller
             ]);
         }
 
-        if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) {
+        if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
             return redirect::back()->withErrors('What?! Torrent?! Go away!');
         }
 
-        /**
-         *  Get the file size of any remote resource (using get_headers()),
-         *  either in bytes or - default - as human-readable formatted string.
-         *
-         * @author  Stephan Schmitz <eyecatchup@gmail.com>
-         * @license MIT <http://eyecatchup.mit-license.org/>
-         * @url     <https://gist.github.com/eyecatchup/f26300ffd7e50a92bc4d>
-         *
-         * @param   string $url Takes the remote object's URL.
-         * @param   boolean $formatSize Whether to return size in bytes or formatted.
-         * @return  string                 Returns human-readable formatted size
-         *                                  or size in bytes (default: formatted).
-         */
-        /**
-         * Returns the size of a file without downloading it, or -1 if the file
-         * size could not be determined.
-         *
-         * @param $url - The location of the remote file to download. Cannot
-         * be null or empty.
-         *
-         * @return The size of the file referenced by $url, or -1 if the size
-         * could not be determined.
-         */
-        function curl_get_file_size($url)
-        {
-            // Assume failure.
-            $result = -1;
-            $status = 0;
+        $main = new main();
 
-            $curl = curl_init($url);
+        $blocked = $main->isBlocked($input['link']);
+        if ($blocked){
+            return redirect::back()->withErrors($blocked);
+        }
 
-            // Issue a HEAD request and follow any redirects.
-            curl_setopt($curl, CURLOPT_NOBODY, true);
-            curl_setopt($curl, CURLOPT_HEADER, true);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        $url_inf = $main->get_info($input['link']);
 
-            $data = curl_exec($curl);
-            curl_close($curl);
-            $cl = array();
-            $cl[] = -1;
-            if ($data) {
-                $content_length = "-1";
-                $status = "-1";
+        $fileSize = $url_inf['filesize'];
+        $filename = $url_inf['filename'];
 
-                if (preg_match("/^HTTP\/1\.[01] (\d\d\d)/", $data, $matches)) {
-                    $status = (int)$matches[1];
+        if ($url_inf['status'] != 200){
+            return redirect::back()->withErrors('File not found or it has moved!' . " (" . $url_inf['status']. ')');
+        }
 
-                }
-
-                if (preg_match("/Content-Length: (\d+)/", $data, $matches)) {
-                    $content_length = (int)$matches[1];
-                    if ($status == 200 || ($status > 300 && $status <= 308)) $cl[] = (int)$matches[1];
-                }
-
-                // http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-                if ($status == 200 || ($status > 300 && $status <= 308)) {
-                    $result = $content_length;
-                }
+        $blocked_ext = Config::get('leech.blocked_ext');
+        if (array_key_exists($url_inf['file_extension'], $blocked_ext)) {
+            if ($blocked_ext[$url_inf['file_extension']] === false){
+                return redirect::back()->withErrors('.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.');
+            }else{
+                $filename = pathinfo($url_inf['filename'],PATHINFO_FILENAME) . '.' . $blocked_ext[$url_inf['file_extension']];
             }
-
-            return array(max($cl), $status);
         }
 
-        function mySize($head)
-        {
-            $length = -1;
-            $i = $head;
-            $lastresp = 0;
-            foreach ($i as $d) {
-                if (preg_match("/^HTTP\/1\.[01] (\d\d\d)/", $d, $matches)) {
-                    $lastresp = $matches[1];
-                    continue;
-                }
-
-                if (preg_match("/Content-Length: (\d+)/", $d, $matches) && $lastresp == 200) {
-                    $length = $matches[1];
-                }
-            }
-
-            return array($length, $lastresp);
+        if ($fileSize < 1) {
+            return redirect::back()->withErrors('Invalid File Size!' . " (" . $url_inf['status']. ')');
         }
 
-        //var_dump(get_headers($input['link'],0)) ;
-//        echo mySize($input['link'])[0];
-//        return;
-
-
-        $mime_types = array(
-            "application/pdf" => "pdf",
-            "application/octet-stream" => "exe",
-            "application/zip" => "zip",
-            "application/msword" => "docx",
-            "application/msword" => "doc",
-            "application/vnd.ms-excel" => "xls",
-            "application/vnd.ms-powerpoint" => "ppt",
-            "image/gif" => "gif",
-            "image/png" => "png",
-            "image/jpeg" => "jpeg",
-            "image/jpg" => "jpg",
-            "audio/mpeg" => "mp3",
-            "audio/x-wav" => "wav",
-            "video/mpeg" => "mpeg",
-            "video/mpeg" => "mpg",
-            "video/mpeg" => "mpe",
-            "video/quicktime" => "mov",
-            "video/x-msvideo" => "avi",
-            "video/3gpp" => "3gp",
-            "text/css" => "css",
-            "application/javascript" => "jsc",
-            "application/javascript" => "js",
-            "text/html" => "html"
-        );
-
-        //Based on http://stackoverflow.com/questions/11842721/cant-get-remote-filename-to-file-get-contents-and-then-store-file
-        function getRealFilename($headers, $url)
-        {
-            GLOBAL $mime_types;
-            // try to see if the server returned the file name to save
-            foreach ($headers as $header) {
-                if (strpos(strtolower($header), 'content-disposition') !== false) {
-                    $tmp_name = explode('=', $header);
-                    if (isset($tmp_name[1])) {
-                        $f = trim($tmp_name[1], '";\'');
-                        if ($f[strlen($f) - 1] === '.') $f = mb_substr($f, 0, -1);
-                        $f = urldecode($f);
-                        return $f;
-                    }
-                }
-            }
-
-            //we didn't find a file name to save-as in the header
-
-            //so try to guess file extension by content-type
-            foreach ($headers as $header) {
-                if (strpos(strtolower($header), 'content-type') !== false) {
-                    $tmp_name = explode(':', $header);
-                    if (isset($tmp_name[1])) {
-                        $mime_type = trim($tmp_name[1]);
-                        $f = basename(preg_replace('/\\?.*/', '', $url)) . '.' . $mime_types[$mime_type];
-                        if ($f[strlen($f) - 1] === '.') $f = mb_substr($f, 0, -1);
-                        $f = urldecode($f);
-                        return $f;
-                    }
-                }
-            }
-
-            //Nothing. Just grab it from the url
-            $stripped_url = preg_replace('/\\?.*/', '', $url);
-
-            $f = basename($stripped_url);
-            if ($f[strlen($f) - 1] === '.') $f = mb_substr($f, 0, -1);
-            $f = urldecode($f);
-            return $f;
-        }
-
-        //Typical usage
-
-        //now save the file
-
-        //Typical usage
-        //  $file = file_get_contents($input['link']);http://download.jetbrains.com/webide/PhpStorm-8.0.3.exe
-//var_dump(get_headers($input['link']));
-        $head = get_headers($input['link']);
-        $fileSize = mySize($head);
-        //  echo $fileSize[0];
-        //  return;
-        //  $a = 7062159360;
-          var_dump($head);
-        exit;
-        // return;
-        //echo $fileSize[0];
-
-        if ($fileSize[0] < 1) {
-            return redirect::back()->withErrors(Lang::get('validation.fileSize', array('size' => $fileSize[1])));
-        }
-
-        $filename = getRealFilename($head, $input['link']);
-        //  echo $filename;
-//return;
-//        $filename=urldecode($filename);
-//        echo "$filename - ";
-//        return;
-
-
-        if ($fileSize[0] > Auth::user()->credit) {
-            return redirect::back()->withErrors('No Credit!');
+        if ($fileSize > Auth::user()->credit) {
+            return redirect::back()->withErrors('Not enough Credits!');
         }
 
 
-        $q_credit = Auth::user()->queue_credit + $fileSize[0];
-//        echo $q_credit . ' ---- '. Auth::user()->credit . '\n\n\<br />';
+        $q_credit = Auth::user()->queue_credit + $fileSize;
         if ($q_credit > Auth::user()->credit) {
-            return redirect::back()->withErrors('No Q Credit!');
+            return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
         }
 
 
@@ -401,11 +244,11 @@ class HomeController extends Controller
             $http_user = $http_pass = NULL;
         }
 
-        $id = DB::table('download_list')->insertGetId(
+        DB::table('download_list')->insertGetId(
             array(
                 'user_id' => Auth::user()->id,
-                'link' => $input['link'],
-                'length' => $fileSize[0],
+                'link' => $url_inf['location'],
+                'length' => $fileSize,
                 'file_name' => $filename,
                 'hold' => $hold,
                 'http_user' => $http_user,
@@ -415,14 +258,7 @@ class HomeController extends Controller
         );
 
         return Redirect::to('downloads');
-        // echo $id;
 
-//        return redirect::back()
-//            ->withInput($request->only('link'))
-//            ->withErrors([
-//                'email' => Lang::get('messages.wrongPass'),
-//            ]);
-//        return view('home');
     }
 
 }

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Sepehr Mohaghegh">
     <title>{{ Lang::get('messages.title') }}</title>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
@@ -28,7 +29,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="">@lang('messages.mainTitle')</a>
+                <a class="navbar-brand" href="{{ asset('') }}">@lang('messages.mainTitle')</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -56,8 +57,10 @@
                                 <ul class="dropdown-menu" role="menu">
                                     <li class="dropdown-header">@lang('messages.user.management')</li>
                                     <li><a href="{{ url('/tools/register') }}"><i class="fa fa-plus"></i> @lang('messages.add.user')</a></li>
-                                    {{--<li><a href="#">Manage Users</a></li>--}}
-                                    {{--<li class="divider"></li>--}}
+                                    <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i></i> @lang('messages.gband')</a></li>
+
                                     {{--<li class="dropdown-header">Nav header</li>--}}
                                     {{--<li><a href="#">Separated link</a></li>--}}
                                     {{--<li><a href="#">One more separated link</a></li>--}}

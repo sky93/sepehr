@@ -14,20 +14,6 @@
 Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
-Route::get('/rrr', function(){
-
-    $url = 'http://mirrors.hust.edu.cn/qtproject/archive/qt/5.4/5.4.1/qt-opensource-windows-x86-msvc2013_64-5.4.1.exe';
-
-    if (!$fp = fopen($url, 'r')) {
-        trigger_error("Unable to open URL ($url)", E_USER_ERROR);
-    }
-
-    $meta = stream_get_meta_data($fp);
-
-    print_r($meta);
-
-    fclose($fp);
-});
 
 $router->group(['middleware' => 'auth'], function() {
     Route::get('/logout', 'UserController@logout');
@@ -46,6 +32,14 @@ $router->group(['middleware' => 'auth'], function() {
 $router->group(['middleware' => 'auth', 'role' => '2'], function() {
     Route::get('/tools/register', 'UserController@register');
     Route::post('/tools/register', 'UserController@postregister');
+
+    Route::get('/tools/users', 'AdminController@users');
+    Route::post('/tools/users', 'AdminController@users');
+
+    Route::get('/tools/users/{username}', 'AdminController@user_details');
+    Route::post('/tools/users/{username}', 'AdminController@postuser_details');
+
+    Route::get('/tools/status', 'AdminController@stat');
 });
 
 Route::controllers([

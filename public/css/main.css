@@ -52,7 +52,34 @@ body {
 .dl-list, .dl-list thead tr th, .dl-list tr td {
     text-align: center;
     font-size: 11px;
-    vertical-align:middle !important;
+    vertical-align: middle !important;
+    padding: 7px !important;
+}
+
+.bld{
+    font-weight: bold
+}
+
+.ud  tr td{
+
+    text-align: left;
+    font-size: 16px;
+    vertical-align: middle !important;
+    padding: 7px !important;
+
+}
+.uds  tr td{
+
+    text-align: left;
+    font-size: 12px;
+    vertical-align: middle !important;
+    padding: 7px !important;
+
+}
+
+.users, .users thead tr th, .users tr td {
+    font-size: 10px !important;
+    padding: 4px !important;
 }
 
 
