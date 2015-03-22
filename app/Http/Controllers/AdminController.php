@@ -37,7 +37,7 @@ class AdminController extends Controller
                 $atu = Auth::user()->username;
                 $user = User::where('username', '=', $username);
                 $user->delete();
-                if ($atu === $username) {
+                if ($atu == $username) {
                     Auth::logout();
                 }
                 return Redirect::to('/tools/users');
@@ -51,7 +51,7 @@ class AdminController extends Controller
                 }
                 $user->save();
 
-                if ( Auth::user()->username === $username) {
+                if ( Auth::user()->username == $username) {
                     Auth::logout();
                 }
             }
