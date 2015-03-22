@@ -29,6 +29,15 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+
+                <a class="navbar-brand" rel="home" href="https://www.google.com/#q=happy+new+persian+year" title="Happy New Persian Year (1394)">
+                    <?php
+                    $sin = array('egg', 'mahi','quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh');
+                    $img =  $sin[array_rand($sin)];
+                    ?>
+                    <img style="max-width:50px; margin-top: -17px; margin-right: -10px"
+                         src="{{ asset('/img/' . $img . '.png') }}">
+                </a>
                 <a class="navbar-brand" href="{{ asset('') }}">@lang('messages.mainTitle')</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
