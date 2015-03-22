@@ -44,7 +44,7 @@ class AdminController extends Controller
             } elseif ($_POST['action'] == 'ban') {
                 $user = User::where('username', '=', $username)->first();
                 $active = $user->active;
-                if ($active !== 0){
+                if ($active != 0){
                     $user->active = 0;
                 }else{
                     $user->active = 1;
