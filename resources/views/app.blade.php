@@ -32,7 +32,7 @@
 
                 <a class="navbar-brand" rel="home" href="https://www.google.com/#q=happy+new+persian+year" title="Happy New Persian Year (1394)">
                     <?php
-                    $sin = array('egg', 'mahi','quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh');
+                    $sin = array('egg', 'mahi','quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh', 'ayne');
                     $img =  $sin[array_rand($sin)];
                     ?>
                     <img style="max-width:50px; margin-top: -17px; margin-right: -10px"
