@@ -138,11 +138,12 @@ class HomeController extends Controller
     public function downloads()
     {
         $main = new main();
-        if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+            if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
 
         if (Auth::user()->role == 2) //Admins need to see all downloads + username
-            $users = DB::table('download_list')
+            $users = DB::table('download_list', '')
                 ->join('users', 'download_list.user_id', '=', 'users.id')
+                ->select('download_list.*', 'users.username')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();

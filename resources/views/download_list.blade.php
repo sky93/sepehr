@@ -15,7 +15,7 @@
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
-                                @if (Auth::user()->role === 2)
+                                @if (Auth::user()->role == 2)
                                     <th style="width: 9%">@lang('messages.username')</th>
                                 @endif
                                 <th style="width: 43%">@lang('messages.file.name')</th>
@@ -30,6 +30,9 @@
                             @foreach($files as $file)
                                 <tr>
                                     <?php
+
+                                   echo str_pad($file->id, 16, '0', STR_PAD_LEFT);
+
                                     $downloaded_size = 0;
                                     $downloaded_speed = 0;
 
@@ -37,19 +40,21 @@
                                         $downloaded_size = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"];
                                     }
 
-                                    if ($downloaded_size === 0) {
-                                        $downloaded_size = $file->completed_length;
-                                    }
 
                                     if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'])) {
                                         $downloaded_speed = $main->formatBytes($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'], 0) . '/s';
                                     }
+
+                                    if ($downloaded_size == 0) {
+                                        $downloaded_size = $file->completed_length;
+                                    }
+
                                     if ($file->state != -1) {
                                         $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
                                     }
 
                                     ?>
-                                    @if (Auth::user()->role === 2)
+                                    @if (Auth::user()->role == 2)
                                         <td><a target="_blank"
                                                href="{{ url('/user/' . $file->username) }}">{{ $file->username }}</a>
                                         </td>
