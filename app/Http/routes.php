@@ -38,6 +38,8 @@ $router->group(['middleware' => 'auth', 'role' => '2'], function() {
 
     Route::get('/tools/users/{username}', 'AdminController@user_details');
     Route::post('/tools/users/{username}', 'AdminController@postuser_details');
+
+    Route::get('/tools/status', 'AdminController@stat');
 });
 
 Route::controllers([

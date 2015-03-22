@@ -19,8 +19,7 @@
                                 <th>E-mail</th>
                                 <th>Role</th>
                                 <th>Active</th>
-                                <th style="width: 20px">@lang('messages.active')</th>
-                                <th style="width: 20px">@lang('messages.delete')</th>
+                                <th style="width: 85px">@lang('messages.details')</th>
                             </tr>
                             </thead>
                             @foreach($users as $user)
@@ -42,18 +41,8 @@
                                     </td>
                                     <td>{{ $user->active ? 'YES' : 'NO' }}</td>
                                     <td>
-                                        <a style="width: 80px; padding:0 5px 0 5px; margin-bottom: 1px;"
-                                           href="{{ url('/tools/register') }}"
-                                           class="btn btn-sm {{ ($user->active == 1 ? 'btn-danger' : 'btn-success') }}"><i
-                                                    class="fa {{ ($user->active == 1 ? 'fa-ban' : 'fa-check') }}"></i>
-                                            {{ ($user->active == 1 ? 'Ban' : 'Release') }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a style="width: 80px; padding:0 5px 0 5px; margin-bottom: 1px;"
-                                           href="{{ url('/tools/register') }}" class="btn btn-sm btn-danger"><i
-                                                    class="fa fa-remove"></i>
-                                            Delete
+                                        <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;"
+                                           href="{{ url('/tools/users/' . $user->username) }}" class="btn btn-sm btn-primary"><i class="fa fa-info"></i> @lang('messages.details')
                                         </a>
                                     </td>
                                 </tr>

@@ -52,20 +52,23 @@ return [
     'date'                  => 'Date',
     'file.name'             => 'File Name',
     'file.select'           => 'Select',
-    'file.completed'        => 'This action have successfully completed|Your actions have successfully completed',
-    'file.not.completed'    => 'This action haven\'t successfully completed|Your actions have\'t successfully completed',
+    'file.completed'        => 'This action has been successfully completed|Your actions have successfully completed',
+    'file.not.completed'    => 'This action has not been successfully completed|Your actions have\'t successfully completed',
     'file.no.files'         => 'Sorry! No files selected!',
     'credits'               => 'Credits Left',
     'files.public'          => 'Public Files',
     'files'                 => 'Files',
     'tools'                 => 'Admin Tools',
-    'active' => 'Active',
-    'manage.users' => 'Manage Users',
-    'username' => 'Username',
-    'delete' => 'Delete',
-    'error' => 'Whoops! Something went wrong!',
-    'tbk' => 'Take me back',
-
+    'active'                => 'Active',
+    'manage.users'          => 'Manage Users',
+    'username'              => 'Username',
+    'delete'                => 'Delete',
+    'deleted'               => 'Deleted',
+    'error'                 => 'Whoops! Something went wrong!',
+    'tbk'                   => 'Take me back',
+    'details'               => 'details',
+    'gband'                 => 'Global Status',
+    'status'                => 'Status'
 
 
 ];

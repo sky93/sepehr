@@ -2,6 +2,94 @@
 
 class main
 {
+    /**
+     * WARNING: This function chages stream_context_set_default. In the feature I'll fix this problem.
+     *
+     * @param $url
+     * @param int $timeout
+     * @param string $http_username
+     * @param string $http_password
+     *
+     * @return array|bool(false)
+     */
+    public function get_info($url, $timeout = 10, $http_username = '', $http_password = ''){
+        $current_timeout = ini_get('default_socket_timeout');
+        ini_set("default_socket_timeout", $timeout);
+        stream_context_set_default(
+            array(
+                'http' => array(
+                    'method' => 'GET'
+                )
+            )
+        );
+
+        $headers = @get_headers($url, 1);
+        if (!$headers) return false;
+
+        $headerso = $headers;
+
+        $lastresp = 0;
+        foreach ($headers as $key => $value) { //Make every key lowercase
+            if (is_array($value))
+                $st = $value[count($value)-1];
+            else
+                $st = $value;
+            if (preg_match("/^HTTP\/1\.[01] (\d\d\d)/", $st, $matches)) {
+                $lastresp = $matches[1];
+            }
+            if (strtolower($key) == $key) continue;
+            $headers[strtolower($key)] = $headers[$key];
+            unset($headers[$key]);
+        }
+
+        $filename = NULL;
+        if (array_key_exists('content-disposition', $headers)) { //Header contains filename
+            if (is_array($headers['content-disposition']))
+                $str = $headers['content-disposition'][count($headers['content-disposition'])-1];
+            else
+                $str = $headers['content-disposition'];
+
+            if (preg_match('/.*filename=[\'\"]([^\'\"]+)/', $str, $matches)) {
+                $filename = $matches[1];
+            } else if (preg_match("/.*filename=([^ |;]+)/", $str, $matches)) {
+                $filename = $matches[1];
+            }
+        } else {
+            $filename = basename(preg_replace('/\\?.*/', '', $url));
+        }
+
+        $file_size = NULL;
+        if (array_key_exists('content-length', $headers)) { //File Size
+            if (is_array($headers['content-length']))
+                $file_size = $headers['content-length'][count($headers['content-length'])-1];
+            else
+                $file_size = $headers['content-length'];
+
+        } else {
+            $file_size = -1;
+        }
+
+        $location = NULL;
+        if (array_key_exists('location', $headers)) { //File Location
+            if (is_array($headers['location']))
+                $location = $headers['location'][count($headers['location'])-1]; //todo: add FILTER_SANITIZE_URL validate
+            else
+                $location = $headers['location'];
+        } else {
+            $location = $url;
+        }
+        ini_set("default_socket_timeout", $current_timeout);
+        return array(
+            'status' => $lastresp,
+            'filename' => $filename,
+            'file_extension' => pathinfo($filename, PATHINFO_EXTENSION),
+            'filesize' => $file_size,
+            'location' => $location,
+            'full_headers' => $headers
+        );
+    }
+
+
     public function trusted_ip($ip)
     {
         $whitelist = array(
@@ -44,6 +132,37 @@ class main
         return false;
     }
 
+
+    public function isBlocked($url)
+    {
+        $purl = parse_url($url);
+
+        $schemes = config('leech.blocked_schemes');
+        foreach ($schemes as $scheme){
+            if ($purl['scheme'] == $scheme){
+                return $scheme . ' is blocked by system administrator.';
+            }
+        }
+
+        $ports = config('leech.blocked_ports');
+        if (!isset($purl['port'])) $purl['port'] = 80;
+        foreach ($ports as $port){
+            $prange = explode('-',$port);
+            if (count($prange) === 1) $prange[] = $prange[0];
+            if ($purl['port'] >= $prange[0] && $purl['port'] <= $prange[1]){
+                return 'Port ' . $purl['port'] . ' is blocked by system administrator.';
+            }
+        }
+
+        $hosts = config('leech.blocked_hosts');
+        foreach ($hosts as $host){
+            if ($purl['host'] == $host){
+                return $purl['host'] . ' is blocked by system administrator.';
+            }
+        }
+
+        return false;
+    }
 
     public function aria2_online()
     {
