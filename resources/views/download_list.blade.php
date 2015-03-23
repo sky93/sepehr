@@ -1,11 +1,6 @@
 @extends('app')
 
 @section('content')
-    <?php
-    $aria2 = new aria2(); //We Check it in the controller
-
-    ?>
-
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">

@@ -154,7 +154,8 @@ class HomeController extends Controller
                 ->where('deleted', '=', 0)
                 ->get();
 
-        return view('download_list', array('files' => $users, 'main' => $main));
+        $aria2 = new aria2();
+        return view('download_list', array('files' => $users, 'main' => $main, 'aria2' => $aria2));
     }
 
 
