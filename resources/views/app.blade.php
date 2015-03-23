@@ -4,7 +4,7 @@
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Sepehr Mohaghegh">
+    <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
     <title>{{ Lang::get('messages.title') }}</title>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
@@ -29,12 +29,9 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+                <?php $sin = array('egg', 'mahi', 'quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh', 'ayne'); $img = $sin[array_rand($sin)];?>
 
                 <a class="navbar-brand" rel="home" href="https://www.google.com/#q=happy+new+persian+year" title="Happy New Persian Year (1394)">
-                    <?php
-                    $sin = array('egg', 'mahi','quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh', 'ayne');
-                    $img =  $sin[array_rand($sin)];
-                    ?>
                     <img style="max-width:50px; margin-top: -17px; margin-right: -10px"
                          src="{{ asset('/img/' . $img . '.png') }}">
                 </a>
@@ -114,5 +111,20 @@
         </div>
     </div>
 </div>
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    ga('create', '{{ Config::get('leech.GA') }}', 'auto');
+    ga('send', 'pageview');
+</script>
 </body>
 </html>
