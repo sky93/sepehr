@@ -65,7 +65,7 @@ class main
 
 
         $filename = NULL;
-        if (array_key_exists('content-disposition', $headers)) { //Header contains filename
+        if (array_key_exists('content-disposition', $headers) && strpos($headers['content-disposition'], 'filename=') !== false) { //Header contains filename
             if (is_array($headers['content-disposition']))
                 $str = $headers['content-disposition'][count($headers['content-disposition']) - 1];
             else
