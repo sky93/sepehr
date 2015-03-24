@@ -42,22 +42,6 @@ class main
             unset($headers[$key]);
         }
 
-        $filename = NULL;
-        if (array_key_exists('content-disposition', $headers)) { //Header contains filename
-            if (is_array($headers['content-disposition']))
-                $str = $headers['content-disposition'][count($headers['content-disposition'])-1];
-            else
-                $str = $headers['content-disposition'];
-
-            if (preg_match('/.*filename=[\'\"]([^\'\"]+)/', $str, $matches)) {
-                $filename = $matches[1];
-            } else if (preg_match("/.*filename=([^ |;]+)/", $str, $matches)) {
-                $filename = $matches[1];
-            }
-        } else {
-            $filename = basename(preg_replace('/\\?.*/', '', $url));
-        }
-
         $file_size = NULL;
         if (array_key_exists('content-length', $headers)) { //File Size
             if (is_array($headers['content-length']))
@@ -78,7 +62,26 @@ class main
         } else {
             $location = $url;
         }
-        ini_set("default_socket_timeout", $current_timeout);
+
+
+        $filename = NULL;
+        if (array_key_exists('content-disposition', $headers)) { //Header contains filename
+            if (is_array($headers['content-disposition']))
+                $str = $headers['content-disposition'][count($headers['content-disposition']) - 1];
+            else
+                $str = $headers['content-disposition'];
+
+            if (preg_match('/.*filename=[\'\"]([^\'\"]+)/', $str, $matches)) {
+                $filename = $matches[1];
+            } else if (preg_match("/.*filename=([^ |;]+)/", $str, $matches)) {
+                $filename = $matches[1];
+            }
+        } else {
+            $filename = basename(preg_replace('/\\?.*/', '', $location));
+        }
+
+
+        ini_set("default_socket_timeout", $current_timeout); //restore the default socket time out.
         return array(
             'status' => $lastresp,
             'filename' => $filename,
