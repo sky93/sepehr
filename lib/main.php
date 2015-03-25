@@ -72,12 +72,12 @@ class main
                 $str = $headers['content-disposition'];
 
             if (preg_match('/.*filename=[\'\"]([^\'\"]+)/', $str, $matches)) {
-                $filename = $matches[1];
+                $filename = urldecode($matches[1]);
             } else if (preg_match("/.*filename=([^ |;]+)/", $str, $matches)) {
-                $filename = $matches[1];
+                $filename = urldecode($matches[1]);
             }
         } else {
-            $filename = basename(preg_replace('/\\?.*/', '', $location));
+            $filename = urldecode(basename(preg_replace('/\\?.*/', '', $location)));
         }
 
 
