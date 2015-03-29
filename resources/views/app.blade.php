@@ -10,6 +10,7 @@
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/main.css') }}" rel="stylesheet">
+    <link href="favicon.ico" type="image/x-icon" rel="favicon">
     <!--[if lt IE 9]>
     <script src="{{ asset('/js/html5shiv.min.js') }}"></script>
     <script src="{{ asset('/js/respond.js') }}"></script>
