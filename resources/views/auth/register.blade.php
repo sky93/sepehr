@@ -29,9 +29,15 @@
 
 						<div class="form-group">
 							<label class="col-md-4 control-label">Name</label>
-							<div class="col-md-6">
-								<input type="text" class="form-control" name="name" value="{{ old('name') }}">
+
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" name="first_name" placeholder="First name"
+                                       value="{{ old('first_name') }}">
 							</div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" name="last_name" placeholder="Last name"
+                                       value="{{ old('last_name') }}">
+                            </div>
 						</div>
 
 						<div class="form-group">

@@ -17,6 +17,7 @@
     <![endif]-->
     <script src="{{ asset('/js/jquery.min.js') }}"></script>
     <script src="{{ asset('/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('/js/bootbox.min.js') }}"></script>
 </head>
 <body>
 <div class="container">
@@ -45,7 +46,8 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-file-o"></i> @lang('messages.files')<span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li><a href="{{ url('/downloads') }}"><i class="fa fa-tasks"></i> @lang('messages.dl.list')</a></li>
-                                <li><a href="{{ url('/myfiles') }}"><i class="fa fa-list"></i> @lang('messages.files.list')</a></li>
+                                <li><a href="{{ url('/files') }}"><i
+                                                class="fa fa-list"></i> @lang('messages.files.list')</a></li>
                                 <li class="divider"></li>
                                 <li><a href="{{ url('/public') }}"><i class="fa fa-globe"></i> @lang('messages.files.public')</a></li>
                             </ul>
@@ -74,7 +76,10 @@
                             </li>
                         @endif
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-user"></i> {{ Auth::user()->name }} <span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-expanded="false"><i
+                                        class="fa fa-user"></i> {{ Auth::user()->first_name . ' ' . Auth::user()->last_name }}
+                                <span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li class="dropdown-header">Credits</li>
                                 <li>

@@ -19,22 +19,18 @@
                                 <th style="width: 10%">@lang('messages.progress')</th>
                                 <th style="width: 10%">@lang('messages.speed')</th>
                                 <th style="width: 12%">@lang('messages.date')</th>
-                                {{--<th style="width: 12%">@lang('messages.operations')</th>--}}
+                                    <th style="width: 85px">@lang('messages.details')</th>
                             </tr>
                             </thead>
                             @foreach($files as $file)
                                 <tr>
                                     <?php
-
-                                   echo str_pad($file->id, 16, '0', STR_PAD_LEFT);
-
                                     $downloaded_size = 0;
                                     $downloaded_speed = 0;
 
                                     if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"])) {
                                         $downloaded_size = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"];
                                     }
-
 
                                     if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'])) {
                                         $downloaded_speed = $main->formatBytes($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'], 0) . '/s';
@@ -49,9 +45,10 @@
                                     }
 
                                     ?>
+
                                     @if (Auth::user()->role == 2)
-                                        <td><a target="_blank"
-                                               href="{{ url('/user/' . $file->username) }}">{{ $file->username }}</a>
+                                            <td>
+                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->username }}</a>
                                         </td>
                                     @endif
                                     <td>{{ $file->file_name }}</td>
@@ -68,7 +65,12 @@
                                     </td>
                                     <td>{{ $downloaded_speed }}</td>
                                     <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
-                                    {{--<td>{{ time() }}</td>--}}
+                                        <td>
+                                            <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;"
+                                               href="{{ url('/files/' . $file->id) }}" class="btn btn-sm btn-primary"><i
+                                                        class="fa fa-info"></i> @lang('messages.details')
+                                            </a>
+                                        </td>
                                 </tr>
                             @endforeach
                         </table>

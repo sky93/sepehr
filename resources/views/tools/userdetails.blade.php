@@ -42,7 +42,7 @@
                                 </tr>
                                 <tr>
                                     <td>Name:</td>
-                                    <td class="bld">{{ $user->name }}</td>
+                                    <td class="bld">{{ $user->first_name . ' ' . $user->last_name }}</td>
                                 </tr>
                                 <tr>
                                     <td>Username:</td>

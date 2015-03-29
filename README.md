@@ -3,7 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/network)
 
-## Aria Leecher
+##Aria Leecher
 
 Download your links to your server for local use!
 
@@ -14,6 +14,6 @@ Download your links to your server for local use!
     Aria2c >= 1.18
 
 
-### License
+###License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)

@@ -23,12 +23,17 @@ $router->group(['middleware' => 'auth'], function() {
 
     Route::get('/downloads', 'HomeController@downloads');
 
-    Route::get('/myfiles', 'HomeController@files');
-    Route::post('/myfiles', 'HomeController@postfiles');
+    Route::get('/files', 'HomeController@files');
+    Route::post('/files', 'HomeController@postfiles');
 
     Route::get('/public', 'HomeController@public_files');
+
+    Route::get('/files/{id}', 'HomeController@download_id');
+    Route::post('/files/{id}', 'HomeController@post_download_id');
 });
 
+
+//Admin's routes
 $router->group(['middleware' => 'auth', 'role' => '2'], function() {
     Route::get('/tools/register', 'UserController@register');
     Route::post('/tools/register', 'UserController@postregister');

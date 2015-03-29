@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'save_to' => 'files',
+    'save_to' => 'storage',
 
 
     /*

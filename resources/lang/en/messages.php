@@ -17,6 +17,7 @@ return [
     'cp_link'               => 'http://sadjad.ac.ir',
     'wops'                  => 'Whoops!',
     'yaay'                  => 'Yaaay!',
+    'notice' => 'Notice',
     'inputError'            => 'There were some problems with your input.',
     'user'                  => 'Username',
     'pass'                  => 'Password',
@@ -64,7 +65,8 @@ return [
     'tbk'                   => 'Take me back',
     'details' => 'Details',
     'gband'                 => 'Global Status',
-    'status'                => 'Status'
+    'status' => 'Status',
+    'torrent_disabled' => 'Torrent has been disabled for your account.'
 
 
 ];
