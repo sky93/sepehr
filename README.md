@@ -3,6 +3,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/network)
 
+![Logo](logo.png)
+
 ##Aria Leecher
 
 Download your links to your server for local use!
