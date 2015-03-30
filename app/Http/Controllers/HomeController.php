@@ -104,14 +104,12 @@ class HomeController extends Controller
         if ($_POST['action'] === 'delete') {
             foreach ($_POST['files'] as $file) {
                 if (in_array($file, $auth_files)) {
-                    if (@unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file])) {
+                    @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file]);
+                    @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file] . '.aria2');
                         $message[] = 'Deleted: ' . $file . '_' . $files_list[$file];
                         DB::table('download_list')
                             ->where('id', $file)
                             ->update(['deleted' => 1]);
-                    } else {
-                        $errors[] = 'Not Deleted: ' . $file . '_' . $files_list[$file];
-                    }
                 }
             }
         } elseif ($_POST['action'] === 'public') {
@@ -170,20 +168,21 @@ class HomeController extends Controller
         if ($input['action'] == 'remove') { //Remove action
 
             if ($file_details->state == -1) { //Files is downloading or is in queue.
-
                 if (!$main->aria2_online())
                     return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
                 $aria2 = new aria2();
                 $aria2->forceRemove(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
-            } else {
-                @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
-                DB::table('download_list')
-                    ->where('id', $file_details->id)
-                    ->update([
-                        'deleted' => 1,
-                        'state' => -3
-                    ]);
             }
+
+            @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+            @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name . '.aria2');
+            DB::table('download_list')
+                ->where('id', $file_details->id)
+                ->update([
+                    'deleted' => 1,
+                    'state' => -3
+                ]);
+
 
 //                DB::table('users') //fix queue credit
 //                    ->where('id', $file_details->user_id)
