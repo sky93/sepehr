@@ -41,7 +41,12 @@
                                     }
 
                                     if ($file->state != -1) {
-                                        $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
+                                        if ($file->state === NULL)
+                                            $downloaded_speed = 'In queue';
+                                        elseif ($file->state === -2)
+                                            $downloaded_speed = 'Paused';
+                                        else
+                                            $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
                                     }
 
                                     ?>
