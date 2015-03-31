@@ -5,7 +5,6 @@
     if (Session::has('result'))
         $result = json_encode(Session::get('result'));
     ?>
-
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
