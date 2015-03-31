@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
     <title>{{ Lang::get('messages.title') }}</title>
+    <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/main.css') }}" rel="stylesheet">
-    <link href="favicon.ico" type="image/x-icon" rel="favicon">
+    <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
     <!--[if lt IE 9]>
     <script src="{{ asset('/js/html5shiv.min.js') }}"></script>
     <script src="{{ asset('/js/respond.js') }}"></script>
@@ -58,7 +59,6 @@
                 <ul class="nav navbar-nav navbar-right">
                     @if (Auth::guest())
                         <li><a href="{{ url('login') }}">@lang('messages.login')</a></li>
-                        {{--<li><a href="{{ url('/auth/register') }}">Register</a></li>--}}
                     @else
                         @if (Auth::user()->role == 2)
                             <li class="dropdown">
@@ -69,10 +69,6 @@
                                     <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
                                     <li class="divider"></li>
                                     <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i></i> @lang('messages.gband')</a></li>
-
-                                    {{--<li class="dropdown-header">Nav header</li>--}}
-                                    {{--<li><a href="#">Separated link</a></li>--}}
-                                    {{--<li><a href="#">One more separated link</a></li>--}}
                                 </ul>
                             </li>
                         @endif

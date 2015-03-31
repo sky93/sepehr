@@ -44,6 +44,9 @@ $router->group(['middleware' => 'auth', 'role' => '2'], function() {
     Route::get('/tools/users/{username}', 'AdminController@user_details');
     Route::post('/tools/users/{username}', 'AdminController@postuser_details');
 
+    Route::get('/tools/aria2console', 'AdminController@aria2console');
+    Route::post('/tools/aria2console', 'AdminController@post_aria2console');
+
     Route::get('/tools/status', 'AdminController@stat');
 });
 

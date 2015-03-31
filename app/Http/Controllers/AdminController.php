@@ -7,6 +7,7 @@ use DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use Lang;
+use aria2;
 use App\User;
 use Hash;
 use main;
@@ -29,6 +30,64 @@ class AdminController extends Controller
 
         return view('tools.stats', array('main' => $main));
 
+    }
+
+    public function aria2console()
+    {
+        $main = new main();
+        if (!$main->aria2_online())
+            return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+
+        $aria2 = new aria2();
+
+        return view('tools.aria2console', array('main' => $main, 'aria2' => $aria2));
+    }
+
+
+    public function post_aria2console(Request $request)
+    {
+        $input = $request->only('function', 'param');
+
+        if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+            $this->validate($request, [
+                'function' => 'required'
+            ]);
+        }
+
+        $functions = array('addUri', 'addTorrent', 'addMetalink', 'remove', 'forceRemove', 'pause', 'pauseAll', 'forcePause', 'forcePauseAll', 'unpause', 'unpauseAll', 'tellStatus', 'getUris', 'getFiles', 'getPeers', 'getServers', 'tellActive', 'tellWaiting', 'tellStopped', 'changePosition', 'changeUri', 'getOption', 'changeOption', 'getGlobalOption', 'changeGlobalOption', 'getGlobalStat', 'purgeDownloadResult', 'removeDownloadResult', 'getVersion', 'getSessionInfo', 'shutdown', 'forceShutdown', 'saveSession', 'multicall');
+
+        if (!in_array($input['function'], $functions)) {
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                return response()->json(['Error' => 'The function does not exist in Aria2 functions.']);
+            } else {
+                return redirect::back()->withErrors('The function does not exist in Aria2 functions.');
+            }
+        }
+
+        $main = new main();
+        if (!$main->aria2_online())
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                return response()->json(['ERROR 10002' => 'Aria2c is not running!']);
+            } else {
+                return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+            }
+
+
+        $input['param'] = trim($input['param']);
+        $params = $input['param'];
+        $params = '[' . $params . ']';
+
+        $aria2 = new aria2();
+
+        $res = call_user_func_array(array($aria2, 'JSON_INPUT' . $input['function']), array($params));
+
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            return response()->json($res);
+        }
+
+        return redirect()->back()
+            ->withInput()
+            ->with('result', $res);
     }
 
     public function postuser_details($username){

@@ -66,7 +66,11 @@ return [
     'details' => 'Details',
     'gband'                 => 'Global Status',
     'status' => 'Status',
-    'torrent_disabled' => 'Torrent has been disabled for your account.'
+    'torrent_disabled' => 'Torrent has been disabled for your account.',
+    'aria2console' => 'Aria2 Console',
+    'aria2_enter' => 'Enter Aria2 JSON RPC Command here',
+    'command_name' => 'Command Name',
+    'run' => 'Run',
 
 
 ];

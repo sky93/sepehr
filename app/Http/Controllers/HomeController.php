@@ -106,19 +106,19 @@ class HomeController extends Controller
                 if (in_array($file, $auth_files)) {
                     @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file]);
                     @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file] . '.aria2');
-                        $message[] = 'Deleted: ' . $file . '_' . $files_list[$file];
-                        DB::table('download_list')
-                            ->where('id', $file)
-                            ->update(['deleted' => 1]);
+                    $message[] = 'Deleted: ' . $file . '_' . $files_list[$file];
+                    DB::table('download_list')
+                        ->where('id', $file)
+                        ->update(['deleted' => 1]);
                 }
             }
         } elseif ($_POST['action'] === 'public') {
             foreach ($_POST['files'] as $file) {
                 if (in_array($file, $auth_files)) {
-                        $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
-                        DB::table('download_list')
-                            ->where('id', $file)
-                            ->update(['public' => 1]);
+                    $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
+                    DB::table('download_list')
+                        ->where('id', $file)
+                        ->update(['public' => 1]);
                 }
             }
         }
@@ -167,29 +167,32 @@ class HomeController extends Controller
 
         if ($input['action'] == 'remove') { //Remove action
 
-            if ($file_details->state == -1) { //Files is downloading or is in queue.
+            $aria2 = new aria2();
+
+            if ($file_details->state == -1) { //Files is downloading
                 if (!$main->aria2_online())
                     return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
-                $aria2 = new aria2();
                 $aria2->forceRemove(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
+            } else {
+                @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+
+                //We try to delete .aria2 file if exist.
+                @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name . '.aria2');
+
+                DB::table('download_list')
+                    ->where('id', $file_details->id)
+                    ->update([
+                        'deleted' => 1,
+                        'state' => -3
+                    ]);
+
+                // Decrease queue credit
+                if ($file_details->state != 0) {
+                    DB::table('users')
+                        ->where('id', $file_details->user_id)
+                        ->decrement('queue_credit', $file_details->length);
+                }
             }
-
-            @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
-            @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name . '.aria2');
-            DB::table('download_list')
-                ->where('id', $file_details->id)
-                ->update([
-                    'deleted' => 1,
-                    'state' => -3
-                ]);
-
-
-//                DB::table('users') //fix queue credit
-//                    ->where('id', $file_details->user_id)
-//                    ->decrement('queue_credit', $file_details->length);
-
-            return Redirect::to('/downloads');
-
         } elseif ($input['action'] == 'pause') { //Pause action
             if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
             $aria2 = new aria2();
@@ -209,7 +212,7 @@ class HomeController extends Controller
                         'state' => NULL
                     ]);
             }
-        } elseif ($input['action'] == 'retry') { //retry action (we just change the state to NULL
+        } elseif ($input['action'] == 'retry') { //retry action (we just change the state to NULL)
             DB::table('download_list')
                 ->where('id', $file_details->id)
                 ->update([
@@ -217,7 +220,7 @@ class HomeController extends Controller
                 ]);
         }
 
-        return Redirect::to('/files/' . $id);
+        return Redirect::to('/downloads');
 
     }
 

@@ -1,6 +1,7 @@
 @extends('app')
 
 @section('content')
+    <meta http-equiv="refresh" content="5"/>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
