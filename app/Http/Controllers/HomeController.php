@@ -183,7 +183,7 @@ class HomeController extends Controller
                     ->where('id', $file_details->id)
                     ->update([
                         'deleted' => 1,
-                        'state' => -3
+                        //'state' => -3 //I decided to remove this because we lose the last state of the file after delete.
                     ]);
 
                 // Decrease queue credit

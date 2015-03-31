@@ -16,36 +16,28 @@
 
 
 @section('public')
-    <button type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> Make
-        Public
-    </button>
+    <button type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> Make Public</button>
 @endsection
 
 @section('back')
-    <button class="btn btn-success" onclick="window.history.back(); return;"><i class="fa fa-arrow-left fa-lg"></i> Back
-    </button>
+    <button class="btn btn-success" onclick="window.history.back(); return;"><i class="fa fa-arrow-left fa-lg"></i> Back</button>
 @endsection
 
 @section('edit')
-    <button type="submit" name="action" value="edit" class="btn btn-warning"><i class="fa fa-pencil fa-lg"></i> Edit
-        Link
-    </button>
+    <button type="submit" name="action" value="edit" class="btn btn-warning"><i class="fa fa-pencil fa-lg"></i> Edit Link</button>
 @endsection
 
 @section('pause')
-    <button type="submit" name="action" value="pause" class="btn btn-success"><i
-                class="fa fa-{{ $file->state == -1 ? 'pause' : 'play' }} fa-lg"></i> {{ $file->state == -1 ? 'Pause' : 'Resume' }}
+    <button type="submit" name="action" value="pause" class="btn btn-success"><i class="fa fa-{{ $file->state == -1 ? 'pause' : 'play' }} fa-lg"></i> {{ $file->state == -1 ? 'Pause' : 'Resume' }}
     </button>
 @endsection
 
 @section('retry')
-    <button type="submit" name="action" value="retry" class="btn btn-success"><i class="fa fa-repeat fa-lg"></i> Retry
-    </button>
+    <button type="submit" name="action" value="retry" class="btn btn-success"><i class="fa fa-repeat fa-lg"></i> Retry</button>
 @endsection
 
 @section('remove')
-    <a href="javascript:void(0)" id="remove" class="btn btn-danger delacc"><i class="fa fa-trash-o fa-lg"></i>
-        Remove</a>
+    <a href="javascript:void(0)" id="remove" class="btn btn-danger delacc"><i class="fa fa-trash-o fa-lg"></i> Remove</a>
 @endsection
 
 
@@ -56,7 +48,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">{{ $file->file_name }}</div>
                 <div class="panel-body">
-                    @if($file->state === 0)
+                    @if($file->state == 0)
                         <div class="alert alert-success" role="alert"><span
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
                             @if($file->deleted == 0)
@@ -161,7 +153,7 @@
                                 <div class="pull-right">
                                     <div class="btn-group" role="group" aria-label="BECCA">
                                         @if($file->deleted != 1)
-                                            @if($file->state === 0)
+                                            @if($file->state == 0)
                                                 @yield('public')
                                                 @yield('remove')
                                                 @yield('more_actions')
@@ -191,17 +183,10 @@
         $('.mo li a').click(function () {
             $('.dbtn').html('<i class="fa fa-plus"></i> ' + $(this).text() + ' <span class="caret"></span>');
             var idattr = $(this).attr('id');
-            bootbox.confirm('You are about to delete {{ $file->file_name }}. Are you sure?', function (result) {
-                if (result) {
-                    var more = $('#more_actions');
-                    alert(idattr);
-                    more.attr("value", idattr);
-                    more.trigger('click');
-                } else {
-                    $('.dbtn').html('<i class="fa fa-plus"></i> More Actions <span class="caret"></span>');
-                }
-            });
-
+            var more = $('#more_actions');
+            alert(idattr);
+            more.attr("value", idattr);
+            more.trigger('click');
         });
 
 
@@ -216,7 +201,6 @@
             });
 
         });
-
     </script>
 @endsection
 
