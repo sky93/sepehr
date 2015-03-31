@@ -5,6 +5,8 @@
     if (Session::has('result'))
         $result = json_encode(Session::get('result'));
     ?>
+    <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
+    <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -35,107 +37,44 @@
                                 <div class="col-md-3">
                                     <select class="combobox input-large form-control" name="function">
                                         <option value="" selected="selected">Select a Function</option>
-                                        <option value="getGlobalStat"{{old('param') == 'getGlobalStat' ? 'selected':''}}>
-                                            getGlobalStat
-                                        </option>
-                                        <option value="getVersion"{{old('param') == 'getVersion' ? 'selected':''}}>
-                                            getVersion
-                                        </option>
-                                        <option value="addUri"{{old('param') == 'addUri' ? 'selected':''}}>addUri
-                                        </option>
-                                        <option value="addTorrent"{{old('param') == 'addTorrent' ? 'selected':''}}>
-                                            addTorrent
-                                        </option>
-                                        <option value="addMetalink"{{old('param') == 'addMetalink' ? 'selected':''}}>
-                                            addMetalink
-                                        </option>
-                                        <option value="remove"{{old('param') == 'remove' ? 'selected':''}}>remove
-                                        </option>
-                                        <option value="forceRemove"{{old('param') == 'forceRemove' ? 'selected':''}}>
-                                            forceRemove
-                                        </option>
+                                        <option value="getGlobalStat"{{old('param') == 'getGlobalStat' ? 'selected':''}}>getGlobalStat</option>
+                                        <option value="getVersion"{{old('param') == 'getVersion' ? 'selected':''}}>getVersion</option>
+                                        <option value="addUri"{{old('param') == 'addUri' ? 'selected':''}}>addUri</option>
+                                        <option value="addTorrent"{{old('param') == 'addTorrent' ? 'selected':''}}>addTorrent</option>
+                                        <option value="addMetalink"{{old('param') == 'addMetalink' ? 'selected':''}}>addMetalink</option>
+                                        <option value="remove"{{old('param') == 'remove' ? 'selected':''}}>remove</option>
+                                        <option value="forceRemove"{{old('param') == 'forceRemove' ? 'selected':''}}>forceRemove</option>
                                         <option value="pause"{{old('param') == 'pause' ? 'selected':''}}>pause</option>
-                                        <option value="pauseAll"{{old('param') == 'pauseAll' ? 'selected':''}}>
-                                            pauseAll
-                                        </option>
-                                        <option value="forcePause"{{old('param') == 'forcePause' ? 'selected':''}}>
-                                            forcePause
-                                        </option>
-                                        <option value="forcePauseAll"{{old('param') == 'forcePauseAll' ? 'selected':''}}>
-                                            forcePauseAll
-                                        </option>
-                                        <option value="unpause"{{old('param') == 'unpause' ? 'selected':''}}>unpause
-                                        </option>
-                                        <option value="unpauseAll"{{old('param') == 'unpauseAll' ? 'selected':''}}>
-                                            unpauseAll
-                                        </option>
-                                        <option value="tellStatus"{{old('param') == 'tellStatus' ? 'selected':''}}>
-                                            tellStatus
-                                        </option>
-                                        <option value="getUris"{{old('param') == 'getUris' ? 'selected':''}}>getUris
-                                        </option>
-                                        <option value="getFiles"{{old('param') == 'getFiles' ? 'selected':''}}>
-                                            getFiles
-                                        </option>
-                                        <option value="getPeers"{{old('param') == 'getPeers' ? 'selected':''}}>
-                                            getPeers
-                                        </option>
-                                        <option value="getServers"{{old('param') == 'getServers' ? 'selected':''}}>
-                                            getServers
-                                        </option>
-                                        <option value="tellActive"{{old('param') == 'tellActive' ? 'selected':''}}>
-                                            tellActive
-                                        </option>
-                                        <option value="tellWaiting"{{old('param') == 'tellWaiting' ? 'selected':''}}>
-                                            tellWaiting
-                                        </option>
-                                        <option value="tellStopped"{{old('param') == 'tellStopped' ? 'selected':''}}>
-                                            tellStopped
-                                        </option>
-                                        <option value="changePosition"{{old('param') == 'changePosition' ? 'selected':''}}>
-                                            changePosition
-                                        </option>
-                                        <option value="changeUri"{{old('param') == 'changeUri' ? 'selected':''}}>
-                                            changeUri
-                                        </option>
-                                        <option value="getOption"{{old('param') == 'getOption' ? 'selected':''}}>
-                                            getOption
-                                        </option>
-                                        <option value="changeOption"{{old('param') == 'changeOption' ? 'selected':''}}>
-                                            changeOption
-                                        </option>
-                                        <option value="getGlobalOption"{{old('param') == 'getGlobalOption' ? 'selected':''}}>
-                                            getGlobalOption
-                                        </option>
-                                        <option value="changeGlobalOption"{{old('param') == 'changeGlobalOption' ? 'selected':''}}>
-                                            changeGlobalOption
-                                        </option>
-                                        <option value="purgeDownloadResult"{{old('param') == 'purgeDownloadResult' ? 'selected':''}}>
-                                            purgeDownloadResult
-                                        </option>
-                                        <option value="removeDownloadResult"{{old('param') == 'removeDownloadResult' ? 'selected':''}}>
-                                            removeDownloadResult
-                                        </option>
-                                        <option value="getSessionInfo"{{old('param') == 'getSessionInfo' ? 'selected':''}}>
-                                            getSessionInfo
-                                        </option>
-                                        <option value="shutdown"{{old('param') == 'shutdown' ? 'selected':''}}>
-                                            shutdown
-                                        </option>
-                                        <option value="forceShutdown"{{old('param') == 'forceShutdown' ? 'selected':''}}>
-                                            forceShutdown
-                                        </option>
-                                        <option value="saveSession"{{old('param') == 'saveSession' ? 'selected':''}}>
-                                            saveSession
-                                        </option>
-                                        <option value="multicall"{{old('param') == 'multicall' ? 'selected':''}}>
-                                            multicall
-                                        </option>
+                                        <option value="pauseAll"{{old('param') == 'pauseAll' ? 'selected':''}}>pauseAll</option>
+                                        <option value="forcePause"{{old('param') == 'forcePause' ? 'selected':''}}>forcePause</option>
+                                        <option value="forcePauseAll"{{old('param') == 'forcePauseAll' ? 'selected':''}}>forcePauseAll</option>
+                                        <option value="unpause"{{old('param') == 'unpause' ? 'selected':''}}>unpause</option>
+                                        <option value="unpauseAll"{{old('param') == 'unpauseAll' ? 'selected':''}}>unpauseAll</option>
+                                        <option value="tellStatus"{{old('param') == 'tellStatus' ? 'selected':''}}>tellStatus</option>
+                                        <option value="getUris"{{old('param') == 'getUris' ? 'selected':''}}>getUris</option>
+                                        <option value="getFiles"{{old('param') == 'getFiles' ? 'selected':''}}>getFiles</option>
+                                        <option value="getPeers"{{old('param') == 'getPeers' ? 'selected':''}}>getPeers</option>
+                                        <option value="getServers"{{old('param') == 'getServers' ? 'selected':''}}>getServers</option>
+                                        <option value="tellActive"{{old('param') == 'tellActive' ? 'selected':''}}>tellActive</option>
+                                        <option value="tellWaiting"{{old('param') == 'tellWaiting' ? 'selected':''}}>tellWaiting</option>
+                                        <option value="tellStopped"{{old('param') == 'tellStopped' ? 'selected':''}}>tellStopped</option>
+                                        <option value="changePosition"{{old('param') == 'changePosition' ? 'selected':''}}>changePosition</option>
+                                        <option value="changeUri"{{old('param') == 'changeUri' ? 'selected':''}}>changeUri</option>
+                                        <option value="getOption"{{old('param') == 'getOption' ? 'selected':''}}>getOption</option>
+                                        <option value="changeOption"{{old('param') == 'changeOption' ? 'selected':''}}>changeOption</option>
+                                        <option value="getGlobalOption"{{old('param') == 'getGlobalOption' ? 'selected':''}}>getGlobalOption</option>
+                                        <option value="changeGlobalOption"{{old('param') == 'changeGlobalOption' ? 'selected':''}}>changeGlobalOption</option>
+                                        <option value="purgeDownloadResult"{{old('param') == 'purgeDownloadResult' ? 'selected':''}}>purgeDownloadResult</option>
+                                        <option value="removeDownloadResult"{{old('param') == 'removeDownloadResult' ? 'selected':''}}>removeDownloadResult</option>
+                                        <option value="getSessionInfo"{{old('param') == 'getSessionInfo' ? 'selected':''}}>getSessionInfo</option>
+                                        <option value="shutdown"{{old('param') == 'shutdown' ? 'selected':''}}>shutdown</option>
+                                        <option value="forceShutdown"{{old('param') == 'forceShutdown' ? 'selected':''}}>forceShutdown</option>
+                                        <option value="saveSession"{{old('param') == 'saveSession' ? 'selected':''}}>saveSession</option>
+                                        <option value="multicall"{{old('param') == 'multicall' ? 'selected':''}}>multicall</option>
                                     </select>
 
                                     <script type="text/javascript">
-                                        $(document).ready(function () {
-                                            $('.combobox').combobox();
+                                        $(document).ready(function () {$('.combobox').combobox();
                                         });
                                     </script>
 
@@ -152,13 +91,11 @@
                             <!-- Button -->
                             <div class="form-group">
                                 <div class="col-md-9">
-                                    <p style="padding-top: 6px" class="pull-right">Click <a target="_blank"
-                                                                                            href="https://github.com/Becca4Eva/Aria-Leecher/wiki/Aria2-Console">Here</a>
+                                    <p style="padding-top: 6px" class="pull-right">Click <a target="_blank"                                                href="https://github.com/Becca4Eva/Aria-Leecher/wiki/Aria2-Console">Here</a>
                                         to gain more information and examples. </p>
                                 </div>
                                 <div class="col-md-1">
-                                    <button id="exe" name="exe"
-                                            class="btn btn-primary pull-right">{{ Lang::get('messages.run') }}</button>
+                                    <button id="exe" name="exe"class="btn btn-primary pull-right">{{ Lang::get('messages.run') }}</button>
                                 </div>
                             </div>
                         </fieldset>
@@ -199,9 +136,7 @@
 
                                 request.fail(function (jqXHR, textStatus, errorThrown) {
                                     // Log the error to the console
-                                    console.error(
-                                            "The following error occurred: " +
-                                            textStatus, errorThrown
+                                    console.error("The following error occurred: " +textStatus, errorThrown
                                     );
                                 });
 
