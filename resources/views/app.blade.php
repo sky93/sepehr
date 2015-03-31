@@ -12,6 +12,8 @@
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/main.css') }}" rel="stylesheet">
     <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
+    <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
+    <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
     <!--[if lt IE 9]>
     <script src="{{ asset('/js/html5shiv.min.js') }}"></script>
     <script src="{{ asset('/js/respond.js') }}"></script>

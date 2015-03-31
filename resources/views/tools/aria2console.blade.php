@@ -5,8 +5,7 @@
     if (Session::has('result'))
         $result = json_encode(Session::get('result'));
     ?>
-    <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
-    <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
+
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
