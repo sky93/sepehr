@@ -14,6 +14,17 @@
 Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
+Route::get('/ttt/{file}', function($file){
+    $file = "a b.exe";
+    if(preg_match('/^[A-Za-z0-9-.()_ ]+$/', $file)) {
+        echo "Yaay!";
+    } else {
+        echo 'The file "' . $file . '"was not uploaded. The file can only contain "a-z", "0-9" and "-". Allso the files must be lowercase. ';
+
+    }
+});
+
+
 
 $router->group(['middleware' => 'auth'], function() {
     Route::get('/logout', 'UserController@logout');

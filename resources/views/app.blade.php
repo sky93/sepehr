@@ -1,3 +1,14 @@
+<?php
+$show_message = false;
+$message = Request::cookie('change_log');
+if (Config::get('leech.show_change_message') == true && ($message == NULL || $message != Config::get('leech.change_message'))){
+    $show_message = true;
+    $message_content = Config::get('leech.change_message');
+    $change_title1 = Config::get('leech.change_title1');
+    $change_title2 = Config::get('leech.change_title2');
+    Cookie::queue('change_log', Config::get('leech.change_message'), 2592000); //2592000 = 60 * 24 * 30 * 12 * 5
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +36,14 @@
 
 </head>
 <body>
+@if($show_message == true)
+    <script>
+        bootbox.dialog({
+            title: "{{$change_title1}}",
+            message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}" width="250px"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
+        });
+    </script>
+@endif
 <div class="container">
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
@@ -51,8 +70,7 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-file-o"></i> @lang('messages.files')<span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li><a href="{{ url('/downloads') }}"><i class="fa fa-tasks"></i> @lang('messages.dl.list')</a></li>
-                                <li><a href="{{ url('/files') }}"><i
-                                                class="fa fa-list"></i> @lang('messages.files.list')</a></li>
+                                <li><a href="{{ url('/files') }}"><i class="fa fa-list"></i> @lang('messages.files.list')</a></li>
                                 <li class="divider"></li>
                                 <li><a href="{{ url('/public') }}"><i class="fa fa-globe"></i> @lang('messages.files.public')</a></li>
                             </ul>

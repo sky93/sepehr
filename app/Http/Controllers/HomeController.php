@@ -8,6 +8,7 @@ use Lang;
 use Validator;
 use Auth;
 use DB;
+use Cookie;
 use aria2;
 use main;
 use Illuminate\Support\Facades\Config;
@@ -136,7 +137,7 @@ class HomeController extends Controller
     public function post_download_id($id, Request $request)
     {
         $main = new main();
-        $input = $request->only('action');
+        $input = $request->only('action', 'new_name');
         if (!isset($input['action']) || $input['action'] == NULL)
             return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Permission Denied!'));
 
@@ -204,7 +205,6 @@ class HomeController extends Controller
                         'state' => -2
                     ]);
             } else {
-                if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
                 $aria2->unpause(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
                 DB::table('download_list')
                     ->where('id', $file_details->id)
@@ -218,10 +218,53 @@ class HomeController extends Controller
                 ->update([
                     'state' => NULL
                 ]);
+        }elseif ($input['action'] == 'public' && $file_details->state == 0){
+            DB::table('download_list')
+                ->where('id', '=', $file_details->id)
+                ->update(['public' => DB::raw( '!public')]);
+            return Redirect::to('/files/' . $file_details->id);
+        }elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
+            if(preg_match(Config::get('leech.rename_regex'), $input['new_name'])) {
+            $blocked_ext = Config::get('leech.blocked_ext');
+            $ext = pathinfo($input['new_name'], PATHINFO_EXTENSION);
+            if (array_key_exists($ext, $blocked_ext)) {
+                if ($blocked_ext[$ext] === false){
+                    return redirect::back()->withErrors('.' . $ext . ' files are blocked by the system administrator. Sorry.');
+                }else{
+                    $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $blocked_ext[$ext];
+                }
+            }else{
+                $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $ext;
+            }
+                $result = @rename(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name, public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $filename);
+                if ($result) {
+                    DB::table('download_list')
+                        ->where('id', '=', $file_details->id)
+                        ->update(['file_name' => $filename]);
+                    return Redirect::to('/files/' . $file_details->id)->with('message' , 'File successfully renamed to <strong>' . $filename . '</strong>.');
+                }else{
+                    return redirect::back()->withErrors('It is not possible to change the filename. Sorry.');
+                }
+            }else{
+                return redirect::back()->withErrors('Filename is not in valid format.');
+            }
+        }elseif ($input['action'] == 'sha1' && $file_details->state == 0){
+            $sha1 = sha1_file(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+            if ($sha1){
+                return Redirect::to('/files/' . $file_details->id)->with('message' , 'SHA1: <kbd>' . $sha1 . '</kbd>.');
+            }else{
+                return redirect::back()->withErrors('It is not possible to get SHA1. Sorry.');
+            }
+        }elseif ($input['action'] == 'md5' && $file_details->state == 0){
+            $sha1 = md5_file(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+            if ($sha1){
+                return Redirect::to('/files/' . $file_details->id)->with('message' , 'MD5: <kbd>' . $sha1 . '</kbd>.');
+            }else{
+                return redirect::back()->withErrors('It is not possible to get MD5. Sorry.');
+            }
         }
 
-        return Redirect::to('/downloads');
-
+        return Redirect::back();
     }
 
     public function download_id($id)
@@ -244,6 +287,7 @@ class HomeController extends Controller
 
         $main = new main();
         $aria2 = new aria2();
+
         return view('files.file_details', array('file' => $file, 'main' => $main, 'aria2' => $aria2));
     }
 

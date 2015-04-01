@@ -9,6 +9,8 @@
         <ul class="dropdown-menu mo" role="menu">
             <li><a href="javascript:void(0)" id="md5">Get File MD5</a></li>
             <li><a href="javascript:void(0)" id="sha1">Get File SHA1</a></li>
+            <li class="divider"></li>
+            <li><a href="javascript:void(0)" id="rename">Rename</a></li>
 
         </ul>
     </div>
@@ -16,7 +18,7 @@
 
 
 @section('public')
-    <button type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> Make Public</button>
+    <button type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-{{ $file->public == 1 ? 'lock' : 'unlock' }} fa-lg"></i> {{ $file->public == 1 ? 'Make Private' : 'Make Public' }}</button>
 @endsection
 
 @section('back')
@@ -28,8 +30,7 @@
 @endsection
 
 @section('pause')
-    <button type="submit" name="action" value="pause" class="btn btn-success"><i class="fa fa-{{ $file->state == -1 ? 'pause' : 'play' }} fa-lg"></i> {{ $file->state == -1 ? 'Pause' : 'Resume' }}
-    </button>
+    <button type="submit" name="action" value="pause" class="btn btn-success"><i class="fa fa-{{ $file->state == -1 ? 'pause' : 'play' }} fa-lg"></i> {{ $file->state == -1 ? 'Pause' : 'Resume' }}</button>
 @endsection
 
 @section('retry')
@@ -48,6 +49,29 @@
             <div class="panel panel-default">
                 <div class="panel-heading">{{ $file->file_name }}</div>
                 <div class="panel-body">
+                    @if (isset($errors) && count($errors) > 0)
+                        <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>@lang('messages.wops')</strong> {{ Lang::get('messages.inputError')}}<br><br>
+                            <ul>
+                                @foreach ($errors->all() as $erro)
+                                    <li>{{ $erro }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    @if (Session::has('message'))
+                    <div class="alert alert-success">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div style="text-align: center">
+                         <?=Session::get('message')?>
+                        </div>
+                    </div>
+                    @endif
                     @if($file->state == 0)
                         <div class="alert alert-success" role="alert"><span
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
@@ -173,6 +197,7 @@
                             </div>
                         </div>
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input id="new_name" type="hidden" name="new_name" value="">
                         <button id="more_actions" type="submit" name="action" value="n/a" hidden></button>
                     </form>
                 </div>
@@ -181,12 +206,36 @@
     </div>
     <script>
         $('.mo li a').click(function () {
+            var last_name = '<i class="fa fa-plus"></i> More Actions <span class="caret"></span>';
             $('.dbtn').html('<i class="fa fa-plus"></i> ' + $(this).text() + ' <span class="caret"></span>');
             var idattr = $(this).attr('id');
             var more = $('#more_actions');
-            alert(idattr);
-            more.attr("value", idattr);
-            more.trigger('click');
+            if (idattr == 'rename'){
+                var mainResult = null;
+                bootbox.prompt({
+                    title: "Enter the new name:",
+                    value: "{{ $file->file_name }}",
+                    callback: function(result) {
+                        mainResult = result;
+                        if (result === null) {
+                            $('.dbtn').html(last_name);
+                            return 0;
+                        } else {
+                            if (result == '{{ $file->file_name }}'){
+                                bootbox.alert('You did not change the name!');
+                                $('.dbtn').html(last_name);
+                                return 0;
+                            }
+                            $('#new_name').attr('value', result);
+                            more.attr('value', idattr);
+                            more.trigger('click');
+                        }
+                    }
+                });
+            }else {
+                more.attr('value', idattr);
+                more.trigger('click');
+            }
         });
 
 

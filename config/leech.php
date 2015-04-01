@@ -78,6 +78,7 @@ return [
     'aria2_time_out' => 1,
 
 
+
     /*
     |--------------------------------------------------------------------------
     | Blocked File Extensions
@@ -97,6 +98,8 @@ return [
     ),
 
 
+
+
     /*
     |--------------------------------------------------------------------------
     | Blocked Hosts
@@ -113,6 +116,8 @@ return [
         '178.236.33.163',
         '178.236.33.162',
     ),
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -132,6 +137,8 @@ return [
     ),
 
 
+
+
     /*
     |--------------------------------------------------------------------------
     | Blocked Schemes
@@ -141,9 +148,52 @@ return [
     |
     */
 
+
+
     'blocked_schemes' => array(
         'ftp',
         'rsync',
     ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rename Regex
+    |--------------------------------------------------------------------------
+    |
+    | What regex Arial Leech should use for rename file validation
+    |
+    */
+
+    'rename_regex' => '/^[A-Za-z0-9-.()_ ]+$/',
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Message on site
+    |--------------------------------------------------------------------------
+    |
+    | Show a message on web site only one. If you change the content of 'change_message',
+    | the message will show up again on client's browser.
+    |
+    */
+
+    'show_change_message' => true,
+    'change_title1' => "What's New",
+    'change_title2' => "New Stuff:",
+    'change_message' => '<p>Added so many features including <strong>Rename</strong>, <strong>Pause Download</strong>, <strong>File SHA1 and MD5</strong> and...</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logo
+    |--------------------------------------------------------------------------
+    |
+    | External links not allowed.
+    |
+    */
+
+    'logo_address' => 'img/logo.png',
 
 ];
