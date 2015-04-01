@@ -98,9 +98,9 @@ class UserController extends Controller {
      */
     public function postregister(Request $request)
     {
-
         $this->validate($request, [
-            'name' => 'required|min:2|max:32',
+            'first_name' => 'required|min:2|max:32',
+            'last_name' => 'required|min:2|max:32',
             'username' => 'required|min:5|max:16|unique:users,username',
             'credit' => 'required|numeric',
             'password' => 'required|min:6|confirmed:password_confirmation',
@@ -109,12 +109,12 @@ class UserController extends Controller {
 
         $user = new User;
 
-        $user->name = $request['name'];
+        $user->first_name = $request['first_name'];
+        $user->last_name = $request['last_name'];
         $user->username = $request['username'];
         $user->email = $request['email'];
         $user->password = Hash::make($request['password']);
         $user->credit = $request['credit'] * 1024 * 1024;
-
 
         $user->save();
 

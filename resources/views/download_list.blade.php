@@ -1,11 +1,7 @@
 @extends('app')
 
 @section('content')
-    <?php
-    $aria2 = new aria2(); //We Check it in the controller
-
-    ?>
-
+    <meta http-equiv="refresh" content="5"/>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -15,7 +11,7 @@
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
-                                @if (Auth::user()->role === 2)
+                                @if (Auth::user()->role == 2)
                                     <th style="width: 9%">@lang('messages.username')</th>
                                 @endif
                                 <th style="width: 43%">@lang('messages.file.name')</th>
@@ -24,7 +20,7 @@
                                 <th style="width: 10%">@lang('messages.progress')</th>
                                 <th style="width: 10%">@lang('messages.speed')</th>
                                 <th style="width: 12%">@lang('messages.date')</th>
-                                {{--<th style="width: 12%">@lang('messages.operations')</th>--}}
+                                    <th style="width: 85px">@lang('messages.details')</th>
                             </tr>
                             </thead>
                             @foreach($files as $file)
@@ -37,21 +33,28 @@
                                         $downloaded_size = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"];
                                     }
 
-                                    if ($downloaded_size === 0) {
-                                        $downloaded_size = $file->completed_length;
-                                    }
-
                                     if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'])) {
                                         $downloaded_speed = $main->formatBytes($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'], 0) . '/s';
                                     }
+
+                                    if ($downloaded_size == 0) {
+                                        $downloaded_size = $file->completed_length;
+                                    }
+
                                     if ($file->state != -1) {
-                                        $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
+                                        if ($file->state === NULL)
+                                            $downloaded_speed = 'In queue';
+                                        elseif ($file->state === -2)
+                                            $downloaded_speed = 'Paused';
+                                        else
+                                            $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
                                     }
 
                                     ?>
-                                    @if (Auth::user()->role === 2)
-                                        <td><a target="_blank"
-                                               href="{{ url('/user/' . $file->username) }}">{{ $file->username }}</a>
+
+                                    @if (Auth::user()->role == 2)
+                                            <td>
+                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->username }}</a>
                                         </td>
                                     @endif
                                     <td>{{ $file->file_name }}</td>
@@ -68,7 +71,12 @@
                                     </td>
                                     <td>{{ $downloaded_speed }}</td>
                                     <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
-                                    {{--<td>{{ time() }}</td>--}}
+                                        <td>
+                                            <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;"
+                                               href="{{ url('/files/' . $file->id) }}" class="btn btn-sm btn-primary"><i
+                                                        class="fa fa-info"></i> @lang('messages.details')
+                                            </a>
+                                        </td>
                                 </tr>
                             @endforeach
                         </table>

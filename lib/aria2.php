@@ -24,13 +24,22 @@ class aria2{
         return curl_exec($this->ch);
     }
     function __call($name,$arg){
-        $data = array(
-            'jsonrpc'=>'2.0',
-            'id'=>'1',
-            'method'=>'aria2.'.$name,
-            'params'=>$arg,
-        );
-        $data = json_encode($data);
-        return json_decode($this->req($data),1);
+        if (substr($name, 0, 10) === 'JSON_INPUT') {
+            $data = '{
+                "jsonrpc":"2.0",
+                "id":"1",
+                "method":"aria2.' . substr($name, 10) . '",
+                "params":' . $arg[0] . '
+            }';
+        } else {
+            $data = array(
+                'jsonrpc' => '2.0',
+                'id' => '1',
+                'method' => 'aria2.' . $name,
+                'params' => $arg,
+            );
+            $data = json_encode($data);
+        }
+        return json_decode($this->req($data), 1);
     }
 }

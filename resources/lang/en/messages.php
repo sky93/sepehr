@@ -4,13 +4,9 @@ return [
 
 	/*
 	|--------------------------------------------------------------------------
-	| Pagination Language Lines
+	| Main Language Lines
 	|--------------------------------------------------------------------------
-	|
-	| The following language lines are used by the paginator library to build
-	| the simple pagination links. You are free to change them to anything
-	| you want to customize your views to better match your application.
-	|
+
 	*/
 
 
@@ -21,6 +17,7 @@ return [
     'cp_link'               => 'http://sadjad.ac.ir',
     'wops'                  => 'Whoops!',
     'yaay'                  => 'Yaaay!',
+    'notice' => 'Notice',
     'inputError'            => 'There were some problems with your input.',
     'user'                  => 'Username',
     'pass'                  => 'Password',
@@ -66,9 +63,14 @@ return [
     'deleted'               => 'Deleted',
     'error'                 => 'Whoops! Something went wrong!',
     'tbk'                   => 'Take me back',
-    'details'               => 'details',
+    'details' => 'Details',
     'gband'                 => 'Global Status',
-    'status'                => 'Status'
+    'status' => 'Status',
+    'torrent_disabled' => 'Torrent has been disabled for your account.',
+    'aria2console' => 'Aria2 Console',
+    'aria2_enter' => 'Enter Aria2 JSON RPC Command here',
+    'command_name' => 'Command Name',
+    'run' => 'Run',
 
 
 ];

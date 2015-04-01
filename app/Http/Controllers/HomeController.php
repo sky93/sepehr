@@ -8,6 +8,7 @@ use Lang;
 use Validator;
 use Auth;
 use DB;
+use Cookie;
 use aria2;
 use main;
 use Illuminate\Support\Facades\Config;
@@ -72,7 +73,7 @@ class HomeController extends Controller
             ->where('deleted', 0)
             ->get();
 
-        return view('myfiles_list', array('files' => $users, 'main' => $main));
+        return view('files_list', array('files' => $users, 'main' => $main));
     }
 
 
@@ -104,23 +105,21 @@ class HomeController extends Controller
         if ($_POST['action'] === 'delete') {
             foreach ($_POST['files'] as $file) {
                 if (in_array($file, $auth_files)) {
-                    if (@unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file])) {
-                        $message[] = 'Deleted: ' . $file . '_' . $files_list[$file];
-                        DB::table('download_list')
-                            ->where('id', $file)
-                            ->update(['deleted' => 1]);
-                    } else {
-                        $errors[] = 'Not Deleted: ' . $file . '_' . $files_list[$file];
-                    }
+                    @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file]);
+                    @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file . '_' . $files_list[$file] . '.aria2');
+                    $message[] = 'Deleted: ' . $file . '_' . $files_list[$file];
+                    DB::table('download_list')
+                        ->where('id', $file)
+                        ->update(['deleted' => 1]);
                 }
             }
         } elseif ($_POST['action'] === 'public') {
             foreach ($_POST['files'] as $file) {
                 if (in_array($file, $auth_files)) {
-                        $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
-                        DB::table('download_list')
-                            ->where('id', $file)
-                            ->update(['public' => 1]);
+                    $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
+                    DB::table('download_list')
+                        ->where('id', $file)
+                        ->update(['public' => 1]);
                 }
             }
         }
@@ -131,7 +130,165 @@ class HomeController extends Controller
             ->where('deleted', 0)
             ->get();
 
-        return view('myfiles_list', array('files' => $users, 'main' => $main, 'messages' => $message, 'error' => $errors));
+        return view('files_list', array('files' => $users, 'main' => $main, 'messages' => $message, 'error' => $errors));
+    }
+
+
+    public function post_download_id($id, Request $request)
+    {
+        $main = new main();
+        $input = $request->only('action', 'new_name');
+        if (!isset($input['action']) || $input['action'] == NULL)
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Permission Denied!'));
+
+        $user_files = DB::table('download_list')
+            ->where('user_id', Auth::user()->id)
+            ->get();
+
+        $auth_files = array();
+
+        foreach ($user_files as $file) {
+            $auth_files[] = $file->id;
+            if ($file->id == $id) $file_details = $file;
+        }
+
+        if (Auth::user()->role == 2 && (!isset($file_details) || empty($file_details))) { //$file_details for admins may be empty
+            $file_details = DB::table('download_list')
+                ->where('id', '=', $id)
+                ->first();
+        }
+
+        if (Auth::user()->role != 2)
+            if (!in_array($id, $auth_files))
+                return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Permission Denied!'));
+
+        if (!isset($file_details) || empty($file_details))
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Permission Denied!'));
+
+
+        if ($input['action'] == 'remove') { //Remove action
+
+            $aria2 = new aria2();
+
+            if ($file_details->state == -1) { //Files is downloading
+                if (!$main->aria2_online())
+                    return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+                $aria2->forceRemove(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
+            } else {
+                @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+
+                //We try to delete .aria2 file if exist.
+                @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name . '.aria2');
+
+                DB::table('download_list')
+                    ->where('id', $file_details->id)
+                    ->update([
+                        'deleted' => 1,
+                        //'state' => -3 //I decided to remove this because we lose the last state of the file after delete.
+                    ]);
+
+                // Decrease queue credit
+                if ($file_details->state != 0) {
+                    DB::table('users')
+                        ->where('id', $file_details->user_id)
+                        ->decrement('queue_credit', $file_details->length);
+                }
+            }
+        } elseif ($input['action'] == 'pause') { //Pause action
+            if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+            $aria2 = new aria2();
+            if ($file_details->state == -1) {
+                $aria2->forcePause(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
+                DB::table('download_list')
+                    ->where('id', $file_details->id)
+                    ->update([
+                        'state' => -2
+                    ]);
+            } else {
+                $aria2->unpause(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
+                DB::table('download_list')
+                    ->where('id', $file_details->id)
+                    ->update([
+                        'state' => NULL
+                    ]);
+            }
+        } elseif ($input['action'] == 'retry') { //retry action (we just change the state to NULL)
+            DB::table('download_list')
+                ->where('id', $file_details->id)
+                ->update([
+                    'state' => NULL
+                ]);
+        }elseif ($input['action'] == 'public' && $file_details->state == 0){
+            DB::table('download_list')
+                ->where('id', '=', $file_details->id)
+                ->update(['public' => DB::raw( '!public')]);
+            return Redirect::to('/files/' . $file_details->id);
+        }elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
+            if(preg_match(Config::get('leech.rename_regex'), $input['new_name'])) {
+            $blocked_ext = Config::get('leech.blocked_ext');
+            $ext = pathinfo($input['new_name'], PATHINFO_EXTENSION);
+            if (array_key_exists($ext, $blocked_ext)) {
+                if ($blocked_ext[$ext] === false){
+                    return redirect::back()->withErrors('.' . $ext . ' files are blocked by the system administrator. Sorry.');
+                }else{
+                    $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $blocked_ext[$ext];
+                }
+            }else{
+                $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $ext;
+            }
+                $result = @rename(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name, public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $filename);
+                if ($result) {
+                    DB::table('download_list')
+                        ->where('id', '=', $file_details->id)
+                        ->update(['file_name' => $filename]);
+                    return Redirect::to('/files/' . $file_details->id)->with('message' , 'File successfully renamed to <strong>' . $filename . '</strong>.');
+                }else{
+                    return redirect::back()->withErrors('It is not possible to change the filename. Sorry.');
+                }
+            }else{
+                return redirect::back()->withErrors('Filename is not in valid format.');
+            }
+        }elseif ($input['action'] == 'sha1' && $file_details->state == 0){
+            $sha1 = sha1_file(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+            if ($sha1){
+                return Redirect::to('/files/' . $file_details->id)->with('message' , 'SHA1: <kbd>' . $sha1 . '</kbd>.');
+            }else{
+                return redirect::back()->withErrors('It is not possible to get SHA1. Sorry.');
+            }
+        }elseif ($input['action'] == 'md5' && $file_details->state == 0){
+            $sha1 = md5_file(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
+            if ($sha1){
+                return Redirect::to('/files/' . $file_details->id)->with('message' , 'MD5: <kbd>' . $sha1 . '</kbd>.');
+            }else{
+                return redirect::back()->withErrors('It is not possible to get MD5. Sorry.');
+            }
+        }
+
+        return Redirect::back();
+    }
+
+    public function download_id($id)
+    {
+
+        if (Auth::user()->role != 2)
+            $file = DB::table('download_list')
+                ->where('id', '=', $id)
+                ->where('deleted', '=', 0)
+                ->first();
+        else
+            $file = DB::table('download_list')
+                ->where('id', '=', $id)
+                ->first();
+
+        if (!$file || !$file->public)
+            if (!$file || ($file->user_id != Auth::user()->id && Auth::user()->role != 2)) {
+                return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This file does not exist or you do not have the right permission to view this file.'));
+            }
+
+        $main = new main();
+        $aria2 = new aria2();
+
+        return view('files.file_details', array('file' => $file, 'main' => $main, 'aria2' => $aria2));
     }
 
 
@@ -143,6 +300,7 @@ class HomeController extends Controller
         if (Auth::user()->role == 2) //Admins need to see all downloads + username
             $users = DB::table('download_list')
                 ->join('users', 'download_list.user_id', '=', 'users.id')
+                ->select('download_list.*', 'users.username')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();
@@ -153,7 +311,8 @@ class HomeController extends Controller
                 ->where('deleted', '=', 0)
                 ->get();
 
-        return view('download_list', array('files' => $users, 'main' => $main));
+        $aria2 = new aria2();
+        return view('download_list', array('files' => $users, 'main' => $main, 'aria2' => $aria2));
     }
 
 
@@ -197,7 +356,7 @@ class HomeController extends Controller
         $filename = $url_inf['filename'];
 
         if ($url_inf['status'] != 200){
-            return redirect::back()->withErrors('File not found or it has moved!' . " (" . $url_inf['status']. ')');
+            return redirect::back()->withErrors('File not found or it has been moved!' . " (" . $url_inf['status'] . ')');
         }
 
         $blocked_ext = Config::get('leech.blocked_ext');

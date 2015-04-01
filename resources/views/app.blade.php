@@ -1,24 +1,49 @@
+<?php
+$show_message = false;
+$message = Request::cookie('change_log');
+if (Config::get('leech.show_change_message') == true && ($message == NULL || $message != Config::get('leech.change_message'))){
+    $show_message = true;
+    $message_content = Config::get('leech.change_message');
+    $change_title1 = Config::get('leech.change_title1');
+    $change_title2 = Config::get('leech.change_title2');
+    Cookie::queue('change_log', Config::get('leech.change_message'), 2592000); //2592000 = 60 * 24 * 30 * 12 * 5
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Sepehr Mohaghegh">
+    <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
     <title>{{ Lang::get('messages.title') }}</title>
+    <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/main.css') }}" rel="stylesheet">
+    <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
+
     <!--[if lt IE 9]>
     <script src="{{ asset('/js/html5shiv.min.js') }}"></script>
     <script src="{{ asset('/js/respond.js') }}"></script>
 
     <![endif]-->
+
     <script src="{{ asset('/js/jquery.min.js') }}"></script>
     <script src="{{ asset('/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('/js/bootbox.min.js') }}"></script>
+
 </head>
 <body>
+@if($show_message == true)
+    <script>
+        bootbox.dialog({
+            title: "{{$change_title1}}",
+            message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}" width="250px"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
+        });
+    </script>
+@endif
 <div class="container">
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
@@ -29,6 +54,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+                <?php $sin = array('egg', 'mahi', 'quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh', 'ayne'); $img = $sin[array_rand($sin)];?>
+
+                <a class="navbar-brand" rel="home" href="https://www.google.com/#q=happy+new+persian+year" title="Happy New Persian Year (1394)">
+                    <img style="max-width:50px; margin-top: -17px; margin-right: -10px"
+                         src="{{ asset('/img/' . $img . '.png') }}">
+                </a>
                 <a class="navbar-brand" href="{{ asset('') }}">@lang('messages.mainTitle')</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
@@ -39,7 +70,7 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-file-o"></i> @lang('messages.files')<span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li><a href="{{ url('/downloads') }}"><i class="fa fa-tasks"></i> @lang('messages.dl.list')</a></li>
-                                <li><a href="{{ url('/myfiles') }}"><i class="fa fa-list"></i> @lang('messages.files.list')</a></li>
+                                <li><a href="{{ url('/files') }}"><i class="fa fa-list"></i> @lang('messages.files.list')</a></li>
                                 <li class="divider"></li>
                                 <li><a href="{{ url('/public') }}"><i class="fa fa-globe"></i> @lang('messages.files.public')</a></li>
                             </ul>
@@ -49,7 +80,6 @@
                 <ul class="nav navbar-nav navbar-right">
                     @if (Auth::guest())
                         <li><a href="{{ url('login') }}">@lang('messages.login')</a></li>
-                        {{--<li><a href="{{ url('/auth/register') }}">Register</a></li>--}}
                     @else
                         @if (Auth::user()->role == 2)
                             <li class="dropdown">
@@ -59,16 +89,19 @@
                                     <li><a href="{{ url('/tools/register') }}"><i class="fa fa-plus"></i> @lang('messages.add.user')</a></li>
                                     <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i></i> @lang('messages.gband')</a></li>
-
-                                    {{--<li class="dropdown-header">Nav header</li>--}}
-                                    {{--<li><a href="#">Separated link</a></li>--}}
-                                    {{--<li><a href="#">One more separated link</a></li>--}}
+                                    <li><a href="{{ url('/tools/status') }}"><i
+                                                    class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> Aria2
+                                            Console</a></li>
                                 </ul>
                             </li>
                         @endif
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-user"></i> {{ Auth::user()->name }} <span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-expanded="false"><i
+                                        class="fa fa-user"></i> {{ Auth::user()->first_name . ' ' . Auth::user()->last_name }}
+                                <span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li class="dropdown-header">Credits</li>
                                 <li>
@@ -105,5 +138,20 @@
         </div>
     </div>
 </div>
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    ga('create', '{{ Config::get('leech.GA') }}', 'auto');
+    ga('send', 'pageview');
+</script>
 </body>
 </html>

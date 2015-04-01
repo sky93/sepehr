@@ -73,6 +73,7 @@
                                             <th style="width: 10%">@lang('messages.size')</th>
                                             <th style="width: 15%">@lang('messages.date')</th>
                                             <th style="width: 25%">@lang('messages.comments')</th>
+                                            <th style="width: 85px">@lang('messages.details')</th>
                                         </tr>
                                         </thead>
                                         @foreach($files as $file)
@@ -86,6 +87,13 @@
                                                 <td>{{ $main->formatBytes($file->length,1) }}</td>
                                                 <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
                                                 <td>{{ $file->comment }}</td>
+                                                <td>
+                                                    <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;"
+                                                       href="{{ url('/files/' . $file->id) }}"
+                                                       class="btn btn-sm btn-primary"><i
+                                                                class="fa fa-info"></i> @lang('messages.details')
+                                                    </a>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </table>
