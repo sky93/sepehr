@@ -79,7 +79,6 @@ class HomeController extends Controller
 
     public function postfiles()
     {
-
         $main = new main();
 
         if (!isset($_POST['files']) || empty($_POST['files'])) {

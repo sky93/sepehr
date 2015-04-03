@@ -11,7 +11,6 @@
             <li><a href="javascript:void(0)" id="sha1">Get File SHA1</a></li>
             <li class="divider"></li>
             <li><a href="javascript:void(0)" id="rename">Rename</a></li>
-
         </ul>
     </div>
 @endsection
@@ -178,9 +177,11 @@
                                     <div class="btn-group" role="group" aria-label="BECCA">
                                         @if($file->deleted != 1)
                                             @if($file->state == 0)
+                                                @if(Auth::user()->id == $file->user_id)
                                                 @yield('public')
                                                 @yield('remove')
                                                 @yield('more_actions')
+                                                @endif
                                             @elseif($file->state == NULL)
                                                 @yield('remove')
                                             @elseif($file->state == -1 || $file->state == -2 )
