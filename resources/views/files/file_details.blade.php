@@ -1,5 +1,6 @@
 @extends('app')
 
+@section('title', Lang::get('messages.file_details') . ' - ')
 
 @section('more_actions')
     <div class="dropup btn-group" role="group">

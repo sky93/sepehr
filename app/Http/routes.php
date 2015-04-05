@@ -14,17 +14,6 @@
 Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
-Route::get('/ttt/{file}', function($file){
-    $file = "a b.exe";
-    if(preg_match('/^[A-Za-z0-9-.()_ ]+$/', $file)) {
-        echo "Yaay!";
-    } else {
-        echo 'The file "' . $file . '"was not uploaded. The file can only contain "a-z", "0-9" and "-". Allso the files must be lowercase. ';
-
-    }
-});
-
-
 
 $router->group(['middleware' => 'auth'], function() {
     Route::get('/logout', 'UserController@logout');
@@ -41,6 +30,8 @@ $router->group(['middleware' => 'auth'], function() {
 
     Route::get('/files/{id}', 'HomeController@download_id');
     Route::post('/files/{id}', 'HomeController@post_download_id');
+
+    Route::get('downloads/dl', 'HomeController@dl');
 });
 
 
@@ -55,10 +46,14 @@ $router->group(['middleware' => 'auth', 'role' => '2'], function() {
     Route::get('/tools/users/{username}', 'AdminController@user_details');
     Route::post('/tools/users/{username}', 'AdminController@postuser_details');
 
+    Route::get('/tools/users/{username}/credits', 'AdminController@user_details_credits');
+    Route::post('/tools/users/{username}/credits', 'AdminController@postuser_details_credits');
+
     Route::get('/tools/aria2console', 'AdminController@aria2console');
     Route::post('/tools/aria2console', 'AdminController@post_aria2console');
 
     Route::get('/tools/status', 'AdminController@stat');
+    Route::post('/tools/status', 'AdminController@post_stat');
 });
 
 Route::controllers([

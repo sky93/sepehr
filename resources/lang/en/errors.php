@@ -50,5 +50,7 @@ return [
 
     '404' => 'This file does not exist or you do not have the right permission to view this file.',
 
+    'neg_num' => 'Negative numbers are not allowed'
+
 
 ];

@@ -1,9 +1,6 @@
 @extends('app')
 
 @section('content')
-    <?php
-    $aria2 = new aria2(); //We Check it in the controller
-    ?>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -19,19 +16,19 @@
                         </thead>
                         <tr>
                             <td>Global Speed:</td>
-                            <td class="bld">{{ $main->formatBytes($aria2->getGlobalStat()['result']['downloadSpeed'], 0) }}/s</td>
+                            <td id="speed" class="bld">{{ $main->formatBytes($aria2->getGlobalStat()['result']['downloadSpeed'], 3) }}/s</td>
                         </tr>
                         <tr>
                             <td>Active Downloads:</td>
-                            <td class="bld">{{ $aria2->getGlobalStat()['result']['numActive'] }}</td>
+                            <td id="numActive" class="bld">{{ $aria2->getGlobalStat()['result']['numActive'] }}</td>
                         </tr>
                         <tr>
                             <td>Stopped Downloads:</td>
-                            <td class="bld">{{ $aria2->getGlobalStat()['result']['numStopped'] }}</td>
+                            <td id="numStopped" class="bld">{{ $aria2->getGlobalStat()['result']['numStopped'] }}</td>
                         </tr>
                         <tr>
                             <td>Waiting:</td>
-                            <td class="bld">{{ $aria2->getGlobalStat()['result']['numWaiting'] }}</td>
+                            <td id="numWaiting" class="bld">{{ $aria2->getGlobalStat()['result']['numWaiting'] }}</td>
                         </tr>
                     </table><br /><br />
                     <h4>Detailed Info:</h4><legend></legend>
@@ -55,5 +52,37 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            var request;
+
+            setInterval(function(){
+                if (request) {
+                    request.abort();
+                }
+
+                request = $.ajax({
+                    url : "",
+                    type : "post" ,
+                    data : "_token={{ csrf_token() }}" ,
+                    dataType: 'json'
+                });
+
+                request.done(function (response, textStatus, jqXHR) {
+                    $('#speed').html(response.speed + '/s');
+                    $('#numActive').html(response.numActive);
+                    $('#numStopped').html(response.numStopped);
+                    $('#numWaiting').html(response.numWaiting);
+                    console.log(response.speed);
+                });
+
+                request.fail(function (jqXHR, textStatus, errorThrown) {
+                    // Log the error to the console
+                    console.error("The following error occurred: " +textStatus, errorThrown
+                    );
+                });
+            }, 500);
+        });
+    </script>
 
 @endsection

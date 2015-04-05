@@ -131,9 +131,8 @@
                                     sbtn.html(last_text);
                                 },
 
-                                error : function(){
-                                    console.error("The following error occurred: " +textStatus, errorThrown
-                                    );
+                                error : function(jqXHR, textStatus, errorThrown){
+                                    console.error("The following error occurred: " + textStatus, errorThrown);
                                     $inputs.prop("disabled", false);
                                     sbtn.html(last_text);
                                 }

@@ -314,6 +314,66 @@ class HomeController extends Controller
         return view('download_list', array('files' => $users, 'main' => $main, 'aria2' => $aria2));
     }
 
+    public function dl(Request $request)
+    {
+        $main = new main();
+        if (!$main->aria2_online())
+            if ($request->ajax()) {
+                return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
+            } else {
+                return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+            }
+
+        if (Auth::user()->role == 2) //Admins need to see all downloads + username
+            $users = DB::table('download_list')
+                ->join('users', 'download_list.user_id', '=', 'users.id')
+                ->select('download_list.*', 'users.username')
+                ->whereRaw('(state != 0 OR state IS NULL)')
+                ->where('deleted', '=', 0)
+                ->get();
+        else
+            $users = DB::table('download_list')
+                ->whereRaw('(state != 0 OR state IS NULL)')
+                ->where('user_id', '=', Auth::user()->id)
+                ->where('deleted', '=', 0)
+                ->get();
+
+        $aria2 = new aria2();
+
+        $json = [];
+        foreach ($users as $file){
+            $downloaded_speed = 0;
+            $downloaded_size = 0;
+
+            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"])) {
+                $downloaded_size = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"];
+            }
+
+            if ($downloaded_size == 0) {
+                $downloaded_size = $file->completed_length;
+            }
+
+            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'])) {
+                $downloaded_speed = $main->formatBytes($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'], 0) . '/s';
+            }
+
+            if ($file->state != -1) {
+                if ($file->state == NULL)
+                    $downloaded_speed = 'B In queue';
+                elseif ($file->state == -2)
+                    $downloaded_speed = 'Paused';
+                else
+                    $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
+            }
+            $json[$file->id] = [
+//                'username' => '<a href="' . url('tools/users/' . $file->username) . '">' . $file->username . '</a>',
+                'speed' => $downloaded_speed,
+                'dled_size' => $main->formatBytes($downloaded_size,1)
+            ];
+        }
+        return response()->json($json);
+    }
+
 
     public function postindex(Request $request)
     {

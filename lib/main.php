@@ -177,12 +177,16 @@ class main
     }
 
 
-    public function formatBytes($bytes, $precision = 2)
+    public function formatBytes($bytes, $precision = 2, $dec_point = '.', $thousands_sep = ',')
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB');
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= (1 << (10 * $pow));
-        return round($bytes, $precision) . ' ' . $units[$pow];
+        $negative = $bytes < 0;
+        if ($negative) $bytes *= -1;
+        $size = $bytes;
+        $units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $power = $size > 0 ? floor(log($size, 1024)) : 0;
+        $sz = $size / pow(1024, $power);
+        if ($sz - round($sz) == 0) $precision = 0;
+        if ($negative) $sz *= -1;
+        return number_format($sz, $precision, $dec_point, $thousands_sep) . ' ' . $units[$power];
     }
 }

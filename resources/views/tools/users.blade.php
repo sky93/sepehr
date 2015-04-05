@@ -1,5 +1,7 @@
 @extends('app')
 
+@section('title', Lang::get('messages.users') . ' - ')
+
 @section('content')
     <div class="row">
         <div class="col-md-12">

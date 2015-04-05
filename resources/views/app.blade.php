@@ -1,4 +1,5 @@
 <?php
+$main = new main();
 $show_message = false;
 if (!Auth::guest()){  // Only users can show new messages.
     $message = Request::cookie('change_log');
@@ -18,7 +19,7 @@ if (!Auth::guest()){  // Only users can show new messages.
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
-    <title>{{ Lang::get('messages.title') }}</title>
+    <title>@yield('title'){{ Lang::get('messages.title') }}</title>
     <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
@@ -56,13 +57,8 @@ if (!Auth::guest()){  // Only users can show new messages.
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <?php $sin = array('egg', 'mahi', 'quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh', 'ayne'); $img = $sin[array_rand($sin)];?>
-
-                <a class="navbar-brand" rel="home" href="https://www.google.com/#q=happy+new+persian+year" title="Happy New Persian Year (1394)">
-                    <img style="max-width:50px; margin-top: -17px; margin-right: -10px"
-                         src="{{ asset('/img/' . $img . '.png') }}">
-                </a>
-                <a class="navbar-brand" href="{{ asset('') }}">@lang('messages.mainTitle')</a>
+                <a class="navbar-brand" rel="home" href="{{ asset('') }}" title="@lang('messages.slogan')"><img style="max-width:50px; margin-top: -17px; margin-right: -10px" src="{{ asset('/img/logo_small.png') }}"></a>
+                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">@lang('messages.mainTitle')</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -108,7 +104,7 @@ if (!Auth::guest()){  // Only users can show new messages.
                                 <li class="dropdown-header">Credits</li>
                                 <li>
                                     <a href="{{ url('credit') }}">
-                                        <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ round(Auth::user()->credit / 1024 / 1024 /1024,1) }} GB</span>
+                                        <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span>
                                     </a>
                                 </li>
                                 <li class="divider"></li>

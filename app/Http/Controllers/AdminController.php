@@ -10,6 +10,7 @@ use Lang;
 use aria2;
 use App\User;
 use Hash;
+use Validator;
 use main;
 
 class AdminController extends Controller
@@ -24,13 +25,81 @@ class AdminController extends Controller
         //
     }
 
-    public function stat(){
+    public function stat()
+    {
         $main = new main();
         if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
 
-        return view('tools.stats', array('main' => $main));
-
+        $aria2 = new aria2();
+        return view('tools.stats', array('main' => $main, 'aria2' => $aria2));
     }
+
+    public function post_stat(Request $request)
+    {
+        if ($request->ajax()) {
+            $main = new main();
+            if (!$main->aria2_online())
+                return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
+
+            $aria2 = new aria2();
+
+            return response()->json([
+                'speed' => $main->formatBytes($aria2->getGlobalStat()['result']['downloadSpeed'], 3),
+                'numActive' => $aria2->getGlobalStat()['result']['numActive'],
+                'numStopped' => $aria2->getGlobalStat()['result']['numStopped'],
+                'numWaiting' => $aria2->getGlobalStat()['result']['numWaiting']
+            ]);
+        }
+
+        return redirect::back();
+    }
+
+    public function user_details_credits($user_name)
+    {
+        $user = User::where('username', '=', $user_name)->first();
+
+        $tracks = DB::table('credit_log')
+            ->select('credit_log.*', 'users.username')
+            ->join('users', 'credit_log.details', '=', 'users.id')
+            ->where('user_id', '=', $user->id)
+            ->get();
+
+        $main = new main();
+        return view('tools.user_credits', array('main' => $main, 'user' => $user, 'tracks' => $tracks));
+    }
+
+
+
+    public function postuser_details_credits(Request $request, $user_name)
+    {
+        $input = $request->only('new_credit');
+
+        $this->validate($request, [
+            'new_credit' => 'required|numeric'
+        ]);
+        if ($input['new_credit'] < 0) {
+            return redirect::back()->withErrors(Lang::get('errors.neg_num'));
+        }
+
+        $input['new_credit'] *=  1024 * 1024 * 1024;
+        $user = User::where('username', '=', $user_name)->first();
+        $old_credit = $user->credit;
+
+        DB::table('users')
+            ->where('username', $user_name)
+            ->update(['credit' => $input['new_credit']]);
+
+        DB::table('credit_log')->insert(
+            array(
+                'user_id' => $user->id,
+                'credit_change' =>  $input['new_credit'] - $old_credit,
+                'details' => Auth::user()->id,
+            )
+        );
+
+        return redirect::back();
+    }
+
 
     public function aria2console()
     {
@@ -48,7 +117,7 @@ class AdminController extends Controller
     {
         $input = $request->only('function', 'param');
 
-        if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+        if (!$request->ajax()) {
             $this->validate($request, [
                 'function' => 'required'
             ]);
@@ -57,7 +126,7 @@ class AdminController extends Controller
         $functions = array('addUri', 'addTorrent', 'addMetalink', 'remove', 'forceRemove', 'pause', 'pauseAll', 'forcePause', 'forcePauseAll', 'unpause', 'unpauseAll', 'tellStatus', 'getUris', 'getFiles', 'getPeers', 'getServers', 'tellActive', 'tellWaiting', 'tellStopped', 'changePosition', 'changeUri', 'getOption', 'changeOption', 'getGlobalOption', 'changeGlobalOption', 'getGlobalStat', 'purgeDownloadResult', 'removeDownloadResult', 'getVersion', 'getSessionInfo', 'shutdown', 'forceShutdown', 'saveSession', 'multicall');
 
         if (!in_array($input['function'], $functions)) {
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            if ($request->ajax()) {
                 return response()->json(['Error' => 'The function does not exist in Aria2 functions.']);
             } else {
                 return redirect::back()->withErrors('The function does not exist in Aria2 functions.');
@@ -66,7 +135,7 @@ class AdminController extends Controller
 
         $main = new main();
         if (!$main->aria2_online())
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            if ($request->ajax()) {
                 return response()->json(['ERROR 10002' => 'Aria2c is not running!']);
             } else {
                 return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
@@ -81,7 +150,7 @@ class AdminController extends Controller
 
         $res = call_user_func_array(array($aria2, 'JSON_INPUT' . $input['function']), array($params));
 
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        if ($request->ajax()) {
             return response()->json($res);
         }
 
@@ -155,6 +224,7 @@ class AdminController extends Controller
         $main = new main();
 
         $users = DB::table('users')
+            ->where('id', '>' , 0)
             ->get();
 
         return view('tools.users', array('users' => $users, 'main' => $main));

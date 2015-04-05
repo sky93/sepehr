@@ -1,5 +1,7 @@
 @extends('app')
 
+@section('title', Lang::get('messages.public_files') . ' - ')
+
 @section('content')
     <script>
         function checkFile(id) {
@@ -14,7 +16,7 @@
 
                 <div class="panel-heading">@lang('messages.files.public')</div>
                 <div class="panel-body">
-                    <p>In this section you can see public files of other users. You can make your file public too to show up here. Go ahead!</p><br />
+                    <p>@lang('messages.public_tip')</p><br />
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive" dir="ltr">
@@ -32,7 +34,7 @@
                                             <td>
                                                 <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                             </td>
-                                            <td>{{ round($file->length / 1024 / 1024, 3) }} MB</td>
+                                            <td>{{ $main->formatBytes($file->length) }}</td>
                                             <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
                                             <td>{{ $file->comment }}</td>
                                         </tr>
@@ -40,7 +42,6 @@
                                 </table>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
