@@ -37,6 +37,10 @@ if (!Auth::guest()){  // Only users can show new messages.
     <script src="{{ asset('/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('/js/bootbox.min.js') }}"></script>
 
+    <script src="{{ asset('/js/d3.min.js') }}"></script>
+    <script src="{{ asset('/js/epoch.min.js') }}"></script>
+    <script src="{{ asset('/js/data.js') }}"></script>
+    <link href="{{ asset('/css/epoch.min.css') }}" rel="stylesheet">
 </head>
 <body>
 @if($show_message == true)

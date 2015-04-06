@@ -45,6 +45,8 @@ class AdminController extends Controller
 
             return response()->json([
                 'speed' => $main->formatBytes($aria2->getGlobalStat()['result']['downloadSpeed'], 3),
+                'speed_b' => round($aria2->getGlobalStat()['result']['downloadSpeed'] / 1024, 0),
+                'time' => time(),
                 'numActive' => $aria2->getGlobalStat()['result']['numActive'],
                 'numStopped' => $aria2->getGlobalStat()['result']['numStopped'],
                 'numWaiting' => $aria2->getGlobalStat()['result']['numWaiting']

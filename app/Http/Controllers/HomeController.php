@@ -314,7 +314,7 @@ class HomeController extends Controller
         return view('download_list', array('files' => $users, 'main' => $main, 'aria2' => $aria2));
     }
 
-    public function dl(Request $request)
+    public function post_downloads(Request $request)
     {
         $main = new main();
         if (!$main->aria2_online())
@@ -359,16 +359,16 @@ class HomeController extends Controller
 
             if ($file->state != -1) {
                 if ($file->state == NULL)
-                    $downloaded_speed = 'B In queue';
+                    $downloaded_speed = 'In queue';
                 elseif ($file->state == -2)
                     $downloaded_speed = 'Paused';
                 else
                     $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
             }
             $json[$file->id] = [
-//                'username' => '<a href="' . url('tools/users/' . $file->username) . '">' . $file->username . '</a>',
                 'speed' => $downloaded_speed,
-                'dled_size' => $main->formatBytes($downloaded_size,1)
+                'dled_size' => $main->formatBytes($downloaded_size,1),
+                'pprog' => round($downloaded_size/$file->length*100,0) . '%'
             ];
         }
         return response()->json($json);

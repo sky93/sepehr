@@ -7,6 +7,8 @@
                 <div class="panel-heading">@lang('messages.gband') (BETA! I WILL ADD SO MANY THINGS HERE LATER!!!)</div>
                 <div class="panel-body">
                     <h4>General Info:</h4><legend></legend>
+                    <div id="area" class="epoch category10" style="height: 200px;"></div>
+                    <hr />
                     <table style="width:100%" class="ud">
                         <thead>
                         <tr>
@@ -52,37 +54,50 @@
             </div>
         </div>
     </div>
+
     <script>
-        $(document).ready(function () {
-            var request;
+
+
+        $(function() {
+            var c = [{
+                label: "Series B",
+                values: [ {time: (new Date).getTime()/ 1000, y: 0}]
+            }];
+
+            var chart = $('#area').epoch({
+                type: 'time.area',
+                data: c,
+                axes: ['left', 'right', 'bottom']
+            });
+
 
             setInterval(function(){
-                if (request) {
-                    request.abort();
-                }
+                $.ajax({
+                    url: "",
+                    type: "post",
+                    data: "_token={{ csrf_token() }}",
+                    dataType: 'json',
 
-                request = $.ajax({
-                    url : "",
-                    type : "post" ,
-                    data : "_token={{ csrf_token() }}" ,
-                    dataType: 'json'
-                });
+                    success: function (response) {
+                        $('#speed').html(response.speed + '/s');
+                        $('#numActive').html(response.numActive);
+                        $('#numStopped').html(response.numStopped);
+                        $('#numWaiting').html(response.numWaiting);
 
-                request.done(function (response, textStatus, jqXHR) {
-                    $('#speed').html(response.speed + '/s');
-                    $('#numActive').html(response.numActive);
-                    $('#numStopped').html(response.numStopped);
-                    $('#numWaiting').html(response.numWaiting);
-                    console.log(response.speed);
-                });
+                        chart.push([{
+                            time: response.time,
+                            y: parseInt(response.speed_b)
+                        }]);
+                    },
 
-                request.fail(function (jqXHR, textStatus, errorThrown) {
-                    // Log the error to the console
-                    console.error("The following error occurred: " +textStatus, errorThrown
-                    );
-                });
-            }, 500);
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("The following error occurred: " + textStatus, errorThrown);
+                    }
+                })
+            }, 1000);
+
         });
+//        chart.push(data.next());
     </script>
 
 @endsection

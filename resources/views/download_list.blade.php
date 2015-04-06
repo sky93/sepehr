@@ -61,14 +61,14 @@
                                         </td>
                                     @endif
                                     <td>{{ $file->file_name }}</td>
-                                    <td>{{ $main->formatBytes($downloaded_size,1) }}</td>
+                                    <td id="dled">{{ $main->formatBytes($downloaded_size,1) }}</td>
                                     <td>{{ $main->formatBytes($file->length,1) }}</td>
-                                    <td style="vertical-align:top !important;">
+                                    <td  style="vertical-align:top !important;">
                                         <div class="progress">
-                                            <div class="progress-bar progress-bar-custom" role="progressbar"
-                                                 aria-valuenow="{{ $file->completed_length }}" aria-valuemin="0"
-                                                 aria-valuemax="{{ $file->length }}"
-                                                 style="width: {{  round($downloaded_size/$file->length*100,0) }}%;">
+                                            <div id="prog" class="progress-bar progress-bar-custom" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0"
+                                                 aria-valuemax="100"
+                                                 style="width: {{  round($downloaded_size/$file->length*100,0) }}%">
                                             </div>
                                         </div>
                                     </td>
@@ -94,9 +94,9 @@
             setInterval(function(){
             var activeDownloads = [];
                 $.ajax({
-                    url: "downloads/dl",
-                    type: "GET",
-                    data: "",
+                    url: "",
+                    type: "POST",
+                    data: "_token={{ csrf_token() }}" ,
                     dataType: 'json',
 
                     success: function (response) {
@@ -105,6 +105,8 @@
 //                            console.log(index);
                             activeDownloads.push(index);
                             $('#r-' + index + ' #speed').html(jsonObject.speed);
+                            $('#r-' + index + ' #dled').html(jsonObject.dled_size);
+                            $('#r-' + index + ' #prog').attr('style', 'width:' + jsonObject.pprog);
                         });
                         $(".dl-list tr").each(function() {
                             var idv = $(this).attr('id');

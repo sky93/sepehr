@@ -22,6 +22,7 @@ $router->group(['middleware' => 'auth'], function() {
     Route::post('/', 'HomeController@postindex');
 
     Route::get('/downloads', 'HomeController@downloads');
+    Route::post('/downloads', 'HomeController@post_downloads');
 
     Route::get('/files', 'HomeController@files');
     Route::post('/files', 'HomeController@postfiles');
