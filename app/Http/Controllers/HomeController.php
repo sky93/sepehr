@@ -339,7 +339,7 @@ class HomeController extends Controller
                 ->get();
 
         $aria2 = new aria2();
-
+        $downloaded_speed_kb = 0;
         $json = [];
         foreach ($users as $file){
             $downloaded_speed = 0;
@@ -355,6 +355,7 @@ class HomeController extends Controller
 
             if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'])) {
                 $downloaded_speed = $main->formatBytes($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'], 0) . '/s';
+                $downloaded_speed_kb = round($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed']/1024);
             }
 
             if ($file->state != -1) {
@@ -368,7 +369,8 @@ class HomeController extends Controller
             $json[$file->id] = [
                 'speed' => $downloaded_speed,
                 'dled_size' => $main->formatBytes($downloaded_size,1),
-                'pprog' => round($downloaded_size/$file->length*100,0) . '%'
+                'pprog' => round($downloaded_size/$file->length*100,0) . '%',
+                'speed_kb' => $downloaded_speed_kb
             ];
         }
         return response()->json($json);

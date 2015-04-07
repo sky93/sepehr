@@ -28,19 +28,18 @@ if (!Auth::guest()){  // Only users can show new messages.
     <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
 
     <!--[if lt IE 9]>
-    <script src="{{ asset('/js/html5shiv.min.js') }}"></script>
-    <script src="{{ asset('/js/respond.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/html5shiv.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/respond.js') }}"></script>
 
     <![endif]-->
 
-    <script src="{{ asset('/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('/js/bootbox.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/bootbox.min.js') }}"></script>
 
-    <script src="{{ asset('/js/d3.min.js') }}"></script>
-    <script src="{{ asset('/js/epoch.min.js') }}"></script>
-    <script src="{{ asset('/js/data.js') }}"></script>
-    <link href="{{ asset('/css/epoch.min.css') }}" rel="stylesheet">
+    <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
+
+
 </head>
 <body>
 @if($show_message == true)

@@ -201,7 +201,7 @@ class main
     {
         $pri_addrs = array (
             '10.0.0.0|10.255.255.255', // single class A network
-            '172.16.0.0|172.31.255.255', // 16 contiguous class B network
+            '172.15.0.0|172.31.255.255', // 16 contiguous class B network
             '192.168.0.0|192.168.255.255', // 256 contiguous class C network
             '169.254.0.0|169.254.255.255', // Link-local address also refered to as Automatic Private IP Addressing
             '127.0.0.0|127.255.255.255' // localhost

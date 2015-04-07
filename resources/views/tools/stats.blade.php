@@ -6,8 +6,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading">@lang('messages.gband') (BETA! I WILL ADD SO MANY THINGS HERE LATER!!!)</div>
                 <div class="panel-body">
-                    <h4>General Info:</h4><legend></legend>
-                    <div id="area" class="epoch category10" style="height: 200px;"></div>
+                    <h4>General Info:</h4><hr />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <canvas id="chart" height="250px"></canvas>
+                        </div>
+                    </div>
+                    <hr />
                     <table style="width:100%" class="ud">
                         <thead>
                         <tr>
@@ -55,25 +60,19 @@
     </div>
 
     <script>
-
+        var canv = $('#chart');
+        $(window).on('resize', function(){
+            canv.attr('width', canv.parent().width());
+        });
+        canv.attr('width', canv.parent().width());
+        var vals = new TimeSeries();
+        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0}}),
+                canvas = document.getElementById('chart'),
+                series = new TimeSeries();
+        chart.addTimeSeries(vals, {lineWidth:2,strokeStyle:'#ef5050',fillStyle:'rgba(255,100,100,0.20)'});
+        chart.streamTo(canvas, 1788);
 
         $(function() {
-            var c = [{
-                label: "Series A",
-                values: [ {time: (new Date).getTime(), y: 0}]
-            }];
-
-
-            var chart = $('#area').epoch({
-                type: 'time.area',
-                data: c
-            });
-
-
-
-//        });
-//
-//        $(document).ready(function () {
             var request;
 
             setInterval(function(){
@@ -93,23 +92,15 @@
                     $('#numActive').html(response.numActive);
                     $('#numStopped').html(response.numStopped);
                     $('#numWaiting').html(response.numWaiting);
-
-                    chart.push([{
-                        time: response.time,
-                        y: parseInt(response.speed_b)
-                    }]);
+                    vals.append(new Date().getTime(), response.speed_b);
 
                 });
 
                 request.fail(function (jqXHR, textStatus, errorThrown) {
-                    // Log the error to the console
-                    console.error("The following error occurred: " +textStatus, errorThrown;
-                    returnz
-                    )
+                    random.append(new Date().getTime(), 0);
+                    console.error("The following error occurred: " +textStatus, errorThrown)
                 });
             }, 1000);
         });
-//        chart.push(data.next());
     </script>
-
 @endsection

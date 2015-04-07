@@ -3,13 +3,12 @@
 @section('title', Lang::get('messages.dl_list') . ' - ')
 
 @section('content')
-    {{--<meta http-equiv="refresh" content="5"/>--}}
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">{{ Lang::get('messages.dl.list') }}</div>
                 <div class="panel-body">
-                <div class="table-responsive" dir="ltr">
+                    <div class="table-responsive" dir="ltr">
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
@@ -82,7 +81,30 @@
                                         </td>
                                 </tr>
                             @endforeach
+                            <tr>
+                                <td colspan="3"></td>
+                                <td>
+                                    Total:
+                                </td>
+                                <td  style="vertical-align:top !important;">
+                                    <div class="progress">
+                                        <div id="totalProg" class="progress-bar progress-bar-custom" role="progressbar"
+                                             aria-valuenow="0" aria-valuemin="0"
+                                             aria-valuemax="100"
+                                             style="width: 0%">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="totalSpeed">0 KB/s</td>
+                                <td colspan="2"></td>
+                            </tr>
                         </table>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <canvas id="chart" height="150px"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,9 +112,25 @@
     </div>
 
     <script>
+        var canv = $('#chart');
+        $(window).on('resize', function(){
+            canv.attr('width', canv.parent().width());
+        });
+        canv.attr('width', canv.parent().width());
+        var vals = new TimeSeries();
         $(document).ready(function () {
+        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0}}),
+                canvas = document.getElementById('chart'),
+                series = new TimeSeries();
+        chart.addTimeSeries(vals, {lineWidth:2,strokeStyle:'#ef5050',fillStyle:'rgba(255,100,100,0.20)'});
+        chart.streamTo(canvas, 1788);
+
+
             setInterval(function(){
-            var activeDownloads = [];
+                var activeDownloads = [];
+                var totalSpeed = 0;
+                var totalSpeed_p = 0;
+                var files_count = 0;
                 $.ajax({
                     url: "",
                     type: "POST",
@@ -102,12 +140,18 @@
                     success: function (response) {
                         var tableId = [];
                         $.each(response, function(index,jsonObject){
-//                            console.log(index);
+                            totalSpeed += jsonObject.speed_kb;
+                            totalSpeed_p += +jsonObject.pprog.replace('%','');
+                            files_count++;
                             activeDownloads.push(index);
                             $('#r-' + index + ' #speed').html(jsonObject.speed);
                             $('#r-' + index + ' #dled').html(jsonObject.dled_size);
                             $('#r-' + index + ' #prog').attr('style', 'width:' + jsonObject.pprog);
                         });
+                        files_count = files_count ? files_count : 0;
+                        $('#totalProg').attr('style', 'width:' + totalSpeed_p / files_count + '%');
+                        $('#totalSpeed').html(totalSpeed + ' KB/s');
+                        vals.append(new Date().getTime(), totalSpeed);
                         $(".dl-list tr").each(function() {
                             var idv = $(this).attr('id');
                             if(typeof idv !== "undefined")
