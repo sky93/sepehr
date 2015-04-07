@@ -27,7 +27,7 @@
                                     <th>@lang('messages.id')</th>
                                     <th>@lang('messages.credit_change')</th>
                                     <th>@lang('messages.date')</th>
-                                    <th>@lang('messages.details')</th>
+                                    <th>@lang('messages.agent')</th>
                                 </tr>
                                 </thead>
                                 @foreach($tracks as $track)

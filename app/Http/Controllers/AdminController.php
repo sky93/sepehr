@@ -12,6 +12,7 @@ use App\User;
 use Hash;
 use Validator;
 use main;
+use Illuminate\Support\Facades\Config;
 
 class AdminController extends Controller
 {
@@ -62,7 +63,7 @@ class AdminController extends Controller
 
         $tracks = DB::table('credit_log')
             ->select('credit_log.*', 'users.username')
-            ->join('users', 'credit_log.details', '=', 'users.id')
+            ->join('users', 'credit_log.agent', '=', 'users.id')
             ->where('user_id', '=', $user->id)
             ->get();
 
@@ -95,7 +96,7 @@ class AdminController extends Controller
             array(
                 'user_id' => $user->id,
                 'credit_change' =>  $input['new_credit'] - $old_credit,
-                'details' => Auth::user()->id,
+                'agent' => Auth::user()->id,
             )
         );
 
@@ -161,9 +162,12 @@ class AdminController extends Controller
             ->with('result', $res);
     }
 
-    public function postuser_details($username){
+
+
+    public function postuser_details($username)
+    {
         if (!empty($username) || !isset($_POST['action'])) {
-            if ($_POST['action'] == 'delete') {
+            if ($_POST['action'] == 'delete' && Config::get('leech.user_delete') == true) {
                 $atu = Auth::user()->username;
                 $user = User::where('username', '=', $username);
                 $user->delete();

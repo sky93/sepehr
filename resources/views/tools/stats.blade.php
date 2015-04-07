@@ -8,7 +8,6 @@
                 <div class="panel-body">
                     <h4>General Info:</h4><legend></legend>
                     <div id="area" class="epoch category10" style="height: 200px;"></div>
-                    <hr />
                     <table style="width:100%" class="ud">
                         <thead>
                         <tr>
@@ -60,42 +59,55 @@
 
         $(function() {
             var c = [{
-                label: "Series B",
-                values: [ {time: (new Date).getTime()/ 1000, y: 0}]
+                label: "Series A",
+                values: [ {time: (new Date).getTime(), y: 0}]
             }];
+
 
             var chart = $('#area').epoch({
                 type: 'time.area',
-                data: c,
-                axes: ['left', 'right', 'bottom']
+                data: c
             });
 
 
+
+//        });
+//
+//        $(document).ready(function () {
+            var request;
+
             setInterval(function(){
-                $.ajax({
-                    url: "",
-                    type: "post",
-                    data: "_token={{ csrf_token() }}",
-                    dataType: 'json',
+                if (request) {
+                    request.abort();
+                }
 
-                    success: function (response) {
-                        $('#speed').html(response.speed + '/s');
-                        $('#numActive').html(response.numActive);
-                        $('#numStopped').html(response.numStopped);
-                        $('#numWaiting').html(response.numWaiting);
+                request = $.ajax({
+                    url : "",
+                    type : "post" ,
+                    data : "_token={{ csrf_token() }}" ,
+                    dataType: 'json'
+                });
 
-                        chart.push([{
-                            time: response.time,
-                            y: parseInt(response.speed_b)
-                        }]);
-                    },
+                request.done(function (response, textStatus, jqXHR) {
+                    $('#speed').html(response.speed + '/s');
+                    $('#numActive').html(response.numActive);
+                    $('#numStopped').html(response.numStopped);
+                    $('#numWaiting').html(response.numWaiting);
 
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.error("The following error occurred: " + textStatus, errorThrown);
-                    }
-                })
+                    chart.push([{
+                        time: response.time,
+                        y: parseInt(response.speed_b)
+                    }]);
+
+                });
+
+                request.fail(function (jqXHR, textStatus, errorThrown) {
+                    // Log the error to the console
+                    console.error("The following error occurred: " +textStatus, errorThrown;
+                    returnz
+                    )
+                });
             }, 1000);
-
         });
 //        chart.push(data.next());
     </script>

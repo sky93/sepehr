@@ -140,6 +140,7 @@ if (!Auth::guest()){  // Only users can show new messages.
         </div>
     </div>
 </div>
+@if($main->ip_is_private($_SERVER['REMOTE_ADDR']))
 <script>
     (function (i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r;
@@ -155,5 +156,6 @@ if (!Auth::guest()){  // Only users can show new messages.
     ga('create', '{{ Config::get('leech.GA') }}', 'auto');
     ga('send', 'pageview');
 </script>
+@endif
 </body>
 </html>

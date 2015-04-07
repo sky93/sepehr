@@ -453,7 +453,7 @@ class HomeController extends Controller
                 'queue_credit' => $q_credit
             ]);
 
-        $hold = $input['hold'] ? 1 : 0;
+        $hold = $input['hold'] ? -2 : NULL;
 
         if ($input['http_auth']) {
             $http_user = $input['http_username'];
@@ -468,7 +468,7 @@ class HomeController extends Controller
                 'link' => $url_inf['location'],
                 'length' => $fileSize,
                 'file_name' => $filename,
-                'hold' => $hold,
+                'state' => $hold,
                 'http_user' => $http_user,
                 'http_password' => $http_pass,
                 'comment' => $input['comment'],

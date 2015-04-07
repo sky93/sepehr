@@ -82,7 +82,8 @@ return [
     'back'                  => 'Back',
     'public'                => 'Public',
     'public_tip'            => 'In this section you can see public files of other users. You can make your file public too to show up here. Go ahead!',
-
+    'agent'                 => 'Agent',
+    'delete_user'           => 'Delete User',
 
     /**
      * Main Title

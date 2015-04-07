@@ -150,7 +150,7 @@
                                 <a  href="{{ asset('tools/users/' . $user->username . '/credits') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-bars fa-lg"></i> @lang('messages.clog')</a>
                             </div>
                             <div style="padding: 5px" class="col-md-2">
-                                <button type="submit" name="action" value="delete" style="width: 100%" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> Delete User</button>
+                                <button {{ Config::get('leech.user_delete') == false ? 'disabled ' : '' }}type="submit" name="action" value="delete" style="width: 100%" class="btn btn-danger"><i class="fa fa-trash-o fa-lg" ></i> @lang('messages.delete_user')</button>
                             </div>
                             <div style="padding: 5px" class="col-md-2">
                                 <button type="submit" name="action" value="ban" style="width: 100%" class="btn {{ ($user->active == 1 ? 'btn-danger' : 'btn-success') }}"><i class="fa fa-lg {{ ($user->active == 1 ? 'fa-ban' : 'fa-check') }}"></i> {{ ($user->active == 1 ? 'Ban' : 'Active') }}</button>
