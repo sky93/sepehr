@@ -35,27 +35,72 @@ class AdminController extends Controller
         return view('tools.stats', array('main' => $main, 'aria2' => $aria2));
     }
 
+
+
+
     public function post_stat(Request $request)
     {
         if ($request->ajax()) {
-            $main = new main();
-            if (!$main->aria2_online())
-                return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
+            if (isset($request['gs'])) {
+                $main = new main();
+                if (!$main->aria2_online())
+                    return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
 
-            $aria2 = new aria2();
+                $aria2 = new aria2();
 
-            return response()->json([
-                'speed' => $main->formatBytes($aria2->getGlobalStat()['result']['downloadSpeed'], 3),
-                'speed_b' => round($aria2->getGlobalStat()['result']['downloadSpeed'] / 1024, 0),
-                'time' => time(),
-                'numActive' => $aria2->getGlobalStat()['result']['numActive'],
-                'numStopped' => $aria2->getGlobalStat()['result']['numStopped'],
-                'numWaiting' => $aria2->getGlobalStat()['result']['numWaiting']
-            ]);
+                return response()->json([
+                    'speed' => $main->formatBytes($aria2->getGlobalStat()['result']['downloadSpeed'], 3),
+                    'speed_b' => round($aria2->getGlobalStat()['result']['downloadSpeed'] / 1024, 0),
+                    'time' => time(),
+                    'numActive' => $aria2->getGlobalStat()['result']['numActive'],
+                    'numStopped' => $aria2->getGlobalStat()['result']['numStopped'],
+                    'numWaiting' => $aria2->getGlobalStat()['result']['numWaiting']
+                ]);
+            }elseif(isset($request['lf'])){
+                $table = [];
+                $files = DB::table('download_list')
+                    ->leftJoin('users', 'users.id', '=', 'download_list.user_id')
+                    ->select('download_list.*', 'users.username')
+                    ->orderBy('id','DEC')
+                    ->take(20)
+                    ->get();
+
+                $main = new main();
+                foreach($files as $file) {
+                    if ($file->state == null)
+                        $status = Lang::get('messages.in_queue');
+                    elseif ($file->state == 0)
+                        $status = Lang::get('messages.downloading');
+                    elseif ($file->state == -2)
+                        $status = Lang::get('messages.paused');
+                    elseif ($file->state == -3)
+                        $status = Lang::get('messages.deleted');
+                    else
+                        $status = Lang::get('messages.error_id', ['id' => $file->status]);
+
+
+
+                    $table[] = [
+                        'id' => $file->id,
+                        'file_name' => $file->file_name,
+                        'length' => $main->formatBytes($file->length, 1),
+                        'date_added' => $file->date_added,
+                        'details' => url('/files/' . $file->id),
+                        'details_t' => Lang::get('messages.details'),
+                        'state' => $status,
+                        'username' => $file->username,
+                        'username_l' => url('tools/users/' . $file->username)
+                    ];
+                }
+                return response()->json($table);
+            }
         }
 
         return redirect::back();
     }
+
+
+
 
     public function user_details_credits($user_name)
     {
@@ -70,6 +115,7 @@ class AdminController extends Controller
         $main = new main();
         return view('tools.user_credits', array('main' => $main, 'user' => $user, 'tracks' => $tracks));
     }
+
 
 
 
@@ -104,6 +150,8 @@ class AdminController extends Controller
     }
 
 
+
+
     public function aria2console()
     {
         $main = new main();
@@ -114,6 +162,8 @@ class AdminController extends Controller
 
         return view('tools.aria2console', array('main' => $main, 'aria2' => $aria2));
     }
+
+
 
 
     public function post_aria2console(Request $request)
@@ -164,6 +214,7 @@ class AdminController extends Controller
 
 
 
+
     public function postuser_details($username)
     {
         if (!empty($username) || !isset($_POST['action'])) {
@@ -193,6 +244,10 @@ class AdminController extends Controller
         return Redirect::to('/tools/users/' . $username);
 
     }
+
+
+
+
 
     public function user_details($user_name)
     {
@@ -224,6 +279,9 @@ class AdminController extends Controller
 
         return view('tools.userdetails', array('user_files' => $user_files, 'user' => $users, 'userd' => $user_detailed, 'main' => $main));
     }
+
+
+
 
     public function users()
     {

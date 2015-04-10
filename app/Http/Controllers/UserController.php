@@ -198,7 +198,6 @@ class UserController extends Controller {
                 'password' => Hash::make($request['new_password'])
             ]);
 
-
         return redirect()->back()
             ->withInput($request->only('old_password', 'new_password', 'new_password_confirmation'))
             ->with('message', 'Your password has been changed!')

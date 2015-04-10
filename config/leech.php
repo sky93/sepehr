@@ -45,7 +45,7 @@ return [
         '192.168.0-255.0-255',   // 16 contiguous class B network
         //'0-255.0-255.0-255.0-255',   // Add as much as you want!
     ),
-    'trust_localhost' => false,   // Trust 127.0.0.1 and ::1
+    'trust_localhost' => true,   // Trust 127.0.0.1 and ::1
     'trust_ipv6' => false,
 
 

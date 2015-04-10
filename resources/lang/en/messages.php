@@ -90,6 +90,13 @@ return [
     'old_password'          => 'Old Password',
     'new_password'          => 'New Password',
     'again'                 => 'again',
+    'lastten'               => 'Last 20 Files',
+    'in_queue'              => 'In queue...',
+    'downloading'           => 'Downloading...',
+    'paused'                => 'Paused',
+    'error_id'              => 'Error(:id)',
+    'bwg'                   => 'Bandwidth Graph',
+    'dl_inf'                => 'Downloads Info',
 
     /**
      * Main Title

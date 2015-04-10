@@ -80,11 +80,7 @@
                                             <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
                                             <td>{{ $file->comment }}</td>
                                             <td>
-                                                <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;"
-                                                   href="{{ url('/files/' . $file->id) }}"
-                                                   class="btn btn-sm btn-primary"><i
-                                                            class="fa fa-info"></i> @lang('messages.details')
-                                                </a>
+                                                <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;" href="{{ url('/files/' . $file->id) }}" class="btn btn-sm btn-primary"><i class="fa fa-info"></i> @lang('messages.details')</a>
                                             </td>
                                         </tr>
                                     @endforeach
