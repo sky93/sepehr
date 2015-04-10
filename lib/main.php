@@ -197,7 +197,7 @@ class main
      * @param $ip
      * @return bool
      */
-    public function ip_is_private ($ip)
+    public function ip_is_private($ip)
     {
         $pri_addrs = array (
             '10.0.0.0|10.255.255.255', // single class A network

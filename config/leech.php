@@ -45,8 +45,49 @@ return [
         '192.168.0-255.0-255',   // 16 contiguous class B network
         //'0-255.0-255.0-255.0-255',   // Add as much as you want!
     ),
-    'trust_localhost' => true,   // Trust 127.0.0.1 and ::1
+    'trust_localhost' => false,   // Trust 127.0.0.1 and ::1
     'trust_ipv6' => false,
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Block Kind
+    |--------------------------------------------------------------------------
+    |
+    | Options: 'both', 'private' or 'public'
+    |
+    | private: If IP address is private (class C, local, etc...)
+    | public: If IP address is public
+    | both: Block IP even when the IP address is public
+    |
+    */
+
+    'ip_block_kind' => 'both',
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Block duration
+    |--------------------------------------------------------------------------
+    |
+    | Change the duration of IP Block in minutes.
+    |
+    */
+
+    'ip_block_duration' => 10,
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Retry Count
+    |--------------------------------------------------------------------------
+    |
+    | How many times user should enter password wrong. After that, IP block will activate.
+    |
+    */
+
+    'password_retry_count' => 2,
 
 
 
@@ -181,7 +222,7 @@ return [
     'show_change_message' => true,
     'change_title1' => "What's New",
     'change_title2' => "New Stuff:",
-    'change_message' => '<p>Added so many features including <strong>Rename</strong>, <strong>Pause Download</strong>, <strong>File SHA1 and MD5</strong> and...</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
+    'change_message' => '<p>Added total download speed with a chart. Check it out in Download List.</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
 
 
 

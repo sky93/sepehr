@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Lang;
 use App\User;
 use Hash;
+use Config;
+use DB;
 use main;
 
 class UserController extends Controller {
@@ -41,6 +43,35 @@ class UserController extends Controller {
      */
     public function postLogin(Request $request)
     {
+        //Now unconfirmed users or banned users cannot login
+        $credentials['active'] = 1;
+
+        $credentials = $request->only('username', 'password');
+
+        $ip = DB::table('ip_blacklist')
+            ->where('ip', '=', $request->getClientIp())
+            ->where('username', '=', $credentials['username'])
+            ->orderBy('date', 'desc')
+            ->get();
+
+        if (count($ip) >= Config::get('leech.password_retry_count')){
+            $diffrence_mins = Config::get('leech.ip_block_duration') - round(abs(time() - strtotime($ip[0]->date)) / 60);
+            if($diffrence_mins > 0){
+                return redirect($this->loginPath())
+                    ->withInput($request->only('username', 'remember', 'password'))
+                    ->withErrors([
+                        'IP_Block' => Lang::get('errors.ip_block', ['min' => $diffrence_mins])
+                    ]);
+            }
+            else{
+                DB::table('ip_blacklist')
+                    ->where('ip', '=', $request->getClientIp())
+                    ->where('username', '=', $credentials['username'])
+                    ->orderBy('date', 'desc')
+                    ->delete();
+            }
+        }
+
         $this->validate($request, [
             'username' => 'required|min:5|max:16', 'password' => 'required'
         ]);
@@ -52,14 +83,26 @@ class UserController extends Controller {
             ]);
         }
 
-        $credentials = $request->only('username', 'password');
-
-        //Now unconfirmed users or banned users cannot login
-        $credentials['active'] = 1;
-
         if (Auth::attempt($credentials, $request->has('remember')))
         {
+            DB::table('ip_blacklist')
+                ->where('ip', '=', $request->getClientIp())
+                ->where('username', '=', $credentials['username'])
+                ->orderBy('date', 'desc')
+                ->delete();
+
             return Redirect::intended('/');
+        }
+
+        $main = new main();
+        if (($main->ip_is_private($request->getClientIp()) && (Config::get('leech.ip_block_kind') == 'private' || Config::get('leech.ip_block_kind') == 'both')) || (!$main->ip_is_private($request->getClientIp()) && (Config::get('leech.ip_block_kind') == 'public' || Config::get('leech.ip_block_kind') == 'both'))) {
+            DB::table('ip_blacklist')->insert(
+                array(
+                    'username' => $credentials['username'],
+                    'password' => $credentials['password'],
+                    'ip' => $request->getClientIp()
+                )
+            );
         }
 
         return redirect($this->loginPath())
