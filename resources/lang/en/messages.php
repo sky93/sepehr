@@ -73,6 +73,7 @@ return [
     'command_name'          => 'Command Name',
     'run'                   => 'Run',
     'user_credits'          => 'User Credits',
+    'change'                => 'Change',
     'change_credit'         => 'Change Credit',
     'credit_change'         => 'Credit Change',
     'credits_user'          => 'Credits',
@@ -84,6 +85,11 @@ return [
     'public_tip'            => 'In this section you can see public files of other users. You can make your file public too to show up here. Go ahead!',
     'agent'                 => 'Agent',
     'delete_user'           => 'Delete User',
+    'change_password'       => 'Change Password',
+    'register'              => 'Register',
+    'old_password'          => 'Old Password',
+    'new_password'          => 'New Password',
+    'again'                 => 'again',
 
     /**
      * Main Title

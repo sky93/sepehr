@@ -124,7 +124,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Get the path to the login route.
+     * Shows register form
      *
      * @return string
      */
@@ -165,24 +165,45 @@ class UserController extends Controller {
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Shows change password form
      *
-     * @return Response
      */
-    public function create()
+    public function password()
     {
-        //
+        return view('auth.change_password');
     }
 
 	/**
-     * Store a newly created resource in storage.
+     * Changes user password
 	 *
-	 * @return Response
 	 */
-    public function store()
-	{
-		//
-	}
+    public function post_password(Request $request)
+    {
+        $this->validate($request, [
+            'old_password' => 'required|min:6',
+            'new_password' => 'required|min:6|confirmed:new_password_confirmation',
+        ]);
+
+        if (!Hash::check($request['old_password'], Auth::user()->password)){
+            return redirect()->back()
+                ->withInput($request->only('username', 'remember', 'password'))
+                ->withErrors([
+                    'Password_not_match' => Lang::get('errors.wrong_pass')
+                ]);
+        }
+
+        DB::table('users')
+            ->where('id', Auth::user()->id)
+            ->update([
+                'password' => Hash::make($request['new_password'])
+            ]);
+
+
+        return redirect()->back()
+            ->withInput($request->only('old_password', 'new_password', 'new_password_confirmation'))
+            ->with('message', 'Your password has been changed!')
+            ->header('refresh', '5;url=http://google.com');
+    }
 
 	/**
      * Display the specified resource.

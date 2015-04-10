@@ -33,6 +33,9 @@ $router->group(['middleware' => 'auth'], function() {
     Route::post('/files/{id}', 'HomeController@post_download_id');
 
     Route::get('downloads/dl', 'HomeController@dl');
+
+    Route::get('user/password', 'UserController@password');
+    Route::post('user/password', 'UserController@post_password');
 });
 
 

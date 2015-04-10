@@ -3,7 +3,8 @@
 class main
 {
     /**
-     * WARNING: This function chages stream_context_set_default. In the feature I'll fix this problem.
+     * WARNING: This function changes stream_context_set_default. In the feature I'll fix this problem.
+     * Gets URL information such as file size, file redirected url, filename, etc...
      *
      * @param $url
      * @param int $timeout
@@ -12,7 +13,8 @@ class main
      *
      * @return array|bool(false)
      */
-    public function get_info($url, $timeout = 10, $http_username = '', $http_password = ''){ //fixed issue #2
+    public function get_info($url, $timeout = 10, $http_username = '', $http_password = '')
+    {
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
         stream_context_set_default(
@@ -93,6 +95,14 @@ class main
     }
 
 
+
+
+    /**
+     * Checks of an IP address is in white list or not.
+     *
+     * @param $ip
+     * @return bool
+     */
     public function trusted_ip($ip)
     {
         $whitelist = array(
@@ -136,6 +146,15 @@ class main
     }
 
 
+
+
+    /**
+     * Checks if the entered URL is blocked or not by checking
+     * URL Scheme, Port and Host.
+     *
+     * @param $url
+     * @return bool|string
+     */
     public function isBlocked($url)
     {
         $purl = parse_url($url);
@@ -167,6 +186,14 @@ class main
         return false;
     }
 
+
+
+
+    /**
+     * Checks if Aria2 is online
+     *
+     * @return bool
+     */
     public function aria2_online()
     {
         $host = $url = preg_replace("(^https?://)", "", config('leech.aria2_ip'));
@@ -177,6 +204,17 @@ class main
     }
 
 
+
+
+    /**
+     * Converts bytes to B, KB , MB, ..., YB
+     *
+     * @param $bytes
+     * @param int $precision
+     * @param string $dec_point
+     * @param string $thousands_sep
+     * @return string
+     */
     public function formatBytes($bytes, $precision = 2, $dec_point = '.', $thousands_sep = ',')
     {
         $negative = $bytes < 0;
@@ -189,6 +227,8 @@ class main
         if ($negative) $sz *= -1;
         return number_format($sz, $precision, $dec_point, $thousands_sep) . ' ' . $units[$power];
     }
+
+
 
 
     /**

@@ -52,6 +52,7 @@ return [
 
     'neg_num' => 'Negative numbers are not allowed',
     'ip_block' => 'We have detected malicious activity from your IP address. You have to wait for :min minutes to attempt again.',
+    'wrong_pass' => "You didn't enter the correct password. Please try again."
 
 
 ];
