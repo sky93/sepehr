@@ -10,12 +10,8 @@ return [
 	*/
 
 
-    'title'                 => 'Sadjad University Leecher',
     'ver'                   => 'Version',
-    'mainTitle'             => 'Aria Leecher',
     'slogan'                => 'Get you files with high speed.',
-    'cp'                    => 'Sadjad University of Technology',
-    'cp_link'               => 'http://sadjad.ac.ir',
     'wops'                  => 'Whoops!',
     'yaay'                  => 'Yaaay!',
     'notice'                => 'Notice',
@@ -42,6 +38,7 @@ return [
     'files.list'            => 'My Files',
     'user.management'       => 'User Management',
     'add.user'              => 'Add a User',
+    'add.user.csv'          => 'Add Users From CSV File',
     'comments'              => 'Comments',
     'dled.size'             => 'D. Size',
     'size'                  => 'Size',
@@ -97,6 +94,11 @@ return [
     'error_id'              => 'Error(:id)',
     'bwg'                   => 'Bandwidth Graph',
     'dl_inf'                => 'Downloads Info',
+    'finished'              => 'Finished',
+    'md5'                   => 'Get File MD5',
+    'sha1'                  => 'Get File SHA1',
+    'rename'                => 'Rename',
+    'more_actions'          => 'More Actions',
 
     /**
      * Main Title
@@ -110,7 +112,4 @@ return [
     'usr_details'           => 'User Details',
     'usr_credit'            => 'User Credit',
     'users'                 => 'Users',
-
-
-
 ];

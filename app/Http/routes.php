@@ -34,8 +34,11 @@ $router->group(['middleware' => 'auth'], function() {
 
     Route::get('downloads/dl', 'HomeController@dl');
 
-    Route::get('user/password', 'UserController@password');
-    Route::post('user/password', 'UserController@post_password');
+    Route::get('user/{username}', 'UserController@user_info');
+    Route::post('user/{username}', 'UserController@post_user_info');
+
+    Route::get('user/{username}/password', 'UserController@password');
+    Route::post('user/{username}/password', 'UserController@post_password');
 });
 
 
@@ -43,6 +46,9 @@ $router->group(['middleware' => 'auth'], function() {
 $router->group(['middleware' => 'auth', 'role' => '2'], function() {
     Route::get('/tools/register', 'UserController@register');
     Route::post('/tools/register', 'UserController@postregister');
+
+    Route::get('/tools/register-csv', 'UserController@register_csv');
+    Route::post('/tools/register-csv', 'UserController@postregister_csv');
 
     Route::get('/tools/users', 'AdminController@users');
     Route::post('/tools/users', 'AdminController@users');

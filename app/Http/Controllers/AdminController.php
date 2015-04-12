@@ -68,8 +68,10 @@ class AdminController extends Controller
                 $main = new main();
                 foreach($files as $file) {
                     if ($file->state == null)
-                        $status = Lang::get('messages.in_queue');
+                        $status = Lang::get('messages.in_queue');//in_queue
                     elseif ($file->state == 0)
+                        $status = Lang::get('messages.finished');
+                    elseif ($file->state == -1)
                         $status = Lang::get('messages.downloading');
                     elseif ($file->state == -2)
                         $status = Lang::get('messages.paused');

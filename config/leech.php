@@ -250,4 +250,22 @@ return [
 
     'user_delete' => false,
 
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Files
+    |--------------------------------------------------------------------------
+    |
+    | Let Users make their own files public
+    |
+    | Options:
+    |
+    | 'all' : all users with any role can make a file public.
+    | 'admin' : Only administrators can make a file public.
+    */
+
+    'public' => 'admin',
+
 ];

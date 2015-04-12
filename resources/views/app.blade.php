@@ -19,12 +19,12 @@ if (!Auth::guest()){  // Only users can show new messages.
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
-    <title>@yield('title'){{ Lang::get('messages.title') }}</title>
+    <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
     <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/main.css') }}" rel="stylesheet">
+    <link href="{{ asset('/css/main.css?v=1') }}" rel="stylesheet">
     <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
 
     <!--[if lt IE 9]>
@@ -61,7 +61,7 @@ if (!Auth::guest()){  // Only users can show new messages.
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" rel="home" href="{{ asset('') }}" title="@lang('messages.slogan')"><img style="max-width:50px; margin-top: -17px; margin-right: -10px" src="{{ asset('/img/logo_small.png') }}"></a>
-                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">@lang('messages.mainTitle')</a>
+                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">{{ env('MAIN_TITLE', 'Aria Leecher') }}</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -85,9 +85,10 @@ if (!Auth::guest()){  // Only users can show new messages.
                         @if (Auth::user()->role == 2)
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i> @lang('messages.tools') <span class="caret"></span></a>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu bw" role="menu">
                                     <li class="dropdown-header">@lang('messages.user.management')</li>
                                     <li><a href="{{ url('/tools/register') }}"><i class="fa fa-plus"></i> @lang('messages.add.user')</a></li>
+                                    <li><a href="{{ url('/tools/register-csv') }}"><i class="fa fa-plus"></i> @lang('messages.add.user.csv')</a></li>
                                     <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
                                     <li class="divider"></li>
                                     <li><a href="{{ url('/tools/status') }}"><i
@@ -130,7 +131,7 @@ if (!Auth::guest()){  // Only users can show new messages.
     <div class="container"  style="padding-right: 35px">
         <div class="row">
             <div class="col-md-5">
-                <p class="text-muted">&copy; {{date("Y")}} - <a style="text-decoration: none !important;color: #777777" target="_blank" href="{{ Lang::get('messages.cp_link') }}">{{ Lang::get('messages.cp') }}</a></p>
+                <p class="text-muted">&copy; {{date("Y")}} - <a style="text-decoration: none !important;color: #777777" target="_blank" href="{{ env('CP_LINK', '') }}">{{ env('CP', '') }}</a></p>
             </div>
             <div class="col-md-7">
                 <div class=" pull-right">

@@ -55,7 +55,7 @@
 						</div>
 
                         <div class="form-group">
-                            <label class="col-md-4 control-label">Credit (MB)</label>
+                            <label class="col-md-4 control-label">Credit (GB)</label>
                             <div class="col-md-3">
                                 <input type="number" class="form-control" name="credit" value="{{ old('credit') }}">
                             </div>

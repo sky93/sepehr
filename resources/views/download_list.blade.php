@@ -82,7 +82,7 @@
                                 </tr>
                             @endforeach
                             <tr>
-                                <td colspan="3"></td>
+                                <td colspan="{{Auth::user()->role == 2 ? 3 : 2}}"></td>
                                 <td>
                                     Total:
                                 </td>

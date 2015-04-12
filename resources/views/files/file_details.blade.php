@@ -5,20 +5,19 @@
 @section('more_actions')
     <div class="dropup btn-group" role="group">
         <button type="button" class="btn btn-info dropdown-toggle dbtn" data-toggle="dropdown" aria-expanded="false">
-            <i class="fa fa-plus"></i> More Actions <span class="caret"></span>
+            <i class="fa fa-plus"></i> @lang('messages.more_actions') <span class="caret"></span>
         </button>
         <ul class="dropdown-menu mo" role="menu">
-            <li><a href="javascript:void(0)" id="md5">Get File MD5</a></li>
-            <li><a href="javascript:void(0)" id="sha1">Get File SHA1</a></li>
+            <li><a href="javascript:void(0)" id="md5">@lang('messages.md5')</a></li>
+            <li><a href="javascript:void(0)" id="sha1">@lang('messages.sha1')</a></li>
             <li class="divider"></li>
-            <li><a href="javascript:void(0)" id="rename">Rename</a></li>
+            <li><a href="javascript:void(0)" id="rename">@lang('messages.rename')</a></li>
         </ul>
     </div>
 @endsection
 
-
 @section('public')
-    <button type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-{{ $file->public == 1 ? 'lock' : 'unlock' }} fa-lg"></i> {{ $file->public == 1 ? 'Make Private' : 'Make Public' }}</button>
+    <button type="submit" name="action" value="public" class="btn btn-success"{{((Auth::user()->public == 0) ? ' disabled':'')}}><i class="fa fa-{{ $file->public == 1 ? 'lock' : 'unlock' }} fa-lg"></i> {{ $file->public == 1 ? 'Make Private' : 'Make Public' }}</button>
 @endsection
 
 @section('back')
@@ -40,8 +39,6 @@
 @section('remove')
     <a href="javascript:void(0)" id="remove" class="btn btn-danger delacc"><i class="fa fa-trash-o fa-lg"></i> Remove</a>
 @endsection
-
-
 
 @section('content')
     <div class="row">
@@ -72,7 +69,7 @@
                         </div>
                     </div>
                     @endif
-                    @if($file->state == 0)
+                    @if(+$file->state === 0)
                         <div class="alert alert-success" role="alert"><span
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
                             @if($file->deleted == 0)
@@ -81,7 +78,8 @@
                                 to download the file.
                             @endif
                         </div>
-                    @elseif($file->state == NULL)
+
+                    @elseif($file->state===NULL)
                         <div class="alert alert-info" role="alert"><span
                                     style="font-weight: bold">Wait more! </span>@lang('errors.null')</div>
                     @elseif($file->state == -1)

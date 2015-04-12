@@ -113,13 +113,17 @@ class HomeController extends Controller
                 }
             }
         } elseif ($_POST['action'] === 'public') {
-            foreach ($_POST['files'] as $file) {
-                if (in_array($file, $auth_files)) {
-                    $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
-                    DB::table('download_list')
-                        ->where('id', $file)
-                        ->update(['public' => 1]);
+            if (Auth::user()->public == 1) {
+                foreach ($_POST['files'] as $file) {
+                    if (in_array($file, $auth_files)) {
+                        $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
+                        DB::table('download_list')
+                            ->where('id', $file)
+                            ->update(['public' => 1]);
+                    }
                 }
+            }else{
+                return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
             }
         }
 
@@ -218,10 +222,14 @@ class HomeController extends Controller
                     'state' => NULL
                 ]);
         }elseif ($input['action'] == 'public' && $file_details->state == 0){
-            DB::table('download_list')
-                ->where('id', '=', $file_details->id)
-                ->update(['public' => DB::raw( '!public')]);
-            return Redirect::to('/files/' . $file_details->id);
+            if (Auth::user()->public == 1) {
+                DB::table('download_list')
+                    ->where('id', '=', $file_details->id)
+                    ->update(['public' => DB::raw('!public')]);
+                return Redirect::to('/files/' . $file_details->id);
+            }else{
+                return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
+            }
         }elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
             if(preg_match(Config::get('leech.rename_regex'), $input['new_name'])) {
             $blocked_ext = Config::get('leech.blocked_ext');
@@ -339,9 +347,10 @@ class HomeController extends Controller
                 ->get();
 
         $aria2 = new aria2();
-        $downloaded_speed_kb = 0;
+
         $json = [];
         foreach ($users as $file){
+            $downloaded_speed_kb = 0;
             $downloaded_speed = 0;
             $downloaded_size = 0;
 

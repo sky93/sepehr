@@ -11,6 +11,7 @@ use Hash;
 use Config;
 use DB;
 use main;
+use Validator;
 
 class UserController extends Controller {
     /**
@@ -91,7 +92,11 @@ class UserController extends Controller {
                 ->orderBy('date', 'desc')
                 ->delete();
 
-            return Redirect::intended('/');
+            if (Auth::user()->role == 2){
+                return Redirect::to('tools/status');
+            }else{
+                return Redirect::to('/');
+            }
         }
 
         $main = new main();
@@ -157,7 +162,7 @@ class UserController extends Controller {
         $user->username = $request['username'];
         $user->email = $request['email'];
         $user->password = Hash::make($request['password']);
-        $user->credit = $request['credit'] * 1024 * 1024;
+        $user->credit = $request['credit'] * 1024 * 1024 * 1024;
 
         $user->save();
 
@@ -200,8 +205,8 @@ class UserController extends Controller {
 
         return redirect()->back()
             ->withInput($request->only('old_password', 'new_password', 'new_password_confirmation'))
-            ->with('message', 'Your password has been changed!')
-            ->header('refresh', '5;url=http://google.com');
+            ->with('message', 'Your password has been changed!');
+
     }
 
 	/**
@@ -249,6 +254,93 @@ class UserController extends Controller {
         return redirect('/');
 	}
 
+    public function register_csv()
+    {
+        $main = new main();
+        return view('auth.register_csv', array('main' => $main));
+    }
+
+    public function postregister_csv(Request $request)
+    {
+        ignore_user_abort(true);
+        ini_set('max_execution_time', 0);
+        if (ini_get('max_execution_time') != 0){
+            return redirect::back()->withErrors('Could not change max_execution_time variable. Please review php.ini file.');
+        };
+        if ($request->hasFile('csv_file') && $request->file('csv_file')->isValid())
+        {
+            if (mb_strtolower($request->file('csv_file')->getClientOriginalExtension()) != 'csv'){
+                return redirect::back()->withErrors('The uploaded file is not a valid CSV file.');
+            }
+            if ($request->file('csv_file')->getClientSize() > 1024 * 1024){
+                return redirect::back()->withErrors('The uploaded file is bigger than 1MB.');
+            }
+
+            $path = $request->file('csv_file')->move(storage_path().'/csv_files/', date('d-m-Y-H-i', time()) . '-' . Auth::user()->username . '-' . rand(100,999) . '.csv');
+            $row = 1;
+            if (($handle = fopen("$path", "r")) !== FALSE) {
+                $fails = 0;
+                $success = 0;
+                $conflicts = [];
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    $num = count($data);
+                    if($num != 4){
+                        return redirect::back()->withErrors('CSV file should have 4 rows. First name, Last name, Password and Username');
+                    }
+//                    echo "<p> $num fields in line $row: <br /></p>\n";
+                    $row++;
+                    $input['username'] = $data[3];
+                    $rules = array('username' => 'unique:users,username');
+                    $validator = Validator::make($input, $rules);
+
+
+                    if ($validator->fails()) {
+                        $fails++;
+                        $conflicts[] = "Couldn't add user " . $data[3];
+                    }
+                    else {
+                        $success++;
+                        $user = new User;
+
+                        $user->first_name = trim($data[0]);
+                        $user->last_name =  trim($data[1]);
+                        $user->username = trim($data[3]);
+                        $password = trim($data[2]);
+                        if (empty($password)){
+                            $password = $data[3];
+                        }
+                        $role = $request['role_radio'] == 2 ? 2 : 1;
+                        $user->role = $role;
+
+                        $active = $request['active'] == 'active' ? 1 : 0;
+                        $user->active = $active;
+
+                        $torrent = $request['torrent'] == 'torrent' ? 1 : 0;
+                        $user->torrent = $torrent;
+
+                        $public = $request['public'] == 'public' ? 1 : 0;
+                        $user->public = $public;
+
+                        $user->password = Hash::make($password);
+
+                        $user->credit = $request['credit'] * 1024 * 1024 * 1024;
+
+                        $user->save();
+                    }
+                }
+                fclose($handle);
+
+            }else{
+                return redirect::back()->withErrors('CSV is not valid.');
+            }
+            return redirect()->back()
+                ->with('message', $success . ' users added successfully and ' . $fails . ' failed.')
+                ->withErrors($conflicts);
+        }else{
+            return redirect::back()->withErrors('CSV file did not upload to server. Try again.');
+        }
+    }
+
     /**
      * Get the failed login message.
      *
@@ -258,5 +350,6 @@ class UserController extends Controller {
     {
         return '';
     }
+
 
 }

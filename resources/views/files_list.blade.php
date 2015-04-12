@@ -92,16 +92,18 @@
                 <div class="panel-footer">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <div class="row">
+                            <div class="col-md-offset-8"></div>
                             <div style="padding: 5px" class="col-md-offset-8 col-md-2">
-                                <button style="width: 100%" type="submit" name="action" value="delete" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> @lang('messages.delete')</button>
+                                <button style="width: 100%" type="submit" name="action"{{((Auth::user()->public == 0) ? ' disabled ':' ')}}value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> @lang('messages.public')</button>
                             </div>
                             <div style="padding: 5px" class="col-md-2">
-                                <button style="width: 100%" type="submit" name="action" value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> @lang('messages.public')</button>
+                                <button style="width: 100%" type="submit" name="action" value="delete" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> @lang('messages.delete')</button>
                             </div>
                         </div>
                 </div>
                 </form>
             </div>
+
         </div>
     </div>
 @endsection
