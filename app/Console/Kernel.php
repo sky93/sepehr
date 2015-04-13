@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel {
                 $old_files = DB::table('download_list')
                     ->where('date_completed', '<', $time)
                     ->where('keep', '=', 0)
+                    ->where('deleted', '=', 0)
                     ->get();
 
                 foreach ($old_files as $old_file) {
