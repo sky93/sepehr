@@ -36,12 +36,12 @@
                 </div>
                 <div class="panel-footer">
                         <div class="row">
-                            <div class="col-lg-2">
-                                <a href="{{ asset('tools/users/' . $user->username) }}" class="btn btn-success"><i class="fa fa-arrow-left fa-lg"></i> @lang('messages.back')</a>
+                            <div style="padding: 5px" class="col-md-2">
+                                <a style="width: 100%" href="{{ Auth::user()->role == 2 ? asset('tools/users/' . $user->username) : asset('/') }}" class="btn btn-success"><i class="fa fa-arrow-left fa-lg"></i> @lang('messages.back')</a>
                             </div>
                             @if (Auth::user()->role == 2)
                             <div style="padding: 5px" class="col-md-offset-8 col-md-2">
-                                <button id="credit_change" style=" width: 100%" class="btn btn-warning"><i class="fa fa-plus-square fa-lg"></i> @lang('messages.change_credit')</button>
+                                <button id="credit_change" style="width: 100%" class="btn btn-warning"><i class="fa fa-plus-square fa-lg"></i> @lang('messages.change_credit')</button>
                             </div>
                             @endif
                         </div>

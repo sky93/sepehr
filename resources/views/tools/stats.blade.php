@@ -77,7 +77,6 @@
             </div>
         </div>
     </div>
-
     <script>
         var canv = $('#chart');
         $(window).on('resize', function(){
@@ -89,7 +88,7 @@
         canv.attr('width', canv.parent().width());
         canv.attr('height', canv.parent().height());
         var vals = new TimeSeries();
-        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0}}),
+        var chart = new SmoothieChart({millisPerPixel:100,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0,minValue:0,maxValueScale:1.19}}),
                 canvas = document.getElementById('chart'),
                 series = new TimeSeries();
         chart.addTimeSeries(vals, {lineWidth:2,strokeStyle:'#ef5050',fillStyle:'rgba(255,100,100,0.20)'});
@@ -142,16 +141,4 @@
         setInterval(gs, 2000);
         setInterval(lf, 5000);
     </script>
-
-    <form class="form-horizontal" method="POST" action="" novalidate="">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-        <div class="form-group">
-            <label class="col-md-4 control-label" for="transload"></label>
-
-            <div class="col-md-1">
-                <button id="transload" name="transload"
-                        class="btn btn-primary">test</button>
-            </div>
-        </div>
-    </form>
 @endsection

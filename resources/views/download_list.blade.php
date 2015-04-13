@@ -74,10 +74,7 @@
                                     <td id="speed">{{ $downloaded_speed }}</td>
                                     <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
                                         <td>
-                                            <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;"
-                                               href="{{ url('/files/' . $file->id) }}" class="btn btn-sm btn-primary"><i
-                                                        class="fa fa-info"></i> @lang('messages.details')
-                                            </a>
+                                            <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;" href="{{ url('/files/' . $file->id) }}" class="btn btn-sm btn-primary"><i class="fa fa-info"></i> @lang('messages.details') </a>
                                         </td>
                                 </tr>
                             @endforeach
@@ -119,7 +116,7 @@
         canv.attr('width', canv.parent().width());
         var vals = new TimeSeries();
         $(document).ready(function () {
-        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0}}),
+        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0,minValue:0,maxValueScale:1.19}}),
                 canvas = document.getElementById('chart'),
                 series = new TimeSeries();
         chart.addTimeSeries(vals, {lineWidth:2,strokeStyle:'#ef5050',fillStyle:'rgba(255,100,100,0.20)'});

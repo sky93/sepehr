@@ -6,7 +6,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading">{{ Lang::get('messages.home') }}</div>
+                <div class="panel-heading">{{ Lang::get('messages.home') }}
+                    @if (Auth::user()->role == 2)
+                        <a style="padding:0 5px 0 5px; margin-bottom: 1px;" href="{{ url('/tools/status') }}" class="btn btn-sm btn-success pull-right"><i class="fa fa-area-chart"></i> @lang('messages.gband') </a><span class="pull-right">@lang('messages.quick_acc'): &nbsp;</span>
+                    @endif
+                </div>
                 <div class="panel-body">
                     @if (count($errors) > 0)
                         <div class="alert alert-danger">

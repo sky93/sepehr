@@ -18,13 +18,13 @@ if (!Auth::guest()){  // Only users can show new messages.
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
+    <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com AND Pejman Yaghmaie | yaghmaie.p@gmail.com">
     <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
     <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/main.css?v=1') }}" rel="stylesheet">
+    <link href="{{ asset('/css/main.css?v=2') }}" rel="stylesheet">
     <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
 
     <!--[if lt IE 9]>
@@ -66,7 +66,9 @@ if (!Auth::guest()){  // Only users can show new messages.
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     @if (!Auth::guest())
+                        @if (Auth::user()->role != 2)
                         <li><a href="{{ asset('') }}"><i class="fa fa-download"></i> @lang('messages.home')</a></li>
+                        @endif
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-file-o"></i> @lang('messages.files')<span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
@@ -82,6 +84,18 @@ if (!Auth::guest()){  // Only users can show new messages.
                     @if (Auth::guest())
                         <li><a href="{{ url('login') }}">@lang('messages.login')</a></li>
                     @else
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-expanded="false"><span>Credits </span><span class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
+                            <ul class="dropdown-menu bw" role="menu">
+                                {{--<li class="divider"></li>--}}
+                                <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
+                                <li class="disabled"><a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
+                                {{--<li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>--}}
+                                {{--<li class="divider"></li>--}}
+                                {{--<li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>--}}
+                            </ul>
+                        </li>
                         @if (Auth::user()->role == 2)
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i> @lang('messages.tools') <span class="caret"></span></a>
@@ -96,19 +110,6 @@ if (!Auth::guest()){  // Only users can show new messages.
                                     <li class="divider"></li>
                                     <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> Aria2
                                             Console</a></li>
-                                </ul>
-                            </li>
-                            @else
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                                   aria-expanded="false"><span>Credits </span><span class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
-                                <ul class="dropdown-menu bw" role="menu">
-                                    {{--<li class="divider"></li>--}}
-                                    <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
-                                    <li class="disabled"><a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
-                                    {{--<li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>--}}
-                                    {{--<li class="divider"></li>--}}
-                                    {{--<li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>--}}
                                 </ul>
                             </li>
                         @endif
