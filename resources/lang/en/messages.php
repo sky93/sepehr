@@ -104,7 +104,9 @@ return [
     'more_actions'          => 'More Actions',
     'save_changes'          => 'Save Changes',
     'hello'                 => 'Hello',
-    'info_updates'          => 'Information updated!',
+    'info_updates'          => 'Hello',
+    'credit_history'        => 'My Credits History',
+    'credit_buy'            => 'Buy More Credits',
     'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
 
     /**

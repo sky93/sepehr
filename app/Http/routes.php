@@ -39,33 +39,14 @@ $router->group(['middleware' => ['auth', 'empty_email']], function() {
 
     Route::get('user/{username}/password', 'UserController@password');
     Route::post('user/{username}/password', 'UserController@post_password');
+
+    Route::get('user/{username}/credit/history', 'UserController@credit_history');
+    //Route::get('user/{username}/credit/buy', 'UserController@credit_history');
 });
 
 
 //Admin's routes
 $router->group(['middleware' => 'auth', 'role' => '2'], function() {
-    Route::get('/cron', function() {
-
-        if (config('leech.auto_delete')) {
-            $time = date("Y-m-d H:i:s", time() - (config('leech.auto_delete_time') * 60 * 60));
-
-            $old_files = DB::table('download_list')
-                ->where('date_completed', '<', $time)
-                ->where('keep', '=', 0)
-                ->get();
-
-            foreach ($old_files as $old_file) {
-                $res = @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name);
-                @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . '.aria2');
-                DB::table('download_list')
-                    ->where('id', $old_file->id)
-                    ->update(['deleted' => 1]);
-                if (!$res) echo 'Not deleted: ' . public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . "\n";
-            }
-
-        }
-    });
-
     Route::get('/tools/register', 'UserController@register');
     Route::post('/tools/register', 'UserController@postregister');
 

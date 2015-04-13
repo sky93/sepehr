@@ -18,6 +18,11 @@ body {
     width: 250px !important;
 }
 
+.maincredit{
+     font-size: 100% !important;
+     font-weight: normal !important;
+}
+
 #footer {
     margin-top: 20px;
     position: absolute;

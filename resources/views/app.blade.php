@@ -98,6 +98,19 @@ if (!Auth::guest()){  // Only users can show new messages.
                                             Console</a></li>
                                 </ul>
                             </li>
+                            @else
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                   aria-expanded="false"><span>Credits </span><span class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
+                                <ul class="dropdown-menu bw" role="menu">
+                                    {{--<li class="divider"></li>--}}
+                                    <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
+                                    <li class="disabled"><a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
+                                    {{--<li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>--}}
+                                    {{--<li class="divider"></li>--}}
+                                    {{--<li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>--}}
+                                </ul>
+                            </li>
                         @endif
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
@@ -106,8 +119,8 @@ if (!Auth::guest()){  // Only users can show new messages.
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li class="dropdown-header">Credits</li>
-                                <li>
-                                    <a href="{{ url('credit') }}">
+                                <li class="disabled">
+                                    <a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}">
                                         <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span>
                                     </a>
                                 </li>

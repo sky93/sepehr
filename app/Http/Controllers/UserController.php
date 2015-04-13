@@ -384,8 +384,6 @@ class UserController extends Controller {
     }
 
     public function post_user_info(Request $request,$username){
-//
-//        return "BECCA";
         if (Auth::user()->username == $username || Auth::user()->role == 2) {
             $this->validate($request, [
                 'email' => 'required|email|unique:users,email'
@@ -401,6 +399,26 @@ class UserController extends Controller {
                 return Redirect::to('/');
             else
                 return redirect()->back()->with('message', Lang::get('messages.info_updates'));
+        }
+        else
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
+    }
+
+
+
+    public function credit_history($user_name)
+    {
+        if (Auth::user()->username == $user_name || Auth::user()->role == 2) {
+            $user = User::where('username', '=', $user_name)->first();
+
+            $tracks = DB::table('credit_log')
+                ->select('credit_log.*', 'users.username')
+                ->join('users', 'credit_log.agent', '=', 'users.id')
+                ->where('user_id', '=', $user->id)
+                ->get();
+
+            $main = new main();
+            return view('tools.user_credits', array('main' => $main, 'user' => $user, 'tracks' => $tracks));
         }
         else
             return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
