@@ -46,7 +46,7 @@ $router->group(['middleware' => ['auth', 'empty_email']], function() {
 
 
 //Admin's routes
-$router->group(['middleware' => 'auth', 'role' => '2'], function() {
+$router->group(['middleware' => ['auth', 'empty_email'], 'role' => '2'], function() {
     Route::get('/tools/register', 'UserController@register');
     Route::post('/tools/register', 'UserController@postregister');
 
