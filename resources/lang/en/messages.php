@@ -64,6 +64,8 @@ return [
     'details'               => 'Details',
     'gband'                 => 'Global Status',
     'status'                => 'Status',
+    'delete_in'             => 'Delete In',
+    'personal_info'         => 'Personal Information',
     'torrent_disabled'      => 'Torrent has been disabled for your account.',
     'aria2console'          => 'Aria2 Console',
     'aria2_enter'           => 'Enter Aria2 JSON RPC Command here',
@@ -80,6 +82,7 @@ return [
     'back'                  => 'Back',
     'public'                => 'Public',
     'public_tip'            => 'In this section you can see public files of other users. You can make your file public too to show up here. Go ahead!',
+    'valid_mail'            => 'Please enter a valid and usable email. Otherwise it will be impossible to recover your account and we cannot help or support you.',
     'agent'                 => 'Agent',
     'delete_user'           => 'Delete User',
     'change_password'       => 'Change Password',
@@ -99,6 +102,10 @@ return [
     'sha1'                  => 'Get File SHA1',
     'rename'                => 'Rename',
     'more_actions'          => 'More Actions',
+    'save_changes'          => 'Save Changes',
+    'hello'                 => 'Hello',
+    'info_updates'          => 'Information updated!',
+    'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
 
     /**
      * Main Title

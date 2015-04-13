@@ -262,4 +262,18 @@ class main
 
         return false;
     }
+
+
+    /**
+     * Converts hours to day if hours is more than 24
+     *
+     * @param $h
+     * @return string
+     */
+    public function hours2day($h){
+        if ($h > 24){
+            return round($h/24) . ' Days';
+        }
+        return round($h) . ' Hours';
+    }
 }

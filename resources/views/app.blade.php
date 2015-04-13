@@ -112,7 +112,9 @@ if (!Auth::guest()){  // Only users can show new messages.
                                     </a>
                                 </li>
                                 <li class="divider"></li>
-                                <li><a href="{{ url('user/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>
+                                <li><a href="{{ url('user/'. Auth::user()->username) }}"><i class="fa fa-user"></i> @lang('messages.personal_info')</a></li>
+                                <li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>
+                                <li class="divider"></li>
                                 <li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>
                             </ul>
                         </li>

@@ -2,6 +2,8 @@
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use DB;
+use Config;
 
 class Kernel extends ConsoleKernel {
 
@@ -22,8 +24,26 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('inspire')
-				 ->hourly();
+        $schedule->call(function()
+        {
+            if (config('leech.auto_delete')) {
+                $time = date("Y-m-d H:i:s", time() - (config('leech.auto_delete_time') * 60 * 60));
+
+                $old_files = DB::table('download_list')
+                    ->where('date_completed', '<', $time)
+                    ->where('keep', '=', 0)
+                    ->get();
+
+                foreach ($old_files as $old_file) {
+                    $res = @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name);
+                    @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . '.aria2');
+                    DB::table('download_list')
+                        ->where('id', $old_file->id)
+                        ->update(['deleted' => 1]);
+                    if (!$res) echo 'Not deleted: ' . public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . "\n";
+                }
+            }
+        })->sendOutputTo(storage_path() . '/cron/logs.log');
 	}
 
 }

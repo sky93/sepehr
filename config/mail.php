@@ -54,7 +54,7 @@ return [
 	|
 	*/
 
-	'from' => ['address' => 'postmaster@sandbox3e38b42e0e2948f287138622e77cf718.mailgun.org', 'name' => env('APP_NAME', 'Aria Leecher')],
+	'from' => ['address' => 'sepehr@sadjad.ac.ir', 'name' => env('EMAIL_TITLE', 'Aria Leecher')],
 
 	/*
 	|--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'encryption' => 'tls',
+	'encryption' => '',
 
 	/*
 	|--------------------------------------------------------------------------

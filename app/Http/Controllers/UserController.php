@@ -33,6 +33,11 @@ class UserController extends Controller {
 
     public function login()
     {
+        if (Auth::check())
+        {
+            return Redirect::to('/');
+        }
+
         return view('auth.login', array('main' => new main()));
     }
 
@@ -44,6 +49,11 @@ class UserController extends Controller {
      */
     public function postLogin(Request $request)
     {
+        if (Auth::check())
+        {
+            return Redirect::to('/');
+        }
+
         //Now unconfirmed users or banned users cannot login
         $credentials['active'] = 1;
 
@@ -173,17 +183,24 @@ class UserController extends Controller {
      * Shows change password form
      *
      */
-    public function password()
+    public function password($username)
     {
-        return view('auth.change_password');
+        if (Auth::user()->username == $username || Auth::user()->role == 2)
+            return view('auth.change_password');
+        else
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
+
     }
 
 	/**
      * Changes user password
 	 *
 	 */
-    public function post_password(Request $request)
+    public function post_password(Request $request, $username)
     {
+        if (!(Auth::user()->username == $username || Auth::user()->role == 2))
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
+
         $this->validate($request, [
             'old_password' => 'required|min:6',
             'new_password' => 'required|min:6|confirmed:new_password_confirmation',
@@ -326,6 +343,14 @@ class UserController extends Controller {
                         $user->credit = $request['credit'] * 1024 * 1024 * 1024;
 
                         $user->save();
+
+                        DB::table('credit_log')->insert(
+                            array(
+                                'user_id' => $user->id,
+                                'credit_change' =>  $request['credit'] * 1024 * 1024 * 1024,
+                                'agent' => 0,
+                            )
+                        );
                     }
                 }
                 fclose($handle);
@@ -333,12 +358,52 @@ class UserController extends Controller {
             }else{
                 return redirect::back()->withErrors('CSV is not valid.');
             }
-            return redirect()->back()
-                ->with('message', $success . ' users added successfully and ' . $fails . ' failed.')
-                ->withErrors($conflicts);
+            if ($success)
+                return redirect()->back()
+                    ->with('message', $success . ' users added successfully and ' . $fails . ' failed.')
+                    ->withErrors($conflicts);
+            else
+                return redirect()->back()
+                    ->withErrors($conflicts);
+
         }else{
             return redirect::back()->withErrors('CSV file did not upload to server. Try again.');
         }
+    }
+
+    public function user_info($username)
+    {
+        if (Auth::user()->username == $username || Auth::user()->role == 2) {
+            $user = DB::table('users')
+                ->where('username', '=', $username)
+                ->first();
+            return view('user.user_info', ['user' => $user]);
+        }
+        else
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
+    }
+
+    public function post_user_info(Request $request,$username){
+//
+//        return "BECCA";
+        if (Auth::user()->username == $username || Auth::user()->role == 2) {
+            $this->validate($request, [
+                'email' => 'required|email|unique:users,email'
+            ]);
+
+            DB::table('users')
+                ->where('id', Auth::user()->id)
+                ->update([
+                    'email' => $request['email']
+                ]);
+
+            if (isset($_GET['first']))
+                return Redirect::to('/');
+            else
+                return redirect()->back()->with('message', Lang::get('messages.info_updates'));
+        }
+        else
+            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
     }
 
     /**
