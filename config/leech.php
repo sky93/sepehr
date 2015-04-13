@@ -168,8 +168,6 @@ return [
         'localhost',
         '127.0.0.1',
         '::1',
-        '178.236.33.163',
-        '178.236.33.162',
     ),
 
 
@@ -233,7 +231,7 @@ return [
     |
     */
 
-    'show_change_message' => true,
+    'show_change_message' => false,
     'change_title1' => "What's New",
     'change_title2' => "New Stuff:",
     'change_message' => '<p>Added total download speed with a chart. Check it out in Download List.</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',

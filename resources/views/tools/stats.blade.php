@@ -95,33 +95,26 @@
         chart.addTimeSeries(vals, {lineWidth:2,strokeStyle:'#ef5050',fillStyle:'rgba(255,100,100,0.20)'});
         chart.streamTo(canvas, 1788);
 
-
-        var request;
-
         function gs() {
-            if (request) {
-                request.abort();
-            }
-
-            request = $.ajax({
+            $.ajax({
                 url : '',
                 type : 'post' ,
                 data : "_token={{ csrf_token() }}&gs=1" ,
-                dataType: 'json'
-            });
+                dataType: 'json',
 
-            request.done(function (response, textStatus, jqXHR) {
-                $('#speed').html(response.speed + '/s');
-                $('#numActive').html(response.numActive);
-                $('#numStopped').html(response.numStopped);
-                $('#numWaiting').html(response.numWaiting);
-                vals.append(new Date().getTime(), response.speed_b);
 
-            });
+                success: function (response, textStatus, jqXHR) {
+                    $('#speed').html(response.speed + '/s');
+                    $('#numActive').html(response.numActive);
+                    $('#numStopped').html(response.numStopped);
+                    $('#numWaiting').html(response.numWaiting);
+                    vals.append(new Date().getTime(), response.speed_b);
 
-            request.fail(function (jqXHR, textStatus, errorThrown) {
-                random.append(new Date().getTime(), 0);
-                console.error("The following error occurred: " +textStatus, errorThrown)
+                },
+
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error("The following error occurred: " + textStatus, errorThrown);
+                }
             });
         }
 
@@ -146,7 +139,19 @@
         }
         gs();
         lf();
-        setInterval(gs, 1000);
+        setInterval(gs, 2000);
         setInterval(lf, 5000);
     </script>
+
+    <form class="form-horizontal" method="POST" action="" novalidate="">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="transload"></label>
+
+            <div class="col-md-1">
+                <button id="transload" name="transload"
+                        class="btn btn-primary">test</button>
+            </div>
+        </div>
+    </form>
 @endsection

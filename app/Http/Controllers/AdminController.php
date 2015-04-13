@@ -78,9 +78,7 @@ class AdminController extends Controller
                     elseif ($file->state == -3)
                         $status = Lang::get('messages.deleted');
                     else
-                        $status = Lang::get('messages.error_id', ['id' => $file->status]);
-
-
+                        $status = Lang::get('messages.error_id', ['id' => $file->state]);
 
                     $table[] = [
                         'id' => $file->id,
