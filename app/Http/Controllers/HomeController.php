@@ -324,18 +324,8 @@ class HomeController extends Controller
 
     public function post_downloads(Request $request)
     {
-        $main = new main();
-        if (!$main->aria2_online())
-            if ($request->ajax()) {
-                return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
-            } else {
-                return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
-            }
-
         if (Auth::user()->role == 2) //Admins need to see all downloads + username
             $users = DB::table('download_list')
-                ->join('users', 'download_list.user_id', '=', 'users.id')
-                ->select('download_list.*', 'users.username')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();
@@ -347,24 +337,28 @@ class HomeController extends Controller
                 ->get();
 
         $aria2 = new aria2();
+        $main = new main();
 
         $json = [];
         foreach ($users as $file){
             $downloaded_speed_kb = 0;
             $downloaded_speed = 0;
             $downloaded_size = 0;
+            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]))
+            $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
 
-            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"])) {
-                $downloaded_size = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]["completedLength"];
+            if (isset($result["completedLength"])) {
+                $downloaded_size = $result["completedLength"];
             }
 
             if ($downloaded_size == 0) {
                 $downloaded_size = $file->completed_length;
             }
 
-            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'])) {
-                $downloaded_speed = $main->formatBytes($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed'], 0) . '/s';
-                $downloaded_speed_kb = round($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))['result']['downloadSpeed']/1024);
+            if (isset($result['downloadSpeed'])) {
+                $speed_bytes = $result['downloadSpeed'];
+                $downloaded_speed = $main->formatBytes($speed_bytes, 0) . '/s';
+                $downloaded_speed_kb = round($speed_bytes/1024);
             }
 
             if ($file->state != -1) {
