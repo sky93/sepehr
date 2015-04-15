@@ -116,7 +116,7 @@
         canv.attr('width', canv.parent().width());
         var vals = new TimeSeries();
         $(document).ready(function () {
-        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0,minValue:0,maxValueScale:1.19}}),
+        var chart = new SmoothieChart({millisPerPixel:67,grid:{fillStyle:'#ffffff',verticalSections:0},labels:{fillStyle:'#000000',fontSize:18,precision:0},minValue:0,maxValueScale:1.19}),
                 canvas = document.getElementById('chart'),
                 series = new TimeSeries();
         chart.addTimeSeries(vals, {lineWidth:2,strokeStyle:'#ef5050',fillStyle:'rgba(255,100,100,0.20)'});
