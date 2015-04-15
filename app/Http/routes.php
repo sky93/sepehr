@@ -16,8 +16,6 @@ Route::post('/login', 'UserController@postLogin');
 
 
 $router->group(['middleware' => ['auth', 'empty_email']], function() {
-    Route::get('/logout', 'UserController@logout');
-
     Route::get('/', 'HomeController@index');
     Route::post('/', 'HomeController@postindex');
 
@@ -43,6 +41,11 @@ $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::get('user/{username}/credit/history', 'UserController@credit_history');
     //Route::get('user/{username}/credit/buy', 'UserController@credit_history');
 });
+
+$router->group(['middleware' => 'auth'], function() {
+    Route::get('/logout', 'UserController@logout');
+});
+
 
 
 //Admin's routes
