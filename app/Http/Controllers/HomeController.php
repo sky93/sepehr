@@ -345,7 +345,9 @@ class HomeController extends Controller
             $downloaded_speed = 0;
             $downloaded_size = 0;
             if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]))
-            $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
+                $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
+            else
+                $result = null;
 
             if (isset($result["completedLength"])) {
                 $downloaded_size = $result["completedLength"];
