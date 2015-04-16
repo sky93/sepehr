@@ -13,6 +13,7 @@ use Hash;
 use Validator;
 use main;
 use Illuminate\Support\Facades\Config;
+use Input;
 
 class AdminController extends Controller
 {
@@ -265,9 +266,10 @@ class AdminController extends Controller
             SUM(length) as length_sum,
             COUNT(*) as total_files_deleted,
             (select COUNT(*) from download_list where deleted=0 AND user_id = ' . $users->id . ') as total_files,
+            (select SUM(`length`) from download_list where (state = -1 OR state is null) AND user_id = ' . $users->id . ') as queue_credit,
             (select COUNT(*) from download_list where state > 0 AND deleted=0 AND user_id = ' . $users->id . ') as total_error_files,
             (select COUNT(*) from download_list where state > 0 AND user_id = ' . $users->id . ') as total_error_files_deleted,
-            (select COUNT(*) from download_list where state is NULL AND user_id = ' . $users->id . ') as total_download_queue
+            (select COUNT(*) from download_list where (state = -1 OR state is null) AND user_id = ' . $users->id . ') as total_download_queue
 
             '))
             ->where('user_id', '=', $users->id)
@@ -287,12 +289,57 @@ class AdminController extends Controller
     {
         $main = new main();
 
+        $page = Input::get('page');
+        if (!$page)
+            $page = 1;
+
+        $users_count = DB::table('users')->count();
+        $skip = ($page - 1) * 20;
+        $take = 20;
+
+        if ($page == 'all')
+        {
+            $skip = 0;
+            $take = $users_count;
+        }
         $users = DB::table('users')
             ->where('id', '>' , 0)
+            ->skip($skip)
+            ->take($take)
             ->get();
 
-        return view('tools.users', array('users' => $users, 'main' => $main));
+        return view('tools.users', array('users' => $users, 'main' => $main, 'users_count' => $users_count));
     }
 
+
+
+    public function post_users(Request $request)
+    {
+
+    }
+
+
+
+    public function files(Request $request)
+    {
+        $main = new main();
+
+        $page = Input::get('page');
+        if (!$page)
+            $page = 1;
+
+        $files_count = DB::table('download_list')->count();
+
+        $files = DB::table('download_list')
+            ->leftJoin('users', 'users.id', '=', 'download_list.user_id')
+            ->select('download_list.*', 'users.username')
+            ->where('download_list.id', '>' , 0)
+            ->orderBy('id','DEC')
+            ->skip(($page - 1) * 20)
+            ->take(20)
+            ->get();
+
+        return view('tools.all_files', ['files' => $files, 'main' => $main, 'files_count' => $files_count]);
+    }
 
 }

@@ -14,6 +14,14 @@
 Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
+Route::get('lol', function(){
+    Mail::queue('email', ['key' => 'value'] , function($message)
+    {
+        $message->to('becca4eva@live.com', 'John Smith')->subject('Aria!');
+    });
+    return 'email is sending...';
+});
+
 
 $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::get('/', 'HomeController@index');
@@ -57,7 +65,7 @@ $router->group(['middleware' => ['auth', 'empty_email'], 'role' => '2'], functio
     Route::post('/tools/register-csv', 'UserController@postregister_csv');
 
     Route::get('/tools/users', 'AdminController@users');
-    Route::post('/tools/users', 'AdminController@users');
+    Route::post('/tools/users', 'AdminController@post_users');
 
     Route::get('/tools/users/{username}', 'AdminController@user_details');
     Route::post('/tools/users/{username}', 'AdminController@postuser_details');
@@ -70,6 +78,9 @@ $router->group(['middleware' => ['auth', 'empty_email'], 'role' => '2'], functio
 
     Route::get('/tools/status', 'AdminController@stat');
     Route::post('/tools/status', 'AdminController@post_stat');
+
+    Route::get('/tools/files', 'AdminController@files');
+    Route::post('/tools/files', 'AdminController@post_files');
 });
 
 Route::controllers([

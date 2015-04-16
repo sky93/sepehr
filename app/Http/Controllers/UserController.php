@@ -12,6 +12,7 @@ use Config;
 use DB;
 use main;
 use Validator;
+use Mail;
 
 class UserController extends Controller {
     /**
@@ -395,9 +396,15 @@ class UserController extends Controller {
                     'email' => $request['email']
                 ]);
 
-            if (isset($_GET['first']))
+            if (isset($_GET['first'])) {
+                Mail::queue('emails.welcome', ['firstname'=>Auth::user()->first_name, 'lastname'=>Auth::user()->last_name, ], function($message)
+                {
+                    global $username, $request;
+                    $message->to($request['email'], $username)->subject('Welcome!');
+                });
                 return Redirect::to('/');
-            else
+
+            }else
                 return redirect()->back()->with('message', Lang::get('messages.info_updates'));
         }
         else

@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration {
 			$table->string('email')->unique();
 			$table->string('password', 60);
             $table->bigInteger('credit');
-            $table->bigInteger('queue_credit');
+//            $table->bigInteger('queue_credit');
 			$table->rememberToken();
 			$table->timestamps();
 		});

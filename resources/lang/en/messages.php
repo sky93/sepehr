@@ -110,6 +110,7 @@ return [
     'credit_buy'            => 'Buy More Credits',
     'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
 
+
     /**
      * Main Title
     **/
@@ -122,4 +123,5 @@ return [
     'usr_details'           => 'User Details',
     'usr_credit'            => 'User Credit',
     'users'                 => 'Users',
+    'all_files'             => 'All Files',
 ];

@@ -105,9 +105,9 @@ if (!Auth::guest()){  // Only users can show new messages.
                                     <li><a href="{{ url('/tools/register-csv') }}"><i class="fa fa-plus"></i> @lang('messages.add.user.csv')</a></li>
                                     <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="{{ url('/tools/status') }}"><i
-                                                    class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
+                                    <li><a href="{{ url('/tools/files') }}"><i class="fa fa-file-text-o"></i> @lang('messages.all_files')</a></li>
                                     <li class="divider"></li>
+                                    <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
                                     <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> Aria2
                                             Console</a></li>
                                 </ul>

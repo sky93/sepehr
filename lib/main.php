@@ -271,8 +271,9 @@ class main
      * @return string
      */
     public function hours2day($h){
-        if ($h > 24){
-            return round($h/24) . ' Days';
+        if ($h > 24)
+        {
+            return round($h/24) == 1 ? round($h/24) . ' Day': round($h/24) . ' Days';
         }
         return round($h) . ' Hours';
     }

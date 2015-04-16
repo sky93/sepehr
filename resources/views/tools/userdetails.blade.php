@@ -60,7 +60,7 @@
                                 </tr>
                                 <tr>
                                     <td>Queue Credits:</td>
-                                    <td class="bld">{{ $main->formatBytes($user->queue_credit,1) }} <span style="font-size: x-small">({{ $user->queue_credit }} bytes)</span></td>
+                                    <td class="bld">{{ $main->formatBytes($userd->queue_credit,1) }} <span style="font-size: x-small">({{ $userd->queue_credit }} bytes)</span></td>
                                 </tr>
                                 <tr>
                                     <td>Role:</td>

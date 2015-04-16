@@ -176,7 +176,7 @@
                                     <div class="btn-group" role="group" aria-label="BECCA">
                                         @if($file->deleted != 1)
                                             @if($file->state == 0)
-                                                @if(Auth::user()->id == $file->user_id)
+                                                @if(Auth::user()->id == $file->user_id || Auth::user()->role == 2)
                                                 @yield('public')
                                                 @yield('remove')
                                                 @yield('more_actions')
