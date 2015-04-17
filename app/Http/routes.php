@@ -14,14 +14,6 @@
 Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
-Route::get('lol', function(){
-    Mail::queue('email', ['key' => 'value'] , function($message)
-    {
-        $message->to('becca4eva@live.com', 'John Smith')->subject('Aria!');
-    });
-    return 'email is sending...';
-});
-
 
 $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::get('/', 'HomeController@index');

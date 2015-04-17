@@ -67,6 +67,8 @@ return [
     'status'                => 'Status',
     'delete_in'             => 'Delete In',
     'personal_info'         => 'Personal Information',
+    'bk_to_users'           => 'Back To Users',
+    'show_all_users'        => 'Show All Users',
     'torrent_disabled'      => 'Torrent has been disabled for your account.',
     'aria2console'          => 'Aria2 Console',
     'aria2_enter'           => 'Enter Aria2 JSON RPC Command here',
@@ -108,6 +110,10 @@ return [
     'info_updates'          => 'Hello',
     'credit_history'        => 'My Credits History',
     'credit_buy'            => 'Buy More Credits',
+    'search'                => 'Search',
+    'firstname'             => 'First name',
+    'lastname'              => 'Last name',
+    'email'                 => 'Email',
     'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
 
 

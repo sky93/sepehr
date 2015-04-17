@@ -98,7 +98,7 @@
             $.ajax({
                 url : '',
                 type : 'post' ,
-                data : "_token={{ csrf_token() }}&gs=1" ,
+                data : "gs=1" ,
                 dataType: 'json',
 
 
@@ -121,7 +121,7 @@
             $.ajax({
                 url : '',
                 type : 'POST' ,
-                data : "_token={{ csrf_token() }}&lf=1" ,
+                data : "lf=1" ,
                 dataType: 'json',
 
                 success: function (response, textStatus, jqXHR) {

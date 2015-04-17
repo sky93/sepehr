@@ -453,11 +453,8 @@ class HomeController extends Controller
 
         $q_credit = DB::table('download_list')
             ->where('user_id', '=', Auth::user()->id)
-            ->where(function($query)
-            {
-                $query->whereNull('state');
-                $query->orWhere('state', '-1');
-            })
+            ->where('deleted', '=', '0')
+            ->where('state', '<>', '0')
             ->sum('length') + $fileSize;
 
         if ($q_credit > Auth::user()->credit) {

@@ -131,7 +131,7 @@
                 $.ajax({
                     url: "",
                     type: "POST",
-                    data: "_token={{ csrf_token() }}" ,
+                    data: "" ,
                     dataType: 'json',
 
                     success: function (response) {

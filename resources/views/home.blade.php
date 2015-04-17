@@ -124,8 +124,7 @@
                                 <label class="col-md-4 control-label" for="transload"></label>
 
                                 <div class="col-md-1">
-                                    <button id="transload" name="transload"
-                                            class="btn btn-primary">{{ Lang::get('messages.transload') }}</button>
+                                    <button id="transload" name="transload" class="btn btn-primary"><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
                                 </div>
                             </div>
 

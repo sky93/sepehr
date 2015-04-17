@@ -397,7 +397,7 @@ class UserController extends Controller {
                 ]);
 
             if (isset($_GET['first'])) {
-                Mail::queue('emails.welcome', ['firstname'=>Auth::user()->first_name, 'lastname'=>Auth::user()->last_name, ], function($message)
+                Mail::send('emails.welcome', ['firstname'=>Auth::user()->first_name, 'lastname'=>Auth::user()->last_name, ], function($message)
                 {
                     global $username, $request;
                     $message->to($request['email'], $username)->subject('Welcome!');

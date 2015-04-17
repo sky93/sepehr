@@ -266,10 +266,10 @@ class AdminController extends Controller
             SUM(length) as length_sum,
             COUNT(*) as total_files_deleted,
             (select COUNT(*) from download_list where deleted=0 AND user_id = ' . $users->id . ') as total_files,
-            (select SUM(`length`) from download_list where (state = -1 OR state is null) AND user_id = ' . $users->id . ') as queue_credit,
+            (select SUM(`length`) from download_list where state <> 0 AND deleted = 0 AND user_id = ' . $users->id . ') as queue_credit,
             (select COUNT(*) from download_list where state > 0 AND deleted=0 AND user_id = ' . $users->id . ') as total_error_files,
             (select COUNT(*) from download_list where state > 0 AND user_id = ' . $users->id . ') as total_error_files_deleted,
-            (select COUNT(*) from download_list where (state = -1 OR state is null) AND user_id = ' . $users->id . ') as total_download_queue
+            (select COUNT(*) from download_list where state <> 0 AND deleted = 0 AND user_id = ' . $users->id . ') as total_download_queue
 
             '))
             ->where('user_id', '=', $users->id)
@@ -315,7 +315,59 @@ class AdminController extends Controller
 
     public function post_users(Request $request)
     {
+        $main = new main();
 
+        $input = $request->only('id', 'first_name', 'last_name', 'username', 'email', 'public', 'torrent', 'active');
+        $post_back = $input;
+
+        if ($input['id'] == trim('')) $input['id'] = '%';
+        if ($input['first_name'] == trim('')) $input['first_name'] = '%';
+        if ($input['last_name'] == trim('')) $input['last_name'] = '%';
+        if ($input['username'] == trim('')) $input['username'] = '%';
+        if ($input['email'] == trim('')) $input['email'] = '%';
+
+        if ($input['torrent'] == 2) $input['torrent'] = 1;
+        elseif ($input['torrent'] == 3) $input['torrent'] = 0;
+        else $input['torrent'] = '%';
+
+        if ($input['public'] == 2) $input['public'] = 1;
+        elseif ($input['public'] == 3) $input['public'] = 0;
+        else $input['public'] = '%';
+
+        if ($input['active'] == 2) $input['active'] = 1;
+        elseif ($input['active'] == 3) $input['active'] = 0;
+        else $input['active'] = '%';
+
+//        return $input['active'];
+
+//        return $input['id'];
+
+        $users = DB::table('users')
+            ->where('id', '>' , 0)
+            ->where('id', 'like' , '%' . $input['id'] . '%')
+            ->where('first_name', 'like' , '%' . $input['first_name'] . '%')
+            ->where('last_name', 'like' , '%' . $input['last_name'] . '%')
+            ->where('username', 'like' , '%' . $input['username'] . '%')
+            ->where('email', 'like' , '%' . $input['email'] . '%')
+            ->where('active', 'like' , '%' . $input['active'] . '%')
+            ->where('public', 'like' , '%' . $input['public'] . '%')
+            ->where('torrent', 'like' , '%' . $input['torrent'] . '%')
+            ->get();
+//        'id' => ,
+
+        return view('tools.users', array(
+            'users' => $users,
+            'main' => $main,
+            'page' => false,
+            'id' => $post_back['id'],
+            'username' => $post_back['username'],
+            'last_name' => $post_back['last_name'],
+            'first_name' => $post_back['first_name'],
+            'email' => $post_back['email'],
+            'active' => $post_back['active'],
+            'public' => $post_back['public'],
+            'torrent' => $post_back['torrent'],
+        ));
     }
 
 

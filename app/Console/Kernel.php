@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel {
                     if (!$res) echo 'Not deleted: ' . public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . "\n";
                 }
             }
-        })->sendOutputTo(storage_path() . '/cron/logs.log');
+        })->everyTenMinutes()->sendOutputTo(storage_path() . '/cron/logs.log');
 	}
 
 }

@@ -23,7 +23,8 @@
                                         @if(Config::get('leech.auto_delete'))
                                         <th style="width: 7%">@lang('messages.delete_in')</th>
                                         @endif
-                                        <th >@lang('messages.comments')</th>
+                                        <th>@lang('messages.status')</th>
+                                        <th>@lang('messages.comments')</th>
                                         <th style="width: 85px">@lang('messages.details')</th>
                                     </tr>
                                     </thead>
@@ -34,7 +35,7 @@
                                                 <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->username }}</a>
                                             </td>
                                             <td>
-                                                @if ($file->state == 0)
+                                                @if ($file->state == 0 && $file->deleted == 0)
                                                 <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                                 @else
                                                 {{ $file->file_name }}
@@ -45,9 +46,24 @@
                                             @if(Config::get('leech.auto_delete'))
                                                 @if($file->keep)
                                                 <td>Never</td>
+                                                @elseif($file->state != 0)
+                                                <td>-</td>
                                                 @else
-                                                <td>{{ $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) < 0 ? 'deleted' : $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) }}</td>
+                                                <td>{{ $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) < 0 ? 'Deleted' : $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) }}</td>
                                                 @endif
+                                            @endif
+                                            @if($file->state == 0)
+                                                <td>Finished</td>
+                                            @elseif($file->state == null)
+                                                <td>In queue</td>
+                                            @elseif($file->state == -1)
+                                                <td>Downloading</td>
+                                            @elseif($file->state == -2)
+                                                <td>Paused</td>
+                                            @elseif($file->state == -3)
+                                                <td>Deleted</td>
+                                            @else
+                                                <td>Error</td>
                                             @endif
                                             <td>{{ $file->comment }}</td>
                                             <td>
