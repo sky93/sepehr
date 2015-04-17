@@ -102,55 +102,46 @@
                     </form>
 
                     <legend></legend>
-                    <div class="results"></div>
+                    <div id="results"></div>
                     <script src="{{ asset('/js/prettyprint.js') }}"></script>
                     <script>
-                        $(document).ready(function () {
-                            var request;
+                    $(document).ready(function () {
 
-                            $("#frm").submit(function (event) {
+                        $("#frm").submit(function (event) {
 
-                                if (request) {
-                                    request.abort();
-                                }
-                                var $form = $(this);
+                            var $form = $(this);
 
-                                var $inputs = $form.find("input, select, button, textarea");
+                            var $inputs = $form.find("input, select, button, textarea");
 
-                                var serializedData = $form.serialize();
+                            var serializedData = $form.serialize();
 
-                                $inputs.prop("disabled", true);
-                                var sbtn = $('#exe');
-                                var last_text = sbtn.html();
-                                sbtn.html('<i class="fa fa-refresh fa-spin"></i> loading');
+                            $inputs.prop("disabled", true);
+                            var sbtn = $('#exe');
+                            var last_text = sbtn.html();
+                            sbtn.html('<i class="fa fa-refresh fa-spin"></i> loading');
 
-                                request = $.ajax({
-                                    url: "",
-                                    type: "post",
-                                    data: serializedData
-                                });
+                            $.ajax({
+                                url : "",
+                                type : "post" ,
+                                data : serializedData ,
 
-                                request.done(function (response, textStatus, jqXHR) {
-                                    $('.results').html(prettyPrint(response));
-                                });
-
-                                request.fail(function (jqXHR, textStatus, errorThrown) {
-                                    // Log the error to the console
-                                    console.error("The following error occurred: " +textStatus, errorThrown
-                                    );
-                                });
-
-                                request.always(function () {
+                                success : function(response){
+                                    $('#results').html(prettyPrint(response));
                                     $inputs.prop("disabled", false);
                                     sbtn.html(last_text);
-                                });
+                                },
 
-                                event.preventDefault();
+                                error : function(jqXHR, textStatus, errorThrown){
+                                    console.error("The following error occurred: " + textStatus, errorThrown);
+                                    $inputs.prop("disabled", false);
+                                    sbtn.html(last_text);
+                                }
                             });
+
+                            event.preventDefault();
                         });
-
+                    });
                     </script>
-
                 </div>
             </div>
         </div>

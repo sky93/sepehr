@@ -6,7 +6,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading">{{ Lang::get('messages.home') }}</div>
+                <div class="panel-heading">{{ Lang::get('messages.home') }}
+                    @if (Auth::user()->role == 2)
+                        <a style="padding:0 5px 0 5px; margin-bottom: 1px;" href="{{ url('/tools/status') }}" class="btn btn-sm btn-success pull-right"><i class="fa fa-area-chart"></i> @lang('messages.gband') </a><span class="pull-right">@lang('messages.quick_acc'): &nbsp;</span>
+                    @endif
+                </div>
                 <div class="panel-body">
                     @if (count($errors) > 0)
                         <div class="alert alert-danger">
@@ -120,8 +124,7 @@
                                 <label class="col-md-4 control-label" for="transload"></label>
 
                                 <div class="col-md-1">
-                                    <button id="transload" name="transload"
-                                            class="btn btn-primary">{{ Lang::get('messages.transload') }}</button>
+                                    <button id="transload" name="transload" class="btn btn-primary"><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
                                 </div>
                             </div>
 
@@ -129,9 +132,7 @@
                     </form>
                     @if(Auth::user()->torrent != 1)
                         <br/>
-                        <div class="alert alert-info" role="alert" style="text-align: center"><span
-                                    style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice')
-                                : </span>@lang('messages.torrent_disabled')</div>
+                        <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>
                     @endif
                 </div>
             </div>

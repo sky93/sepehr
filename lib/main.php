@@ -3,7 +3,8 @@
 class main
 {
     /**
-     * WARNING: This function chages stream_context_set_default. In the feature I'll fix this problem.
+     * WARNING: This function changes stream_context_set_default. In the feature I'll fix this problem.
+     * Gets URL information such as file size, file redirected url, filename, etc...
      *
      * @param $url
      * @param int $timeout
@@ -12,7 +13,8 @@ class main
      *
      * @return array|bool(false)
      */
-    public function get_info($url, $timeout = 10, $http_username = '', $http_password = ''){ //fixed issue #2
+    public function get_info($url, $timeout = 10, $http_username = '', $http_password = '')
+    {
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
         stream_context_set_default(
@@ -93,6 +95,14 @@ class main
     }
 
 
+
+
+    /**
+     * Checks of an IP address is in white list or not.
+     *
+     * @param $ip
+     * @return bool
+     */
     public function trusted_ip($ip)
     {
         $whitelist = array(
@@ -136,6 +146,15 @@ class main
     }
 
 
+
+
+    /**
+     * Checks if the entered URL is blocked or not by checking
+     * URL Scheme, Port and Host.
+     *
+     * @param $url
+     * @return bool|string
+     */
     public function isBlocked($url)
     {
         $purl = parse_url($url);
@@ -167,6 +186,14 @@ class main
         return false;
     }
 
+
+
+
+    /**
+     * Checks if Aria2 is online
+     *
+     * @return bool
+     */
     public function aria2_online()
     {
         $host = $url = preg_replace("(^https?://)", "", config('leech.aria2_ip'));
@@ -177,12 +204,77 @@ class main
     }
 
 
-    public function formatBytes($bytes, $precision = 2)
+
+
+    /**
+     * Converts bytes to B, KB , MB, ..., YB
+     *
+     * @param $bytes
+     * @param int $precision
+     * @param string $dec_point
+     * @param string $thousands_sep
+     * @return string
+     */
+    public function formatBytes($bytes, $precision = 2, $dec_point = '.', $thousands_sep = ',')
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB');
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= (1 << (10 * $pow));
-        return round($bytes, $precision) . ' ' . $units[$pow];
+        $negative = $bytes < 0;
+        if ($negative) $bytes *= -1;
+        $size = $bytes;
+        $units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $power = $size > 0 ? floor(log($size, 1024)) : 0;
+        $sz = $size / pow(1024, $power);
+        if ($sz - round($sz) == 0) $precision = 0;
+        if ($negative) $sz *= -1;
+        return number_format($sz, $precision, $dec_point, $thousands_sep) . ' ' . $units[$power];
+    }
+
+
+
+
+    /**
+     * Check if an ip is private to prevent show online scripts and stuff.
+     * source: http://stackoverflow.com/a/13818126/2570054
+     * @param $ip
+     * @return bool
+     */
+    public function ip_is_private($ip)
+    {
+        $pri_addrs = array (
+            '10.0.0.0|10.255.255.255', // single class A network
+            '172.15.0.0|172.31.255.255', // 16 contiguous class B network
+            '192.168.0.0|192.168.255.255', // 256 contiguous class C network
+            '169.254.0.0|169.254.255.255', // Link-local address also refered to as Automatic Private IP Addressing
+            '127.0.0.0|127.255.255.255' // localhost
+        );
+
+        $long_ip = ip2long ($ip);
+        if ($long_ip != -1) {
+
+            foreach ($pri_addrs AS $pri_addr) {
+                list ($start, $end) = explode('|', $pri_addr);
+
+                // IF IS PRIVATE
+                if ($long_ip >= ip2long ($start) && $long_ip <= ip2long ($end)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Converts hours to day if hours is more than 24
+     *
+     * @param $h
+     * @return string
+     */
+    public function hours2day($h){
+        if ($h > 24)
+        {
+            return round($h/24) == 1 ? round($h/24) . ' Day': round($h/24) . ' Days';
+        }
+        return round($h) . ' Hours';
     }
 }

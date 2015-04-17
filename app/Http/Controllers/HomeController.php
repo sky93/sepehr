@@ -79,7 +79,6 @@ class HomeController extends Controller
 
     public function postfiles()
     {
-
         $main = new main();
 
         if (!isset($_POST['files']) || empty($_POST['files'])) {
@@ -114,13 +113,17 @@ class HomeController extends Controller
                 }
             }
         } elseif ($_POST['action'] === 'public') {
-            foreach ($_POST['files'] as $file) {
-                if (in_array($file, $auth_files)) {
-                    $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
-                    DB::table('download_list')
-                        ->where('id', $file)
-                        ->update(['public' => 1]);
+            if (Auth::user()->public == 1) {
+                foreach ($_POST['files'] as $file) {
+                    if (in_array($file, $auth_files)) {
+                        $message[] = 'Made Public: ' . $file . '_' . $files_list[$file];
+                        DB::table('download_list')
+                            ->where('id', $file)
+                            ->update(['public' => 1]);
+                    }
                 }
+            }else{
+                return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
             }
         }
 
@@ -188,11 +191,11 @@ class HomeController extends Controller
                     ]);
 
                 // Decrease queue credit
-                if ($file_details->state != 0) {
-                    DB::table('users')
-                        ->where('id', $file_details->user_id)
-                        ->decrement('queue_credit', $file_details->length);
-                }
+//                if ($file_details->state != 0) {
+//                    DB::table('users')
+//                        ->where('id', $file_details->user_id)
+//                        ->decrement('queue_credit', $file_details->length);
+//                }
             }
         } elseif ($input['action'] == 'pause') { //Pause action
             if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
@@ -218,11 +221,16 @@ class HomeController extends Controller
                 ->update([
                     'state' => NULL
                 ]);
+            return Redirect::to('/downloads/');
         }elseif ($input['action'] == 'public' && $file_details->state == 0){
-            DB::table('download_list')
-                ->where('id', '=', $file_details->id)
-                ->update(['public' => DB::raw( '!public')]);
-            return Redirect::to('/files/' . $file_details->id);
+            if (Auth::user()->public == 1) {
+                DB::table('download_list')
+                    ->where('id', '=', $file_details->id)
+                    ->update(['public' => DB::raw('!public')]);
+                return Redirect::to('/files/' . $file_details->id);
+            }else{
+                return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
+            }
         }elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
             if(preg_match(Config::get('leech.rename_regex'), $input['new_name'])) {
             $blocked_ext = Config::get('leech.blocked_ext');
@@ -315,6 +323,73 @@ class HomeController extends Controller
         return view('download_list', array('files' => $users, 'main' => $main, 'aria2' => $aria2));
     }
 
+    public function post_downloads(Request $request)
+    {
+        if (Auth::user()->role == 2) //Admins need to see all downloads + username
+            $users = DB::table('download_list')
+                ->whereRaw('(state != 0 OR state IS NULL)')
+                ->where('deleted', '=', 0)
+                ->get();
+        else
+            $users = DB::table('download_list')
+                ->whereRaw('(state != 0 OR state IS NULL)')
+                ->where('user_id', '=', Auth::user()->id)
+                ->where('deleted', '=', 0)
+                ->get();
+
+        $aria2 = new aria2();
+        $main = new main();
+
+        $json = [];
+        foreach ($users as $file){
+            $downloaded_speed_kb = $downloaded_speed = $downloaded_size = 0;
+            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]))
+            {
+                $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
+            }
+            else
+            {
+                $result = null;
+            }
+
+            if (isset($result["completedLength"]))
+            {
+                $downloaded_size = $result["completedLength"];
+            }
+
+            if ($downloaded_size == 0)
+            {
+                $downloaded_size = $file->completed_length;
+            }
+
+            if (isset($result['downloadSpeed']))
+            {
+                $speed_bytes = $result['downloadSpeed'];
+                $downloaded_speed = $main->formatBytes($speed_bytes, 0) . '/s';
+                $downloaded_speed_kb = round($speed_bytes/1024);
+            }
+
+            if ($file->state != -1)
+            {
+                if ($file->state == NULL)
+                    $downloaded_speed = 'In queue';
+                elseif ($file->state == -2)
+                    $downloaded_speed = 'Paused';
+                else
+                    $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
+            }
+            $json[$file->id] = [
+                'speed' => $downloaded_speed,
+                'dled_size' => $main->formatBytes($downloaded_size,1),
+                'pprog' => round($downloaded_size/$file->length*100,0) . '%',
+                'speed_kb' => $downloaded_speed_kb
+            ];
+        }
+        return response()->json($json);
+    }
+
+
+
 
     public function postindex(Request $request)
     {
@@ -356,7 +431,7 @@ class HomeController extends Controller
         $filename = $url_inf['filename'];
 
         if ($url_inf['status'] != 200){
-            return redirect::back()->withErrors('File not found or it has been moved!' . " (" . $url_inf['status'] . ')');
+            return redirect::back()->withErrors('File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')');
         }
 
         $blocked_ext = Config::get('leech.blocked_ext');
@@ -376,25 +451,27 @@ class HomeController extends Controller
             return redirect::back()->withErrors('Not enough Credits!');
         }
 
+        $q_credit = DB::table('download_list')
+            ->where('user_id', '=', Auth::user()->id)
+            ->where('deleted', '=', '0')
+            ->where('state', '<>', '0')
+            ->sum('length') + $fileSize;
 
-        $q_credit = Auth::user()->queue_credit + $fileSize;
         if ($q_credit > Auth::user()->credit) {
             return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
         }
-
 
         if (empty($filename)) {
             return redirect::back()->withErrors('Invalid Filename!');
         }
 
+//        DB::table('users')
+//            ->where('id', Auth::user()->id)
+//            ->update([
+//                'queue_credit' => $q_credit
+//            ]);
 
-        DB::table('users')
-            ->where('id', Auth::user()->id)
-            ->update([
-                'queue_credit' => $q_credit
-            ]);
-
-        $hold = $input['hold'] ? 1 : 0;
+        $hold = $input['hold'] ? -2 : NULL;
 
         if ($input['http_auth']) {
             $http_user = $input['http_username'];
@@ -409,7 +486,7 @@ class HomeController extends Controller
                 'link' => $url_inf['location'],
                 'length' => $fileSize,
                 'file_name' => $filename,
-                'hold' => $hold,
+                'state' => $hold,
                 'http_user' => $http_user,
                 'http_password' => $http_pass,
                 'comment' => $input['comment'],
@@ -417,7 +494,6 @@ class HomeController extends Controller
         );
 
         return Redirect::to('downloads');
-
     }
 
 }

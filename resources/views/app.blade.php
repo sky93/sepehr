@@ -1,12 +1,15 @@
 <?php
+$main = new main();
 $show_message = false;
-$message = Request::cookie('change_log');
-if (Config::get('leech.show_change_message') == true && ($message == NULL || $message != Config::get('leech.change_message'))){
-    $show_message = true;
-    $message_content = Config::get('leech.change_message');
-    $change_title1 = Config::get('leech.change_title1');
-    $change_title2 = Config::get('leech.change_title2');
-    Cookie::queue('change_log', Config::get('leech.change_message'), 2592000); //2592000 = 60 * 24 * 30 * 12 * 5
+if (!Auth::guest()){  // Only users can show new messages.
+    $message = Request::cookie('change_log');
+    if (Config::get('leech.show_change_message') == true && ($message == NULL || $message != Config::get('leech.change_message'))){
+        $show_message = true;
+        $message_content = Config::get('leech.change_message');
+        $change_title1 = Config::get('leech.change_title1');
+        $change_title2 = Config::get('leech.change_title2');
+        Cookie::queue('change_log', Config::get('leech.change_message'), 2592000); //2592000 = 60 * 24 * 30 * 12 * 5
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -15,24 +18,27 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com">
-    <title>{{ Lang::get('messages.title') }}</title>
+    <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com AND Pejman Yaghmaie | yaghmaie.p@gmail.com">
+    <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
     <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/main.css') }}" rel="stylesheet">
+    <link href="{{ asset('/css/main.css?v=2') }}" rel="stylesheet">
     <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
 
     <!--[if lt IE 9]>
-    <script src="{{ asset('/js/html5shiv.min.js') }}"></script>
-    <script src="{{ asset('/js/respond.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/html5shiv.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/respond.js') }}"></script>
 
     <![endif]-->
 
-    <script src="{{ asset('/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('/js/bootbox.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/bootbox.min.js') }}"></script>
+
+    <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
+
 
 </head>
 <body>
@@ -54,18 +60,15 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <?php $sin = array('egg', 'mahi', 'quran', 'sabze', 'samanoo', 'seke', 'senjed', 'sham', 'sib', 'sir', 'somagh', 'ayne'); $img = $sin[array_rand($sin)];?>
-
-                <a class="navbar-brand" rel="home" href="https://www.google.com/#q=happy+new+persian+year" title="Happy New Persian Year (1394)">
-                    <img style="max-width:50px; margin-top: -17px; margin-right: -10px"
-                         src="{{ asset('/img/' . $img . '.png') }}">
-                </a>
-                <a class="navbar-brand" href="{{ asset('') }}">@lang('messages.mainTitle')</a>
+                <a class="navbar-brand" rel="home" href="{{ asset('') }}" title="@lang('messages.slogan')"><img style="max-width:50px; margin-top: -17px; margin-right: -10px" src="{{ asset('/img/logo_small.png') }}"></a>
+                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">{{ env('MAIN_TITLE', 'Aria Leecher') }}</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     @if (!Auth::guest())
+                        @if (Auth::user()->role != 2)
                         <li><a href="{{ asset('') }}"><i class="fa fa-download"></i> @lang('messages.home')</a></li>
+                        @endif
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-file-o"></i> @lang('messages.files')<span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
@@ -81,17 +84,30 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
                     @if (Auth::guest())
                         <li><a href="{{ url('login') }}">@lang('messages.login')</a></li>
                     @else
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-expanded="false"><span>Credits </span><span class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
+                            <ul class="dropdown-menu bw" role="menu">
+                                {{--<li class="divider"></li>--}}
+                                <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
+                                <li class="disabled"><a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
+                                {{--<li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>--}}
+                                {{--<li class="divider"></li>--}}
+                                {{--<li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>--}}
+                            </ul>
+                        </li>
                         @if (Auth::user()->role == 2)
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i> @lang('messages.tools') <span class="caret"></span></a>
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu bw" role="menu">
                                     <li class="dropdown-header">@lang('messages.user.management')</li>
                                     <li><a href="{{ url('/tools/register') }}"><i class="fa fa-plus"></i> @lang('messages.add.user')</a></li>
+                                    <li><a href="{{ url('/tools/register-csv') }}"><i class="fa fa-plus"></i> @lang('messages.add.user.csv')</a></li>
                                     <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="{{ url('/tools/status') }}"><i
-                                                    class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
+                                    <li><a href="{{ url('/tools/files') }}"><i class="fa fa-file-text-o"></i> @lang('messages.all_files')</a></li>
                                     <li class="divider"></li>
+                                    <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
                                     <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> Aria2
                                             Console</a></li>
                                 </ul>
@@ -104,11 +120,14 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li class="dropdown-header">Credits</li>
-                                <li>
-                                    <a href="{{ url('credit') }}">
-                                        <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ round(Auth::user()->credit / 1024 / 1024 /1024,1) }} GB</span>
+                                <li class="disabled">
+                                    <a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}">
+                                        <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span>
                                     </a>
                                 </li>
+                                <li class="divider"></li>
+                                <li><a href="{{ url('user/'. Auth::user()->username) }}"><i class="fa fa-user"></i> @lang('messages.personal_info')</a></li>
+                                <li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>
                                 <li class="divider"></li>
                                 <li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>
                             </ul>
@@ -128,7 +147,7 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
     <div class="container"  style="padding-right: 35px">
         <div class="row">
             <div class="col-md-5">
-                <p class="text-muted">&copy; {{date("Y")}} - <a style="text-decoration: none !important;color: #777777" target="_blank" href="{{ Lang::get('messages.cp_link') }}">{{ Lang::get('messages.cp') }}</a></p>
+                <p class="text-muted">&copy; {{date("Y")}} - <a style="text-decoration: none !important;color: #777777" target="_blank" href="{{ env('CP_LINK', '') }}">{{ env('CP', '') }}</a></p>
             </div>
             <div class="col-md-7">
                 <div class=" pull-right">
@@ -138,6 +157,7 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
         </div>
     </div>
 </div>
+@if(!$main->ip_is_private($_SERVER['REMOTE_ADDR']))
 <script>
     (function (i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r;
@@ -153,5 +173,6 @@ if (Config::get('leech.show_change_message') == true && ($message == NULL || $me
     ga('create', '{{ Config::get('leech.GA') }}', 'auto');
     ga('send', 'pageview');
 </script>
+@endif
 </body>
 </html>

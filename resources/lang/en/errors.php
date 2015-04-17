@@ -50,5 +50,10 @@ return [
 
     '404' => 'This file does not exist or you do not have the right permission to view this file.',
 
+    'neg_num' => 'Negative numbers are not allowed',
+    'ip_block' => 'We have detected malicious activity from your IP address. You have to wait for :min minutes to attempt again.',
+    'wrong_pass' => "You didn't enter the correct password. Please try again.",
+    'cannot_public' => "Making a file public has been disabled for your account. Sorry."
+
 
 ];

@@ -4,6 +4,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Auto Delete
+    |--------------------------------------------------------------------------
+    |
+    | Delete files automatically
+    | Time in hours
+    |
+    */
+    'auto_delete' => true,
+    'auto_delete_time' => 24 * 3,
+
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Save Directory
     |--------------------------------------------------------------------------
     |
@@ -47,6 +61,47 @@ return [
     ),
     'trust_localhost' => true,   // Trust 127.0.0.1 and ::1
     'trust_ipv6' => false,
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Block Kind
+    |--------------------------------------------------------------------------
+    |
+    | Options: 'both', 'private' or 'public'
+    |
+    | private: If IP address is private (class C, local, etc...)
+    | public: If IP address is public
+    | both: Block IP even when the IP address is public
+    |
+    */
+
+    'ip_block_kind' => 'both',
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Block duration
+    |--------------------------------------------------------------------------
+    |
+    | Change the duration of IP Block in minutes.
+    |
+    */
+
+    'ip_block_duration' => 5,
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Retry Count
+    |--------------------------------------------------------------------------
+    |
+    | How many times user should enter password wrong. After that, IP block will activate.
+    |
+    */
+
+    'password_retry_count' => 2,
 
 
 
@@ -94,7 +149,6 @@ return [
         'html' => '_html_',
         'torrent' => false,
         'php4' =>  '_php4_',
-        'exe' => 'exe_',
     ),
 
 
@@ -114,6 +168,8 @@ return [
         '127.0.0.1',
         '::1',
         '178.236.33.163',
+        'sepehr.sadjad.ac.ir',
+        'repo.sadjad.ac.ir',
         '178.236.33.162',
     ),
 
@@ -179,9 +235,9 @@ return [
     */
 
     'show_change_message' => true,
-    'change_title1' => "What's New",
-    'change_title2' => "New Stuff:",
-    'change_message' => '<p>Added so many features including <strong>Rename</strong>, <strong>Pause Download</strong>, <strong>File SHA1 and MD5</strong> and...</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
+    'change_title1' => "Welcome To Sadjad University's Leecher",
+    'change_title2' => "Sepehr",
+    'change_message' => '<p dir="rtl">با این سیستم شما می توانید فایل های خود را در خانه به سیستم اضافه کنید. سیستم شروع به دانلود فایل خواهد نمود و سپس می توانید در دانشگاه با سرعت بسیار زیاد فایل های خود را بدون کم شدن از حجم اینترنت دانشگاه شما دانلود نمایید.</p><p dir="rtl">• در صورت داشتن مشکل یا سوال با ایمیل <a target="_blank" href="mailto:sepehr@sadjad.ac.ir">sepehr@sadjad.ac.ir</a> در ارتباط باشید.</p><p dir="rtl">• در صورت یافتن باگ نرم افزاری، مشکل را در <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/issues">اینجا</a> ثبت نمایید.</p><p dir="rtl">• برای مشاهده ی آخرین تغییرات سیستم، به <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">اینجا</a> بروید.</p><p dir="rtl">لازم به ذکر است خرید اینترنتی به زودی فراهم می گردد. همچنین برای دانلود فایل ها از دانشگاه، بایستی از اینترنت خارج شوید تا از حجم حساب اینترنتی شما کسر نگردد.</p><p>با تشکر</p>',
 
 
 
@@ -195,5 +251,36 @@ return [
     */
 
     'logo_address' => 'img/logo.png',
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete user
+    |--------------------------------------------------------------------------
+    |
+    | Let Admins delete users
+    |
+    */
+
+    'user_delete' => false,
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Files
+    |--------------------------------------------------------------------------
+    |
+    | Let Users make their own files public
+    |
+    | Options:
+    |
+    | 'all' : all users with any role can make a file public.
+    | 'admin' : Only administrators can make a file public.
+    */
+
+    'public' => 'admin',
 
 ];

@@ -1,5 +1,7 @@
 @extends('app')
 
+@section('title', Lang::get('messages.usr_details') . ' - ')
+
 @section('content')
     <style>
         @media (min-width : 800px) {
@@ -16,7 +18,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading">{{ $user->name }}</div>
+                <div class="panel-heading">{{ $user->first_name . ' ' . $user->last_name }}</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-sm-3">
@@ -57,8 +59,8 @@
                                     <td class="bld">{{ $main->formatBytes($user->credit,1) }} <span style="font-size: x-small">({{ $user->credit }} bytes)</span></td>
                                 </tr>
                                 <tr>
-                                    <td>Queue Credits:</td>
-                                    <td class="bld">{{ $main->formatBytes($user->queue_credit,1) }} <span style="font-size: x-small">({{ $user->queue_credit }} bytes)</span></td>
+                                    <td>Queue Length:</td>
+                                    <td class="bld">{{ $main->formatBytes($userd->queue_credit,1) }} <span style="font-size: x-small">({{ $userd->queue_credit }} bytes)</span></td>
                                 </tr>
                                 <tr>
                                     <td>Role:</td>
@@ -144,8 +146,11 @@
                     <form class="form-horizontal" role="form" method="POST" action="">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <div class="row">
-                            <div style="padding: 5px" class="col-md-offset-8 col-md-2">
-                                <button type="submit" name="action" value="delete" style=" width: 100%" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> Delete User</button>
+                            <div style="padding: 5px" class="col-md-offset-6 col-md-2">
+                                <a  href="{{ asset('tools/users/' . $user->username . '/credits') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-bars fa-lg"></i> @lang('messages.clog')</a>
+                            </div>
+                            <div style="padding: 5px" class="col-md-2">
+                                <button {{ Config::get('leech.user_delete') == false ? 'disabled ' : '' }}type="submit" name="action" value="delete" style="width: 100%" class="btn btn-danger"><i class="fa fa-trash-o fa-lg" ></i> @lang('messages.delete_user')</button>
                             </div>
                             <div style="padding: 5px" class="col-md-2">
                                 <button type="submit" name="action" value="ban" style="width: 100%" class="btn {{ ($user->active == 1 ? 'btn-danger' : 'btn-success') }}"><i class="fa fa-lg {{ ($user->active == 1 ? 'fa-ban' : 'fa-check') }}"></i> {{ ($user->active == 1 ? 'Ban' : 'Active') }}</button>
