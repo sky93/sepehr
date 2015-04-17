@@ -52,16 +52,16 @@
                                                 <td>{{ $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) < 0 ? 'Deleted' : $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) }}</td>
                                                 @endif
                                             @endif
-                                            @if($file->state == 0)
-                                                <td>Finished</td>
+                                            @if($file->state == -3 || $file->deleted==1)
+                                                <td>Deleted</td>
                                             @elseif($file->state == null)
                                                 <td>In queue</td>
                                             @elseif($file->state == -1)
                                                 <td>Downloading</td>
                                             @elseif($file->state == -2)
                                                 <td>Paused</td>
-                                            @elseif($file->state == -3)
-                                                <td>Deleted</td>
+                                            @elseif($file->state == 0)
+                                                <td>Finished</td>
                                             @else
                                                 <td>Error</td>
                                             @endif
