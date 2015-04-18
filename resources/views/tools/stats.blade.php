@@ -56,7 +56,7 @@
                             <div class="panel-body">
                                 Path: <kbd>{{ $main->get_storage_path() }}</kbd>
                                 <br /><br />
-                                <div id="disksize">0 B / 0 B (0%)</div>
+                                <div id="disksize">0 B of 0 B (0 B free)</div>
                                 <div class="progress">
                                     <div id="disk" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;width: 0%">
                                         0%
@@ -169,7 +169,7 @@
                     disk.text(response.percent + '%');
                     disk.attr('style', 'min-width: 2em;width:' + response.percent + '%');
                     disk.attr('class', colour);
-                    $('#disksize').text(response.free + ' / ' + response.total + ' (' + response.percent + '%)');
+                    $('#disksize').text(response.used + ' of ' + response.total + ' (' + response.free + ' Free)');
                 },
 
                 error: function (jqXHR, textStatus, errorThrown) {

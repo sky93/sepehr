@@ -99,6 +99,7 @@ class AdminController extends Controller
                 return response()->json([
                     'free' => $main->formatBytes($free, 0),
                     'total' => $main->formatBytes($total, 0),
+                    'used' => $main->formatBytes($total-$free, 0),
                     'percent' => round(((($total-$free) * 100) / $total), 2),
                 ]);
             }
