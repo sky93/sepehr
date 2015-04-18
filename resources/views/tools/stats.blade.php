@@ -56,7 +56,7 @@
                             <div class="panel-body">
                                 Path: <kbd>{{ $main->get_storage_path() }}</kbd>
                                 <br /><br />
-                                <div id="disksize">500 GB / 85TB (50%)</div>
+                                <div id="disksize">0 B / 0 B (0%)</div>
                                 <div class="progress">
                                     <div id="disk" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;width: 0%">
                                         0%
