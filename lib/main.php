@@ -264,6 +264,8 @@ class main
     }
 
 
+
+
     /**
      * Converts hours to day if hours is more than 24
      *
@@ -276,5 +278,22 @@ class main
             return round($h/24) == 1 ? round($h/24) . ' Day': round($h/24) . ' Days';
         }
         return round($h) . ' Hours';
+    }
+
+
+
+
+    /**
+     * Returns storage path. It also creates path if it does't exist.
+     *
+     * @return string
+     */
+    public function get_storage_path(){
+        $path = public_path() . '/' . Config::get('leech.save_to') . '/';
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        $symbol_link = @readlink($path);
+        return $symbol_link ? $symbol_link : $path;
     }
 }

@@ -308,7 +308,7 @@ class HomeController extends Controller
         if (Auth::user()->role == 2) //Admins need to see all downloads + username
             $users = DB::table('download_list')
                 ->join('users', 'download_list.user_id', '=', 'users.id')
-                ->select('download_list.*', 'users.username')
+                ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();

@@ -48,10 +48,10 @@ body {
 .container .text-muted {
     margin: 10px 0;
 }
-.progress {
-    top: 20px;
-    margin-bottom: -30px;
-    background: rgba(245, 245, 245, 1); border: 0px solid rgba(245, 231, 231, 1); border-radius: 3px; height: 10px;}
+.progress_dl {
+    top: 20px!important;
+    margin-bottom: -30px!important;
+    background: rgba(245, 245, 245, 1); border: 0px solid rgba(245, 231, 231, 1); border-radius: 3px; height: 10px!important;}
 .progress-bar-custom {background: rgba(65, 201, 119, 1); background: -webkit-linear-gradient(top, rgba(23, 153, 29, 1) 0%, rgba(65, 201, 119, 1) 100%); background: linear-gradient(to bottom, rgba(23, 153, 29, 1) 0%, rgba(65, 201, 119, 1) 100%);}
 
 .dl-list, .dl-list thead tr th, .dl-list tr td {

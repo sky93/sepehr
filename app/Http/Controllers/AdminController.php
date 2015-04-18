@@ -41,9 +41,9 @@ class AdminController extends Controller
 
     public function post_stat(Request $request)
     {
+        $main = new main();
         if ($request->ajax()) {
             if (isset($request['gs'])) {
-                $main = new main();
                 if (!$main->aria2_online())
                     return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
 
@@ -66,7 +66,6 @@ class AdminController extends Controller
                     ->take(20)
                     ->get();
 
-                $main = new main();
                 foreach($files as $file) {
                     if ($file->state == null)
                         $status = Lang::get('messages.in_queue');//in_queue
@@ -94,6 +93,14 @@ class AdminController extends Controller
                     ];
                 }
                 return response()->json($table);
+            }elseif(isset($request['sz'])){
+                $total = disk_total_space($main->get_storage_path());
+                $free = disk_free_space($main->get_storage_path());
+                return response()->json([
+                    'free' => $main->formatBytes($free, 0),
+                    'total' => $main->formatBytes($total, 0),
+                    'percent' => round(((($total-$free) * 100) / $total), 2),
+                ]);
             }
         }
 
@@ -384,7 +391,7 @@ class AdminController extends Controller
 
         $files = DB::table('download_list')
             ->leftJoin('users', 'users.id', '=', 'download_list.user_id')
-            ->select('download_list.*', 'users.username')
+            ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
             ->where('download_list.id', '>' , 0)
             ->orderBy('id','DEC')
             ->skip(($page - 1) * 20)

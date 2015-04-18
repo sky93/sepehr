@@ -32,10 +32,10 @@
                                         <tr <?=$file->deleted == 1 ? 'class="danger"' : ''?>>
                                             <td>{{ $file->id }}</td>
                                             <td>
-                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->username }}</a>
+                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->first_name . ' ' . $file->last_name }}</a>
                                             </td>
                                             <td>
-                                                @if ($file->state == 0 && $file->deleted == 0)
+                                                @if ($file->state == 0 && $file->deleted == 0 && $file->state != null)
                                                 <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                                 @else
                                                 {{ $file->file_name }}

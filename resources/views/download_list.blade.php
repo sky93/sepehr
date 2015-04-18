@@ -56,14 +56,14 @@
 
                                     @if (Auth::user()->role == 2)
                                         <td>
-                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->username }}</a>
+                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->first_name . ' ' . $file->last_name }}</a>
                                         </td>
                                     @endif
                                     <td>{{ $file->file_name }}</td>
                                     <td id="dled">{{ $main->formatBytes($downloaded_size,1) }}</td>
                                     <td>{{ $main->formatBytes($file->length,1) }}</td>
                                     <td  style="vertical-align:top !important;">
-                                        <div class="progress">
+                                        <div class="progress progress_dl">
                                             <div id="prog" class="progress-bar progress-bar-custom" role="progressbar"
                                                  aria-valuenow="0" aria-valuemin="0"
                                                  aria-valuemax="100"
@@ -84,7 +84,7 @@
                                     Total:
                                 </td>
                                 <td  style="vertical-align:top !important;">
-                                    <div class="progress">
+                                    <div class="progress progress_dl">
                                         <div id="totalProg" class="progress-bar progress-bar-custom" role="progressbar"
                                              aria-valuenow="0" aria-valuemin="0"
                                              aria-valuemax="100"

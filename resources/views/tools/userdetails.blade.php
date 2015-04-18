@@ -120,6 +120,7 @@
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
+                                <th>@lang('messages.id')</th>
                                 <th style="width: 45%">@lang('messages.file.name')</th>
                                 <th style="width: 15%">@lang('messages.size')</th>
                                 <th style="width: 15%">@lang('messages.date')</th>
@@ -130,6 +131,7 @@
                             </thead>
                             @foreach($user_files as $file)
                                 <tr>
+                                    <td>{{ $file->id }}</td>
                                     <td>{{ $file->file_name }}</td>
                                     <td>{{ $main->formatBytes($file->completed_length,1) . ' / ' . $main->formatBytes($file->length,1) }}</td>
                                     <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
