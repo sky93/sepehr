@@ -274,10 +274,10 @@ class AdminController extends Controller
             SUM(length) as length_sum,
             COUNT(*) as total_files_deleted,
             (select COUNT(*) from download_list where deleted=0 AND user_id = ' . $users->id . ') as total_files,
-            (select SUM(`length`) from download_list where state <> 0 AND deleted = 0 AND user_id = ' . $users->id . ') as queue_credit,
+            (select SUM(`length`) from download_list where (state is null or state <> 0) AND deleted = 0 AND user_id = ' . $users->id . ') as queue_credit,
             (select COUNT(*) from download_list where state > 0 AND deleted=0 AND user_id = ' . $users->id . ') as total_error_files,
             (select COUNT(*) from download_list where state > 0 AND user_id = ' . $users->id . ') as total_error_files_deleted,
-            (select COUNT(*) from download_list where state <> 0 AND deleted = 0 AND user_id = ' . $users->id . ') as total_download_queue
+            (select COUNT(*) from download_list where (state is null or state <> 0) AND deleted = 0 AND user_id = ' . $users->id . ') as total_download_queue
 
             '))
             ->where('user_id', '=', $users->id)
