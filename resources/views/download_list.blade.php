@@ -13,7 +13,7 @@
                             <thead>
                             <tr class="warning">
                                 @if (Auth::user()->role == 2)
-                                <th style="width: 9%">@lang('messages.username')</th>
+                                <th style="width: 9%">@lang('messages.name')</th>
                                 @endif
                                 <th style="width: 43%">@lang('messages.file.name')</th>
                                 <th style="width: 8%">@lang('messages.dled.size')</th>
