@@ -69,7 +69,7 @@
                         </div>
                     </div>
                     @endif
-                    @if(+$file->state === 0)
+                    @if(+$file->state === 0 && $file->state != null)
                         <div class="alert alert-success" role="alert"><span
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
                             @if($file->deleted == 0)
@@ -78,7 +78,6 @@
                                 to download the file.
                             @endif
                         </div>
-
                     @elseif($file->state===NULL)
                         <div class="alert alert-info" role="alert"><span
                                     style="font-weight: bold">Wait more! </span>@lang('errors.null')</div>
