@@ -35,6 +35,8 @@ class Kernel extends ConsoleKernel {
                     ->where('deleted', '=', 0)
                     ->get();
 
+                echo count($old_files);
+
                 foreach ($old_files as $old_file) {
                     $res = @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name);
                     @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . '.aria2');
