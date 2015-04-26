@@ -12,7 +12,7 @@ return [
     |
     */
     'auto_delete' => true,
-    'auto_delete_time' => 24 * 3,
+    'auto_delete_time' => 24 * 2,
 
 
 
@@ -89,7 +89,7 @@ return [
     |
     */
 
-    'ip_block_duration' => 10,
+    'ip_block_duration' => 3,
 
 
     /*
@@ -101,7 +101,7 @@ return [
     |
     */
 
-    'password_retry_count' => 2,
+    'password_retry_count' => 3,
 
 
 
@@ -145,11 +145,10 @@ return [
     */
 
     'blocked_ext' => array(
-        'php' => '_php_',
+        'php' => false,
         'html' => '_html_',
         'torrent' => false,
         'php4' =>  '_php4_',
-        'exe' => 'exe_',
     ),
 
 
@@ -231,10 +230,10 @@ return [
     |
     */
 
-    'show_change_message' => false,
+    'show_change_message' => true,
     'change_title1' => "What's New",
-    'change_title2' => "New Stuff:",
-    'change_message' => '<p>Added total download speed with a chart. Check it out in Download List.</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
+    'change_title2' => "Tired of adding multiple links?",
+    'change_message' => '<p>No Worries!  Finally we have added "Multiple Links" option. Simply add your links and split them by pressing "Enter" button!</p><p>BTW, Torrent is currently in my high priority todo list..</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
 
 
 
@@ -247,7 +246,7 @@ return [
     |
     */
 
-    'logo_address' => 'img/logo.png',
+    'logo_address' => 'img/links.png',
 
 
 

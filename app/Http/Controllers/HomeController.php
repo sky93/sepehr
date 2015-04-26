@@ -393,36 +393,102 @@ class HomeController extends Controller
 
     public function postindex(Request $request)
     {
-        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold');
+        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold', 'id');
 
-        if (Auth::user()->role !== 2) { //for debug only we don't check url validation for admins
-            $this->validate($request, [
+        $v = Validator::make(
+            $input,
+            [
                 'link' => 'required|url',
                 'comment' => 'max:140'
-            ]);
-        }else{
-            $this->validate($request, [
-                'link' => 'required',
-                'comment' => 'max:140'
-            ]);
+            ]
+        );
+
+        if ($v->fails())
+        {
+            $message = $v->messages();
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'Input Error.'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors($message);
+            }
+
         }
+//            $this->validate($request, [
+//                'link' => 'required|url',
+//                'comment' => 'max:140'
+//            ]);
+
 
         if ($input['http_auth']) {
-            $this->validate($request, [
-                'http_username' => 'required|max:64',
-                'http_password' => 'required|max:64'
-            ]);
+            $v = Validator::make(
+                $input,
+                [
+                    'http_username' => 'required|max:64',
+                    'http_password' => 'required|max:64'
+                ]
+            );
+
+            if ($v->fails())
+            {
+                $message = $v->messages();
+                if ($request->ajax())
+                {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'Input Error. HTTP Auth'
+                    ]);
+                }
+                else
+                {
+                    return redirect::back()->withErrors($message);
+                }
+
+            }
+//            $this->validate($request, [
+//                'http_username' => 'required|max:64',
+//                'http_password' => 'required|max:64'
+//            ]);
         }
 
         if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
-            return redirect::back()->withErrors('What?! Torrent?! Go away!');
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'What?! Torrent?! Go away!'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors('What?! Torrent?! Go away!');
+            }
         }
 
         $main = new main();
 
         $blocked = $main->isBlocked($input['link']);
         if ($blocked){
-            return redirect::back()->withErrors($blocked);
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => $blocked
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors($blocked);
+            }
         }
 
         $url_inf = $main->get_info($input['link']);
@@ -431,24 +497,68 @@ class HomeController extends Controller
         $filename = $url_inf['filename'];
 
         if ($url_inf['status'] != 200){
-            return redirect::back()->withErrors('File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')');
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors('File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')');
+            }
         }
 
         $blocked_ext = Config::get('leech.blocked_ext');
         if (array_key_exists($url_inf['file_extension'], $blocked_ext)) {
             if ($blocked_ext[$url_inf['file_extension']] === false){
-                return redirect::back()->withErrors('.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.');
+                if ($request->ajax())
+                {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => '.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.'
+                    ]);
+                }
+                else
+                {
+                    return redirect::back()->withErrors('.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.');
+                }
             }else{
                 $filename = pathinfo($url_inf['filename'],PATHINFO_FILENAME) . '.' . $blocked_ext[$url_inf['file_extension']];
             }
         }
 
         if ($fileSize < 1) {
-            return redirect::back()->withErrors('Invalid File Size!' . " (" . $url_inf['status']. ')');
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'Invalid File Size!' . " (" . $url_inf['status']. ')'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors('Invalid File Size!' . " (" . $url_inf['status']. ')');
+            }
         }
 
         if ($fileSize > Auth::user()->credit) {
-            return redirect::back()->withErrors('Not enough Credits!');
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'Not enough Credits!'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors('Not enough Credits!');
+            }
         }
 
         $q_credit = DB::table('download_list')
@@ -462,11 +572,33 @@ class HomeController extends Controller
             ->sum('length') + $fileSize;
 
         if ($q_credit > Auth::user()->credit) {
-            return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'You have too many files in your queue. Please wait until they finish up.'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
+            }
         }
 
         if (empty($filename)) {
-            return redirect::back()->withErrors('Invalid Filename!');
+            if ($request->ajax())
+            {
+                return response()->json([
+                    'type' => 'error',
+                    'id' => $input['id'],
+                    'message' => 'Invalid Filename!'
+                ]);
+            }
+            else
+            {
+                return redirect::back()->withErrors('Invalid Filename!');
+            }
         }
 
 //        DB::table('users')
@@ -497,7 +629,17 @@ class HomeController extends Controller
             )
         );
 
-        return Redirect::to('downloads');
+        if ($request->ajax())
+        {
+            return response()->json([
+                'type' => 'success',
+                'id' => $input['id'],
+                'message' => 'Link Added!'
+            ]);
+        }
+        else
+        {
+            return Redirect::to('downloads');
+        }
     }
-
 }

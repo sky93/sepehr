@@ -3,6 +3,11 @@
 @section('content')
     <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
     <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        });
+    </script>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -22,126 +27,298 @@
                             </ul>
                         </div>
                     @endif
-                    <form class="form-horizontal" method="POST" action="" novalidate="">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <fieldset>
+                    <div class="row">
+                        <div class="col-md-offset-2 col-md-8">
+                            <div role="tabpanel">
 
-                            <!-- Form Name -->
-                            <legend>{{ Lang::get('messages.home.title') }}</legend>
-                            <br/>
-                            <script type="text/javascript">
-                                $(document).ready(function () {
-                                    $('#http_auth').click(function () {
-                                        $("#HTTP").slideToggle(150);
-                                        $('#http_password').prop('required', true);
-                                        $('#http_username').prop('required', true);
-                                    });
-                                });
-                            </script>
-                            <!-- Link input-->
-                            <div class="form-group">
-                                <label class="col-md-4 control-label"
-                                       for="link">{{ Lang::get('messages.link.to.transload') }}</label>
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Link</a></li>
+                                    <li role="presentation"><a href="#multi" aria-controls="multi" role="tab" data-toggle="tab">Multiple Links</a></li>
+                                    <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent</a></li>
+                                </ul>
 
-                                <div class="col-md-5">
-                                    <input id="link" name="link" type="text"
-                                           placeholder="{{ Lang::get('messages.your.link') }}"
-                                           class="form-control input-md" required="">
-                                </div>
-                            </div>
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane fade in active" id="single">
+                                        <form id="frm_single" class="form-horizontal" method="POST" action="" novalidate="">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <fieldset>
+                                                {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
+                                                <br/><br/>
+                                                <script type="text/javascript">
+                                                    $(document).ready(function () {
+                                                        $('#http_auth').click(function () {
+                                                            $("#HTTP").slideToggle(150);
+                                                            $('#http_password').prop('required', true);
+                                                            $('#http_username').prop('required', true);
+                                                        });
+                                                    });
+                                                </script>
 
-                            <!-- HTTP CheckBox -->
-                            <div class="form-group">
-                                <label class="col-md-4 control-label" for="http_auth"></label>
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label"
+                                                           for="link">{{ Lang::get('messages.link.to.transload') }}</label>
+                                                    <div class="col-md-8">
+                                                        <input id="link" name="link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md" required="">
+                                                    </div>
+                                                </div>
 
-                                <div class="col-md-4">
-                                    <div class="checkbox">
-                                        <label for="http_auth">
-                                            <input type="checkbox" name="http_auth" id="http_auth" value="1">
-                                            {{ Lang::get('messages.http.authorization') }}
-                                        </label>
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="http_auth"></label>
+                                                    <div class="col-md-3">
+                                                        <div class="checkbox">
+                                                            <label for="http_auth">
+                                                                <input type="checkbox" name="http_auth" id="http_auth" value="1">
+                                                                {{ Lang::get('messages.http.authorization') }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div id="HTTP" style="display: none;">
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="http_username">{{ Lang::get('messages.http.username') }}</label>
+                                                        <div class="col-md-3">
+                                                            <input id="http_username" name="http_username" type="text" placeholder="{{ Lang::get('messages.http.username') }}" class="form-control input-md" required="">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="http_password">{{ Lang::get('messages.http.password') }}</label>
+                                                        <div class="col-md-3">
+                                                            <input id="http_password" name="http_password" type="password" placeholder="{{ Lang::get('messages.http.password') }}" class="form-control input-md" required="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
+
+                                                    <div class="col-md-5">
+                                                        <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="hold"></label>
+                                                    <div class="col-md-3">
+                                                        <div class="checkbox">
+                                                            <label for="hold">
+                                                                <input type="checkbox" name="hold" id="hold" value="1">
+                                                                {{ Lang::get('messages.http.hold') }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="transload"></label>
+                                                    <div class="col-md-1">
+                                                        <button id="transload" name="transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
+                                                    </div>
+                                                </div>
+                                                <script>
+                                                    $('#transload').on('click', function () {
+                                                        var $btn = $(this).button('loading');
+                                                    })
+                                                </script>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" id="multi">
+                                        <div id="linksres_div">
+                                            <br /><br />
+                                            <table class="users dl-list table table-hover table-bordered enFonts table-striped tableCenter">
+                                                <thead>
+                                                <tr class="warning">
+                                                    <th style="width: 5%">@lang('messages.id')</th>
+                                                    <th>@lang('messages.link')</th>
+                                                    <th>@lang('messages.status')</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                            <div class="row">
+                                                <div class="col-sm-offset-6 col-sm-3">
+                                                    <a href="{{ asset('downloads') }}" style="width: 100%" class="btn btn-default"><i class="fa fa-tasks"></i> @lang('messages.download.list')</a>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <button id="addmore" style="width: 100%" class="btn btn-default"><i class="fa fa-plus-square-o"></i> @lang('messages.add.more')</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="links_div">
+                                            <form id="frm_multi" class="form-horizontal" method="POST" action="" novalidate="">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <fieldset>
+                                                {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
+                                                <br/><br/>
+                                                <script type="text/javascript">
+                                                    $(document).ready(function () {
+                                                        $('#http_auth_multi').click(function () {
+                                                            $("#HTTP_multi").slideToggle(150);
+                                                        });
+                                                    });
+                                                </script>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label"
+                                                           for="link">{{ Lang::get('messages.links.to.transload') }}</label>
+                                                    <div class="col-md-8">
+                                                            <textarea style="max-width: 486px; max-height: 500px; min-height: 100px" class="form-control" id="links" name="links" wrap="off" placeholder="{{ Lang::get('messages.links') }}"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label id="http_auth_multil" class="col-md-3 control-label" for="http_auth1"></label>
+                                                    <div class="col-md-3">
+                                                        <div class="checkbox">
+                                                            <label for="http_auth">
+                                                                <input type="checkbox" name="http_auth" id="http_auth_multi" value="1">
+                                                                {{ Lang::get('messages.http.authorization') }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div id="HTTP_multi" style="display: none;">
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="http_username">{{ Lang::get('messages.http.username') }}</label>
+                                                        <div class="col-md-3">
+                                                            <input id="http_username" name="http_username" type="text" placeholder="{{ Lang::get('messages.http.username') }}" class="form-control input-md" required="">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="http_password">{{ Lang::get('messages.http.password') }}</label>
+                                                        <div class="col-md-3">
+                                                            <input id="http_password" name="http_password" type="password" placeholder="{{ Lang::get('messages.http.password') }}" class="form-control input-md" required="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
+                                                    <div class="col-md-5">
+                                                        <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="hold"></label>
+                                                    <div class="col-md-3">
+                                                        <div class="checkbox">
+                                                            <label for="hold">
+                                                                <input type="checkbox" name="hold" id="hold" value="1">
+                                                                {{ Lang::get('messages.http.hold') }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="transload"></label>
+                                                    <div class="col-md-1">
+                                                        <button id="transload" name="transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
+                                                    </div>
+                                                </div>
+                                                <script>
+                                                    $('#transload').on('click', function () {
+                                                        var $btn = $(this).button('loading');
+                                                    })
+                                                </script>
+                                            </fieldset>
+                                        </form>
+                                        </div>
+
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" id="torrent_tab">
+                                        @if(Auth::user()->torrent != 1)
+                                            <br/>
+                                            <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>
+                                        @endif
                                     </div>
                                 </div>
+
                             </div>
-
-                            <div id="HTTP" style="display: none;">
-                                <!-- HTTP User input-->
-                                <div class="form-group">
-                                    <label class="col-md-4 control-label"
-                                           for="http_username">{{ Lang::get('messages.http.username') }}</label>
-
-                                    <div class="col-md-2">
-                                        <input id="http_username" name="http_username" type="text"
-                                               placeholder="{{ Lang::get('messages.http.username') }}"
-                                               class="form-control input-md" required="">
-
-                                    </div>
-                                </div>
-
-                                <!-- HTTP Password input-->
-                                <div class="form-group">
-                                    <label class="col-md-4 control-label"
-                                           for="http_password">{{ Lang::get('messages.http.password') }}</label>
-
-                                    <div class="col-md-2">
-                                        <input id="http_password" name="http_password" type="password"
-                                               placeholder="{{ Lang::get('messages.http.password') }}"
-                                               class="form-control input-md" required="">
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Comment -->
-                            <div class="form-group">
-                                <label class="col-md-4 control-label"
-                                       for="comment">{{ Lang::get('messages.comment') }}</label>
-
-                                <div class="col-md-4">
-                                    <textarea style="max-width: 386px; max-height: 200px; min-height: 70px"
-                                              class="form-control" id="comment" name="comment"
-                                              placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
-                                </div>
-                            </div>
-
-
-                            <!-- HTTP Hold -->
-                            <div class="form-group">
-                                <label class="col-md-4 control-label" for="hold"></label>
-
-                                <div class="col-md-4">
-                                    <div class="checkbox">
-                                        <label for="hold">
-                                            <input type="checkbox" name="hold" id="hold" value="1">
-                                            {{ Lang::get('messages.http.hold') }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Button -->
-                            <div class="form-group">
-                                <label class="col-md-4 control-label" for="transload"></label>
-
-                                <div class="col-md-1">
-                                    <button id="transload" name="transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
-                                </div>
-                            </div>
-
-                            <script>
-                                $('#transload').on('click', function () {
-                                    var $btn = $(this).button('loading');
-                                })
-                            </script>
-
-                        </fieldset>
-                    </form>
-                    @if(Auth::user()->torrent != 1)
-                        <br/>
-                        <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>
-                    @endif
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": false,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "slideDown",
+            "hideMethod": "slideUp"
+        };
+        $( document ).ready(function() {
+            $("#addmore").click(function (event) {
+                $('#frm_multi')[0].reset();
+                $('#linksres_div').fadeOut(500);
+                $('#links_div').delay(500).fadeIn(500);
+
+            });
+
+            $('#linksres_div').hide();
+            $("#frm_multi").submit(function (event) {
+                event.preventDefault();
+                //
+                $('#links_div').fadeOut(500);
+                $('#linksres_div').delay(500).fadeIn(500);
+                var lines = $('textarea[name=links]').val().split('\n');
+                var time = 500;
+                var id = 0, id1=0;
+                $('#linksres_div table tbody').empty();
+                $.each(lines, function(){
+                    var lline = this;
+                    if (lline == '') return true;
+                    id++;
+                    $('#linksres_div table tbody').append('<tr><td>' + id + '</td><td>' + lline + '</td><td id="l' + id + '">' + 'Pending...' + '</td></tr>');
+                    setTimeout( function(){
+                        id1++;
+                        var data = $("#frm_multi :input[name!='links']").serialize() + '&id=' + id1 + '&link=' +  encodeURIComponent( lline );
+                        console.log(data);
+                        $.ajax({
+                            url: "",
+                            type: "POST",
+                            data: data ,
+                            dataType: 'json',
+
+                            success: function (response) {
+                                $('#l' + response.id).text(response.message);
+                                if (response['type'] == 'success')
+                                    $('#l' + response.id).attr('class', 'success');
+                                else
+                                    $('#l' + response.id).attr('class', 'danger');
+                            },
+
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                toastr["error"]("Cannot connect to the server. Please check your connection or refresh the page.", "Oh Snap!");
+                            }
+                        });
+                    }, time);
+                    console.log("\n\n");
+                    time += 500;
+                });
+
+            });
+        });
+    </script>
+
 @endsection

@@ -24,8 +24,9 @@ if (!Auth::guest()){  // Only users can show new messages.
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/main.css?v=2') }}" rel="stylesheet">
-    <link href="favicon.ico?v=1" type="image/x-icon" rel="favicon">
+    <link href="{{ asset('/css/main.css?v=3') }}" rel="stylesheet">
+    <link href="{{ asset('/favicon.ico?v=1') }}" type="image/x-icon" rel="favicon">
+    <link href="{{ asset('/css/toastr.min.css') }}" rel="stylesheet">
 
     <!--[if lt IE 9]>
     <script type="text/javascript" src="{{ asset('/js/html5shiv.min.js') }}"></script>
@@ -38,7 +39,7 @@ if (!Auth::guest()){  // Only users can show new messages.
     <script type="text/javascript" src="{{ asset('/js/bootbox.min.js') }}"></script>
 
     <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
-
+    <script type="text/javascript" src="{{ asset('/js/toastr.min.js') }}"></script>
 
 </head>
 <body>
@@ -46,7 +47,7 @@ if (!Auth::guest()){  // Only users can show new messages.
     <script>
         bootbox.dialog({
             title: "{{$change_title1}}",
-            message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}" width="250px"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
+            message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}" width="450px"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
         });
     </script>
 @endif
@@ -174,5 +175,6 @@ if (!Auth::guest()){  // Only users can show new messages.
     ga('send', 'pageview');
 </script>
 @endif
+
 </body>
 </html>
