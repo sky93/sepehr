@@ -32,6 +32,7 @@ return [
     'your.link'             => 'Your Link',
     'http.authorization'    => 'HTTP Authorization',
     'http.username'         => 'HTTP Username',
+    'name'                  => 'Name',
     'download.list'         => 'Download List',
     'add.more'              => 'Add More',
     'http.password'         => 'HTTP Password',
