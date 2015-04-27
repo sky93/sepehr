@@ -4,14 +4,17 @@
 
 @section('content')
     <script>
-        function checkFile(id) {
-            if (document.getElementById('file_' + id).checked == true) document.getElementById('file_' + id).checked = false;
-            else document.getElementById('file_' + id).checked = true;
-            return false;
-        }
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        });
+
+            function checkFile(id) {
+                if (document.getElementById('file_' + id).checked == true) document.getElementById('file_' + id).checked = false;
+                else document.getElementById('file_' + id).checked = true;
+                return false;
+            }
+
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            });
+
     </script>
     <div class="row">
         <div class="col-md-12">
@@ -116,7 +119,10 @@
                 <div class="panel-footer">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <div class="row">
-                            <div style="padding: 5px" class="col-md-offset-6 col-md-2">
+                            <div style="padding: 5px" class="col-md-offset-4 col-md-2">
+                                <button id="copy" style="width: 100%" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="@lang('messages.copy.tooltip')"><i class="fa fa-clipboard fa-lg"></i> @lang('messages.copy')</button>
+                            </div>
+                            <div style="padding: 5px" class="col-md-2">
                                 <button style="width: 100%" type="submit" name="action"{{(((Auth::user()->role == 2) || (Auth::user()->role != 2 && Config::get('leech.keep') == 'all')) ? ' ':' disabled ')}}value="never" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="@lang('messages.keep.tooltip')"><i class="fa fa-chain-broken fa-lg"></i> @lang('messages.keep')</button>
                             </div>
                             <div style="padding: 5px" class="col-md-2">
@@ -133,10 +139,47 @@
         </div>
     </div>
     <script>
-        var check = true;
-        $('#call').click(function(){
-            $('td [id^="file_"]').prop('checked', check);
-            check = !check;
+        $(document).ready(function() {
+            $('#copy').click(function (e) {
+                e.preventDefault();
+                //$("#list").find('span[id^="id_"]').each(function(index) {
+                var links = '';
+                $('td input[id^="file_"]:checked').each(function (index) {
+                    //this.id = "id_" + (index + 1);
+                    links += $(this).closest('td').next('td').find('a')[0].href + "\n";
+
+                });
+                if (links == '') links = 'Nothing selected...';
+                bootbox.dialog({
+                            title: "@lang('messages.cp_links')",
+                            message: '<div class="row">  ' +
+                            '<div class="form-group"> ' +
+                            '<div class="col-md-12"> ' +
+                            '<textarea style="max-width: 100%; max-height: 260px; height: 260px" class="form-control" id="links"  wrap="off">' + links + '</textarea>' +
+                            '</div> ' +
+                            '</div></div>',
+                            buttons: {
+                                success: {
+                                    label: '<i class="fa fa-check"></i> Ok',
+                                    className: "btn-success"
+                                }
+                            }
+                        }
+                );
+
+                $('#links').dblclick(function(){
+                    $(this)[0].select();
+                });
+
+            });
+
+            var check = true;
+            $('#call').click(function(){
+                $('td [id^="file_"]').prop('checked', check);
+                check = !check;
+            });
+
+
         });
     </script>
 @endsection
