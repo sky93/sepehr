@@ -125,6 +125,19 @@ class HomeController extends Controller
             }else{
                 return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
             }
+        } elseif ($_POST['action'] === 'never') {
+            if ((Auth::user()->role == 2 && (Config::get('leech.keep') == 'admin' || Config::get('leech.keep') == 'all')) || (Auth::user()->role != 2 && Config::get('leech.keep') == 'all')) {
+                foreach ($_POST['files'] as $file) {
+                    if (in_array($file, $auth_files)) {
+                        $message[] = $file . '_' . $files_list[$file] . ' Won\'t be deleted.';
+                        DB::table('download_list')
+                            ->where('id', $file)
+                            ->update(['keep' => 1]);
+                    }
+                }
+            }else{
+                return redirect::back()->withErrors(Lang::get('errors.cannot_keep'));
+            }
         }
 
         $users = DB::table('download_list')

@@ -233,7 +233,7 @@ return [
     'show_change_message' => true,
     'change_title1' => "What's New",
     'change_title2' => "Tired of adding multiple links?",
-    'change_message' => '<p>No Worries!  Finally we have added "Multiple Links" option. Simply add your links and split them by pressing "Enter" button!</p><p>BTW, Torrent is currently in my high priority todo list..</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
+    'change_message' => '<p>No Worries!  Finally we have added "Multiple Links" option. Simply add your links and split them by pressing "Enter" button!</p><hr /><p>• Also added <strong>"Keep Files"</strong> feature. Keep some of your important files so they will never be deleted automatically.</p><hr /><p>BTW, Torrent is currently in my high priority todo list..</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
 
 
 
@@ -278,5 +278,23 @@ return [
     */
 
     'public' => 'admin',
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Keep Files
+    |--------------------------------------------------------------------------
+    |
+    | Let Users keep their own files so server won't delete those files.
+    |
+    | Options:
+    |
+    | 'all' : all users with any role.
+    | 'admin' : Only administrators.
+    */
+
+    'keep' => 'admin',
 
 ];

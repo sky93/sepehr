@@ -9,6 +9,9 @@
             else document.getElementById('file_' + id).checked = true;
             return false;
         }
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
     </script>
     <div class="row">
         <div class="col-md-12">
@@ -94,6 +97,17 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    @if(count($files) > 0)
+                                        <tr>
+                                            <td>
+                                                <div class="btn-group" data-toggle="buttons">
+                                                    <label id="call" class="btn btn-warning btn-sm">
+                                                        <input type="checkbox" autocomplete="off" checked><i class="fa fa-check-square-o fa-lg"></i>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 </table>
                             </div>
                         </div>
@@ -102,9 +116,11 @@
                 <div class="panel-footer">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <div class="row">
-                            <div class="col-md-offset-8"></div>
-                            <div style="padding: 5px" class="col-md-offset-8 col-md-2">
-                                <button style="width: 100%" type="submit" name="action"{{((Auth::user()->public == 0) ? ' disabled ':' ')}}value="public" class="btn btn-success"><i class="fa fa-globe fa-lg"></i> @lang('messages.public')</button>
+                            <div style="padding: 5px" class="col-md-offset-6 col-md-2">
+                                <button style="width: 100%" type="submit" name="action"{{(((Auth::user()->role == 2) || (Auth::user()->role != 2 && Config::get('leech.keep') == 'all')) ? ' ':' disabled ')}}value="never" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="@lang('messages.keep.tooltip')"><i class="fa fa-chain-broken fa-lg"></i> @lang('messages.keep')</button>
+                            </div>
+                            <div style="padding: 5px" class="col-md-2">
+                                <button style="width: 100%" type="submit" name="action"{{((Auth::user()->public == 0) ? ' ':' disabled ')}}value="public" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="@lang('messages.public.tooltip')"><i class="fa fa-globe fa-lg"></i> @lang('messages.public')</button>
                             </div>
                             <div style="padding: 5px" class="col-md-2">
                                 <button style="width: 100%" type="submit" name="action" value="delete" class="btn btn-danger"><i class="fa fa-trash-o fa-lg"></i> @lang('messages.delete')</button>
@@ -116,4 +132,11 @@
 
         </div>
     </div>
+    <script>
+        var check = true;
+        $('#call').click(function(){
+            $('td [id^="file_"]').prop('checked', check);
+            check = !check;
+        });
+    </script>
 @endsection
