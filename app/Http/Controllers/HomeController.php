@@ -203,6 +203,11 @@ class HomeController extends Controller
                         //'state' => -3 //I decided to remove this because we lose the last state of the file after delete.
                     ]);
 
+                if (+$file_details->state === 0 && $file_details->state !== NULL){
+                    return Redirect::to('/files/');
+                }else{
+                    return Redirect::to('/downloads/');
+                }
                 // Decrease queue credit
 //                if ($file_details->state != 0) {
 //                    DB::table('users')
