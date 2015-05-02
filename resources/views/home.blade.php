@@ -59,14 +59,14 @@
                                                 <div class="form-group">
                                                     <label class="col-md-3 control-label"
                                                            for="link">{{ Lang::get('messages.link.to.transload') }}</label>
-                                                    <div class="col-md-8">
+                                                    <div class="col-md-8 pull-left">
                                                         <input id="link" name="link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md" required="">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label class="col-md-3 control-label" for="http_auth"></label>
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-4">
                                                         <div class="checkbox">
                                                             <label for="http_auth">
                                                                 <input type="checkbox" name="http_auth" id="http_auth" value="1">
@@ -250,23 +250,7 @@
         </div>
     </div>
     <script>
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": false,
-            "positionClass": "toast-bottom-right",
-            "preventDuplicates": true,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "slideDown",
-            "hideMethod": "slideUp"
-        };
+
         $( document ).ready(function() {
             $("#addmore").click(function (event) {
                 $('#frm_multi')[0].reset();

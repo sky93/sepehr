@@ -39,7 +39,11 @@ $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::post('user/{username}/password', 'UserController@post_password');
 
     Route::get('user/{username}/credit/history', 'UserController@credit_history');
-    //Route::get('user/{username}/credit/buy', 'UserController@credit_history');
+
+    Route::get('buy', 'PaymentController@credit_buy');
+    Route::post('buy', 'PaymentController@post_credit_buy');
+
+    Route::get('user/{username}/payments/history', 'PaymentController@payment_history');
 });
 
 $router->group(['middleware' => 'auth'], function() {
@@ -73,6 +77,8 @@ $router->group(['middleware' => ['auth', 'empty_email'], 'role' => '2'], functio
 
     Route::get('/tools/files', 'AdminController@files');
     Route::post('/tools/files', 'AdminController@post_files');
+
+    Route::get('/tools/payments', 'AdminController@payments');
 });
 
 Route::controllers([

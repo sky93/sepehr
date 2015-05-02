@@ -2,6 +2,24 @@
 
 return [
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment
+    |--------------------------------------------------------------------------
+    |
+    */
+    'credit_unit' => env('CREDIT_UNIT', '2'),
+    'currency' => env('CURRENCY', 'USD'),
+    'bank_url' => env('BANK_URL'),
+    'soap_client' => env('SOAP_CLIENT'),
+    'namespace' => env('NAMESPACE'),
+    'terminalId' => env('TERMINAL_ID'),
+    'userName' => env('BANK_USERNAME'),
+    'userPassword' => env('BANK_PASSWORD'),
+    'bank_logo' => env('BANK_LOGO'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Auto Delete
@@ -38,7 +56,7 @@ return [
     |
     */
 
-    'GA' => 'UA-60769821-1',
+    'GA' => env('GA', 'UA-60769821-1'),
 
 
 
@@ -295,6 +313,6 @@ return [
     | 'admin' : Only administrators.
     */
 
-    'keep' => 'admin',
+    'keep' => 'all',
 
 ];

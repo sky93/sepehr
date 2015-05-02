@@ -575,7 +575,8 @@ class HomeController extends Controller
             }
             else
             {
-                return redirect::back()->withErrors('Not enough Credits!');
+                return Redirect::to('/buy');
+                //return redirect::back()->withErrors('Not enough Credits!');
             }
         }
 

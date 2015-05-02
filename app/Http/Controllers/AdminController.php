@@ -27,6 +27,19 @@ class AdminController extends Controller
         //
     }
 
+
+
+    public function payments()
+    {
+        $tracks = DB::table('payments')
+            ->whereNotNull('verifyCode')
+            ->where('verifyCode', '=' , '0')
+            ->get();
+
+        $main = new main();
+        return view('payment.history', array('main' => $main, 'tracks' => $tracks));
+    }
+
     public function stat()
     {
         $main = new main();
@@ -113,7 +126,13 @@ class AdminController extends Controller
 
     public function user_details_credits($user_name)
     {
-        $user = User::where('username', '=', $user_name)->first();
+        $user = DB::table('users')
+            ->where('username', '=', $user_name)
+            ->first();
+
+        if ($user == null)
+            return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This file does not exist or you do not have the right permission to view this file.'));
+
 
         $tracks = DB::table('credit_log')
             ->select('credit_log.*', 'users.username')

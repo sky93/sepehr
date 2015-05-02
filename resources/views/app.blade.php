@@ -34,13 +34,13 @@ if (!Auth::guest()){  // Only users can show new messages.
 
     <![endif]-->
 
+
     <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/bootbox.min.js') }}"></script>
 
     <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/toastr.min.js') }}"></script>
-
 </head>
 <body>
 @if($show_message == true)
@@ -87,11 +87,13 @@ if (!Auth::guest()){  // Only users can show new messages.
                     @else
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                               aria-expanded="false"><span>Credits </span><span class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
+                               aria-expanded="false"><span>Credits </span><span class="user-credit label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 {{--<li class="divider"></li>--}}
+                                <li><a href="{{  url('user/'. Auth::user()->username) . '/payments/history' }}"><i class="fa fa-credit-card"></i> @lang('messages.peyment_history')</a></li>
                                 <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
-                                <li class="disabled"><a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{{ url('buy') }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
                                 {{--<li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>--}}
                                 {{--<li class="divider"></li>--}}
                                 {{--<li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>--}}
@@ -109,8 +111,9 @@ if (!Auth::guest()){  // Only users can show new messages.
                                     <li><a href="{{ url('/tools/files') }}"><i class="fa fa-file-text-o"></i> @lang('messages.all_files')</a></li>
                                     <li class="divider"></li>
                                     <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
-                                    <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> Aria2
-                                            Console</a></li>
+                                    <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> @lang('messages.a2console')</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{{ url('/tools/payments') }}"><i class="fa fa-usd"></i> @lang('messages.all.payments')</a></li>
                                 </ul>
                             </li>
                         @endif
@@ -121,9 +124,9 @@ if (!Auth::guest()){  // Only users can show new messages.
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
                                 <li class="dropdown-header">Credits</li>
-                                <li class="disabled">
-                                    <a href="{{ url('user/'. Auth::user()->username) . '/credit/buy' }}">
-                                        <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span>
+                                <li>
+                                    <a href="{{ url('buy') }}">
+                                        <i class="fa fa-usd"></i> @lang('messages.credits'): <span style="margin-top: 2px" class="user-credit label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}pull-right">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span>
                                     </a>
                                 </li>
                                 <li class="divider"></li>

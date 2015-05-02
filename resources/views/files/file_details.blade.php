@@ -21,7 +21,11 @@
 @endsection
 
 @section('back')
-    <button class="btn btn-success" onclick="window.history.back(); return;"><i class="fa fa-arrow-left fa-lg"></i> Back</button>
+    @if ($file->state == 0 && $file->state != null)
+        <a class="btn btn-success" href="{{ asset('/files') }}"><i class="fa fa-arrow-left fa-lg"></i> Back</a>
+    @else
+        <a class="btn btn-success" href="{{ asset('/downloads') }}"><i class="fa fa-arrow-left fa-lg"></i> Back</a>
+    @endif
 @endsection
 
 @section('edit')
@@ -69,7 +73,7 @@
                         </div>
                     </div>
                     @endif
-                    @if(+$file->state === 0 && $file->state != null)
+                    @if(+$file->state == 0 && $file->state !== null)
                         <div class="alert alert-success" role="alert"><span
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
                             @if($file->deleted == 0)
@@ -87,10 +91,10 @@
                     @elseif ($file->state != -3)
                         @if(Lang::has('errors.' . $file->state))
                             <div class="alert alert-danger" role="alert"><span
-                                        style="font-weight: bold">Oh snap! </span>@lang('errors.' . $file->state)</div>
+                                        style="font-weight: bold">1Oh snap! </span>@lang('errors.' . $file->state)</div>
                         @else
                             <div class="alert alert-danger" role="alert"><span
-                                        style="font-weight: bold">Oh snap! </span>@lang('errors.999')</div>
+                                        style="font-weight: bold">11Oh snap! </span>@lang('errors.999')</div>
                         @endif
                     @endif
                     @if($file->deleted == 1)
