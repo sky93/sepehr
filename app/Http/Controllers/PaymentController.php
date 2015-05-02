@@ -221,6 +221,42 @@ class PaymentController extends Controller {
                                ]);
                            if ($resultStr == 0){
 
+                               // SETTLE
+
+                               try {
+                                   $client = new nusoap_client(Config::get('leech.soap_client'));
+                               } catch (Exception $e) {
+                                   return view('payment.buy', ['main' => $main, 'res' => 'error', 'error' => 'We could not verify your payment. We will refund your money.', 'post' => $post]);
+                               }
+                               $namespace=Config::get('leech.namespace');
+
+                               if ($client->getError()) {
+                                   return view('payment.buy', ['main' => $main, 'res' => 'error', 'error' => 'We could not verify your payment. We will refund your money.', 'post' => $post]);
+                               }
+
+                               $parameters = [
+                                   'terminalId' => Config::get('leech.terminalId'),
+                                   'userName' => Config::get('leech.userName'),
+                                   'userPassword' => Config::get('leech.userPassword'),
+                                   'orderId' => $input['SaleOrderId'],
+                                   'saleOrderId' => $input['SaleOrderId'],
+                                   'saleReferenceId' => $input['SaleReferenceId']
+                                ];
+
+                               $result = $client->call('bpSettleRequest', $parameters, $namespace);
+
+                               if ($client->fault) {
+                                   $res = -1;
+                               }else {
+                                   $res = $result;
+                               }
+                               DB::table('payments')
+                                   ->where('id', '=', $input['SaleOrderId'])
+                                   ->where('RefId', '=', $input['RefId'])
+                                   ->update([
+                                       'settleResponse' => $res,
+                                   ]);
+
                                $user = DB::table('users')
                                    ->where('id', '=', $payment->user_id)
                                    ->first();
