@@ -5,7 +5,7 @@
     <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
     <script>
         $(function () {
-            $('[data-toggle="popover"]').popover()
+            $('[data-toggle="tooltip"]').tooltip()
         });
     </script>
     <div class="row">
@@ -243,6 +243,13 @@
                                 </div>
 
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-offset-10 col-md-2">
+                            <a href="{{ asset('/buy') }}" data-toggle="tooltip" data-placement="left" title="@lang('messages.credit_buy')" class="pull-right btn btn-warning"><i class="fa fa-usd fa-lg"></i></a>
                         </div>
                     </div>
                 </div>
