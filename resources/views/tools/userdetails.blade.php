@@ -148,7 +148,10 @@
                     <form class="form-horizontal" role="form" method="POST" action="">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <div class="row">
-                            <div style="padding: 5px" class="col-md-offset-6 col-md-2">
+                            <div style="padding: 5px" class="col-md-offset-4 col-md-2">
+                                <a  href="{{ asset('user/' . $user->username . '/payments/history') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-money fa-lg"></i> @lang('messages.usr_pay_hist')</a>
+                            </div>
+                            <div style="padding: 5px" class="col-md-2">
                                 <a  href="{{ asset('tools/users/' . $user->username . '/credits') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-bars fa-lg"></i> @lang('messages.clog')</a>
                             </div>
                             <div style="padding: 5px" class="col-md-2">

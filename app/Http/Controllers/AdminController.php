@@ -32,6 +32,8 @@ class AdminController extends Controller
     public function payments()
     {
         $tracks = DB::table('payments')
+            ->join('users', 'payments.user_id', '=', 'users.id')
+            ->select('payments.*', 'users.username', 'users.first_name', 'users.last_name')
             ->whereNotNull('verifyCode')
             ->where('verifyCode', '=' , '0')
             ->get();

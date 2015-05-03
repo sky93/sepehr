@@ -136,6 +136,7 @@ return [
     'firstname'             => 'First name',
     'lastname'              => 'Last name',
     'email'                 => 'Email',
+    'settle'                => 'Settle',
     'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
 
 
@@ -153,5 +154,5 @@ return [
     'users'                 => 'Users',
     'all_files'             => 'All Files',
     'buy_credit'            => 'Buy Credit',
-    'ust_pay_hist'          => 'Payment History',
+    'usr_pay_hist'          => 'Payment History',
 ];

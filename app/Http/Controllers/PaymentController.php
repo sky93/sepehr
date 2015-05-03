@@ -27,8 +27,7 @@ class PaymentController extends Controller {
             $user = User::where('username', '=', $user_name)->first();
 
             if ($user == null)
-                return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This user does not exist or you do not have the right permission to view this user'));
-
+                return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This user does not exist or you do not have permission to view this user.'));
 
             $tracks = DB::table('payments')
                 ->where('user_id', '=', $user->id)
@@ -37,7 +36,7 @@ class PaymentController extends Controller {
                 ->get();
 
             $main = new main();
-            return view('payment.history', array('main' => $main, 'user' => $user, 'tracks' => $tracks));
+            return view('payment.user_history', array('main' => $main, 'user' => $user, 'tracks' => $tracks));
         }else{
             return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
         }
