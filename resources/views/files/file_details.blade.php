@@ -91,10 +91,10 @@
                     @elseif ($file->state != -3)
                         @if(Lang::has('errors.' . $file->state))
                             <div class="alert alert-danger" role="alert"><span
-                                        style="font-weight: bold">1Oh snap! </span>@lang('errors.' . $file->state)</div>
+                                        style="font-weight: bold">Oh snap! </span>@lang('errors.' . $file->state)</div>
                         @else
                             <div class="alert alert-danger" role="alert"><span
-                                        style="font-weight: bold">11Oh snap! </span>@lang('errors.999')</div>
+                                        style="font-weight: bold">Oh snap! </span>@lang('errors.999')</div>
                         @endif
                     @endif
                     @if($file->deleted == 1)
