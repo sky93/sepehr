@@ -8,12 +8,17 @@
             <div class="panel panel-default">
                 <div class="panel-heading">{{ Lang::get('messages.dl.list') }}</div>
                 <div class="panel-body">
+                    @if (Config::get('leech.download_show_message'))
+                        <div class="alert alert-info" dir="{{Config::get('leech.download_dir')}}">
+                            {{Config::get('leech.download_message')}}
+                        </div><hr />
+                    @endif
                     <div class="table-responsive" dir="ltr">
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>
                             <tr class="warning">
                                 @if (Auth::user()->role == 2)
-                                <th style="width: 9%">@lang('messages.username')</th>
+                                <th style="width: 9%">@lang('messages.name')</th>
                                 @endif
                                 <th style="width: 43%">@lang('messages.file.name')</th>
                                 <th style="width: 8%">@lang('messages.dled.size')</th>
@@ -56,14 +61,14 @@
 
                                     @if (Auth::user()->role == 2)
                                         <td>
-                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->username }}</a>
+                                                <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->first_name . ' ' . $file->last_name }}</a>
                                         </td>
                                     @endif
                                     <td>{{ $file->file_name }}</td>
                                     <td id="dled">{{ $main->formatBytes($downloaded_size,1) }}</td>
                                     <td>{{ $main->formatBytes($file->length,1) }}</td>
                                     <td  style="vertical-align:top !important;">
-                                        <div class="progress">
+                                        <div class="progress progress_dl">
                                             <div id="prog" class="progress-bar progress-bar-custom" role="progressbar"
                                                  aria-valuenow="0" aria-valuemin="0"
                                                  aria-valuemax="100"
@@ -84,7 +89,7 @@
                                     Total:
                                 </td>
                                 <td  style="vertical-align:top !important;">
-                                    <div class="progress">
+                                    <div class="progress progress_dl">
                                         <div id="totalProg" class="progress-bar progress-bar-custom" role="progressbar"
                                              aria-valuenow="0" aria-valuemin="0"
                                              aria-valuemax="100"

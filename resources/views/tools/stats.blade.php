@@ -1,6 +1,7 @@
 @extends('app')
 
 @section('content')
+
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -51,6 +52,19 @@
                         </div>
                     </div>
                     <div id="ul_p" class="panel panel-primary">
+                        <div class="panel-heading" style="font-size: 12px; padding: 1px 5px">@lang('messages.diskspace')</div>
+                            <div class="panel-body">
+                                Path: <kbd>{{ $main->get_storage_path() }}</kbd>
+                                <br /><br />
+                                <div id="disksize">0 B of 0 B (0 B free)</div>
+                                <div class="progress">
+                                    <div id="disk" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;width: 0%">
+                                        0%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div id="ul_p" class="panel panel-primary">
                         <div class="panel-heading" style="font-size: 12px; padding: 1px 5px">@lang('messages.lastten')</div>
                         <div class="panel-body">
                             <div class="table-responsive" dir="ltr">
@@ -67,7 +81,7 @@
                                     </tr>
                                     </thead>
                                     <tbody id="main_table">
-
+                                    <td colspan="7">Please Wait ...</td>
                                     </tbody>
                                 </table>
                             </div>
@@ -101,7 +115,6 @@
                 data : "gs=1" ,
                 dataType: 'json',
 
-
                 success: function (response, textStatus, jqXHR) {
                     $('#speed').html(response.speed + '/s');
                     $('#numActive').html(response.numActive);
@@ -112,7 +125,7 @@
                 },
 
                 error: function (jqXHR, textStatus, errorThrown) {
-                    console.error("The following error occurred: " + textStatus, errorThrown);
+                    console.error("gs - The following error occurred: " + textStatus, errorThrown);
                 }
             });
         }
@@ -132,13 +145,43 @@
                 },
 
                 error: function (jqXHR, textStatus, errorThrown) {
-                    console.error("The following error occurred: " + textStatus, errorThrown);
+                    console.error("lf - The following error occurred: " + textStatus, errorThrown);
                 }
             });
         }
+
+        function sz() {
+            $.ajax({
+                url : '',
+                type : 'POST' ,
+                data : "sz=1" ,
+                dataType: 'json',
+
+                success: function (response, textStatus, jqXHR) {
+                    console.log(response);
+                    var disk = $('#disk');
+                    var colour = 'progress-bar progress-bar-success';
+                    if (response.percent > 40 && response.percent <= 70)
+                        colour = 'progress-bar progress-bar-warning';
+                    else if(response.percent > 70)
+                        colour = 'progress-bar progress-bar-danger';
+
+                    disk.text(response.percent + '%');
+                    disk.attr('style', 'min-width: 2em;width:' + response.percent + '%');
+                    disk.attr('class', colour);
+                    $('#disksize').text(response.used + ' of ' + response.total + ' (' + response.free + ' Free)');
+                },
+
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error("sz - The following error occurred: " + textStatus, errorThrown);
+                }
+            });
+        }
+        sz();
         gs();
         lf();
         setInterval(gs, 2000);
         setInterval(lf, 5000);
+        setInterval(sz, 60000);
     </script>
 @endsection

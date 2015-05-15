@@ -2,6 +2,50 @@
 
 return [
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    'currency' => env('CURRENCY', 'USD'),
+    'bank_url' => env('BANK_URL'),
+    'soap_client' => env('SOAP_CLIENT'),
+    'namespace' => env('NAMESPACE'),
+    'terminalId' => env('TERMINAL_ID'),
+    'userName' => env('BANK_USERNAME'),
+    'userPassword' => env('BANK_PASSWORD'),
+    'bank_logo' => env('BANK_LOGO'),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Type
+    |--------------------------------------------------------------------------
+    |
+    | Options:
+    | 1) normal
+    | 2) discount
+    |
+    */
+
+    'payment_type' => 'discount',
+
+    //if 'payment_type' is normal:
+    'credit_unit' => 2,
+
+    //if 'payment_type' is discount:
+    '5GB_price' => 2.5,
+    '10GB_price' => 4,
+    '20GB_price' => 8,
+    '50GB_price' => 20,
+    '100GB_price' => 30,
+
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Auto Delete
@@ -12,7 +56,7 @@ return [
     |
     */
     'auto_delete' => true,
-    'auto_delete_time' => 24 * 3,
+    'auto_delete_time' => 24 * 31,
 
 
 
@@ -38,7 +82,7 @@ return [
     |
     */
 
-    'GA' => 'UA-60769821-1',
+    'GA' => env('GA', 'UA-60769821-1'),
 
 
 
@@ -89,7 +133,7 @@ return [
     |
     */
 
-    'ip_block_duration' => 5,
+    'ip_block_duration' => 3,
 
 
     /*
@@ -101,7 +145,7 @@ return [
     |
     */
 
-    'password_retry_count' => 2,
+    'password_retry_count' => 3,
 
 
 
@@ -145,10 +189,11 @@ return [
     */
 
     'blocked_ext' => array(
-        'php' => '_php_',
+        'php' => false,
         'html' => '_html_',
         'torrent' => false,
-        'php4' =>  '_php4_',
+        'php4' =>  false,
+        'php5' =>  false,
     ),
 
 
@@ -167,10 +212,6 @@ return [
         'localhost',
         '127.0.0.1',
         '::1',
-        '178.236.33.163',
-        'sepehr.sadjad.ac.ir',
-        'repo.sadjad.ac.ir',
-        '178.236.33.162',
     ),
 
 
@@ -187,7 +228,7 @@ return [
 
     'blocked_ports' => array(
         '20-79',
-        '81-442',
+        '89-442',
         '444-999',
         '10000',
     ),
@@ -216,7 +257,7 @@ return [
     | Rename Regex
     |--------------------------------------------------------------------------
     |
-    | What regex Arial Leech should use for rename file validation
+    | What regex Aria Leech should use for rename file validation
     |
     */
 
@@ -235,9 +276,9 @@ return [
     */
 
     'show_change_message' => true,
-    'change_title1' => "Welcome To Sadjad University's Leecher",
-    'change_title2' => "Sepehr",
-    'change_message' => '<p dir="rtl">با این سیستم شما می توانید فایل های خود را در خانه به سیستم اضافه کنید. سیستم شروع به دانلود فایل خواهد نمود و سپس می توانید در دانشگاه با سرعت بسیار زیاد فایل های خود را بدون کم شدن از حجم اینترنت دانشگاه شما دانلود نمایید.</p><p dir="rtl">• در صورت داشتن مشکل یا سوال با ایمیل <a target="_blank" href="mailto:sepehr@sadjad.ac.ir">sepehr@sadjad.ac.ir</a> در ارتباط باشید.</p><p dir="rtl">• در صورت یافتن باگ نرم افزاری، مشکل را در <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/issues">اینجا</a> ثبت نمایید.</p><p dir="rtl">• برای مشاهده ی آخرین تغییرات سیستم، به <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">اینجا</a> بروید.</p><p dir="rtl">لازم به ذکر است خرید اینترنتی به زودی فراهم می گردد. همچنین برای دانلود فایل ها از دانشگاه، بایستی از اینترنت خارج شوید تا از حجم حساب اینترنتی شما کسر نگردد.</p><p>با تشکر</p>',
+    'change_title1' => "What's New",
+    'change_title2' => "Tired of adding multiple links?",
+    'change_message' => '<p>No Worries!  Finally we have added "Multiple Links" option. Simply add your links and split them by pressing "Enter" button!</p><hr /><p>• Also added <strong>"Keep Files"</strong> feature. Keep some of your important files so they will never be deleted automatically.</p><hr /><p>BTW, Torrent is currently in my high priority todo list..</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
 
 
 
@@ -250,7 +291,7 @@ return [
     |
     */
 
-    'logo_address' => 'img/logo.png',
+    'logo_address' => 'img/links.png',
 
 
 
@@ -282,5 +323,55 @@ return [
     */
 
     'public' => 'admin',
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Keep Files
+    |--------------------------------------------------------------------------
+    |
+    | Let Users keep their own files so server won't delete those files.
+    |
+    | Options:
+    |
+    | 'all' : all users with any role.
+    | 'admin' : Only administrators.
+    */
+
+    'keep' => 'all',
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messages
+    |--------------------------------------------------------------------------
+    |
+    | Show a message on top of the page
+    |
+    */
+
+    'login_show_message' => true,
+    'login_dir' => 'ltr',
+    'login_message' => 'Your Message...',
+
+    'main_show_message' => true,
+    'main_dir' => 'ltr',
+    'main_message' =>  'Your Message...',
+
+    'download_show_message' => true,
+    'download_dir' => 'ltr',
+    'download_message' =>  'Your Message...',
+
+    'files_show_message' => true,
+    'files_dir' => 'ltr',
+    'files_message' =>  'Your Message...',
+
+    'public_show_message' => true,
+    'public_dir' => 'ltr',
+    'public_message' =>  'Your Message...',
 
 ];

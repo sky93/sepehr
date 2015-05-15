@@ -27,6 +27,21 @@ class AdminController extends Controller
         //
     }
 
+
+
+    public function payments()
+    {
+        $tracks = DB::table('payments')
+            ->join('users', 'payments.user_id', '=', 'users.id')
+            ->select('payments.*', 'users.username', 'users.first_name', 'users.last_name')
+            ->whereNotNull('verifyCode')
+            ->where('verifyCode', '=' , '0')
+            ->get();
+
+        $main = new main();
+        return view('payment.history', array('main' => $main, 'tracks' => $tracks));
+    }
+
     public function stat()
     {
         $main = new main();
@@ -41,9 +56,9 @@ class AdminController extends Controller
 
     public function post_stat(Request $request)
     {
+        $main = new main();
         if ($request->ajax()) {
             if (isset($request['gs'])) {
-                $main = new main();
                 if (!$main->aria2_online())
                     return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
 
@@ -66,7 +81,6 @@ class AdminController extends Controller
                     ->take(20)
                     ->get();
 
-                $main = new main();
                 foreach($files as $file) {
                     if ($file->state == null)
                         $status = Lang::get('messages.in_queue');//in_queue
@@ -94,6 +108,15 @@ class AdminController extends Controller
                     ];
                 }
                 return response()->json($table);
+            }elseif(isset($request['sz'])){
+                $total = disk_total_space($main->get_storage_path());
+                $free = disk_free_space($main->get_storage_path());
+                return response()->json([
+                    'free' => $main->formatBytes($free, 3),
+                    'total' => $main->formatBytes($total, 3),
+                    'used' => $main->formatBytes($total-$free, 3),
+                    'percent' => round(((($total-$free) * 100) / $total), 2),
+                ]);
             }
         }
 
@@ -105,7 +128,13 @@ class AdminController extends Controller
 
     public function user_details_credits($user_name)
     {
-        $user = User::where('username', '=', $user_name)->first();
+        $user = DB::table('users')
+            ->where('username', '=', $user_name)
+            ->first();
+
+        if ($user == null)
+            return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This file does not exist or you do not have the right permission to view this file.'));
+
 
         $tracks = DB::table('credit_log')
             ->select('credit_log.*', 'users.username')
@@ -266,10 +295,10 @@ class AdminController extends Controller
             SUM(length) as length_sum,
             COUNT(*) as total_files_deleted,
             (select COUNT(*) from download_list where deleted=0 AND user_id = ' . $users->id . ') as total_files,
-            (select SUM(`length`) from download_list where state <> 0 AND deleted = 0 AND user_id = ' . $users->id . ') as queue_credit,
+            (select SUM(`length`) from download_list where (state is null or state <> 0) AND deleted = 0 AND user_id = ' . $users->id . ') as queue_credit,
             (select COUNT(*) from download_list where state > 0 AND deleted=0 AND user_id = ' . $users->id . ') as total_error_files,
             (select COUNT(*) from download_list where state > 0 AND user_id = ' . $users->id . ') as total_error_files_deleted,
-            (select COUNT(*) from download_list where state <> 0 AND deleted = 0 AND user_id = ' . $users->id . ') as total_download_queue
+            (select COUNT(*) from download_list where (state is null or state <> 0) AND deleted = 0 AND user_id = ' . $users->id . ') as total_download_queue
 
             '))
             ->where('user_id', '=', $users->id)
@@ -384,7 +413,7 @@ class AdminController extends Controller
 
         $files = DB::table('download_list')
             ->leftJoin('users', 'users.id', '=', 'download_list.user_id')
-            ->select('download_list.*', 'users.username')
+            ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
             ->where('download_list.id', '>' , 0)
             ->orderBy('id','DEC')
             ->skip(($page - 1) * 20)

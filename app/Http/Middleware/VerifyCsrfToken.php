@@ -14,9 +14,8 @@ class VerifyCsrfToken extends BaseVerifier {
 	 */
 	public function handle($request, Closure $next)
 	{
-        //We won't check CSRF token for these routes
-
-        if ($request->is('downloads')  || $request->is('tools/status'))
+        //We won't check CSRF token for these routes:
+        if ($request->is('downloads')  || $request->is('tools/status') || $request->is('buy'))
         {
             return $next($request);
         }

@@ -125,6 +125,19 @@ class HomeController extends Controller
             }else{
                 return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
             }
+        } elseif ($_POST['action'] === 'never') {
+            if ((Auth::user()->role == 2 && (Config::get('leech.keep') == 'admin' || Config::get('leech.keep') == 'all')) || (Auth::user()->role != 2 && Config::get('leech.keep') == 'all')) {
+                foreach ($_POST['files'] as $file) {
+                    if (in_array($file, $auth_files)) {
+                        $message[] = $file . '_' . $files_list[$file] . ' Won\'t be deleted.';
+                        DB::table('download_list')
+                            ->where('id', $file)
+                            ->update(['keep' => 1]);
+                    }
+                }
+            }else{
+                return redirect::back()->withErrors(Lang::get('errors.cannot_keep'));
+            }
         }
 
         $users = DB::table('download_list')
@@ -190,6 +203,11 @@ class HomeController extends Controller
                         //'state' => -3 //I decided to remove this because we lose the last state of the file after delete.
                     ]);
 
+                if (+$file_details->state === 0 && $file_details->state !== NULL){
+                    return Redirect::to('/files/');
+                }else{
+                    return Redirect::to('/downloads/');
+                }
                 // Decrease queue credit
 //                if ($file_details->state != 0) {
 //                    DB::table('users')
@@ -308,7 +326,7 @@ class HomeController extends Controller
         if (Auth::user()->role == 2) //Admins need to see all downloads + username
             $users = DB::table('download_list')
                 ->join('users', 'download_list.user_id', '=', 'users.id')
-                ->select('download_list.*', 'users.username')
+                ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();
@@ -393,77 +411,237 @@ class HomeController extends Controller
 
     public function postindex(Request $request)
     {
-        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold');
+        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold', 'id', 'type');
 
-        if (Auth::user()->role !== 2) { //for debug only we don't check url validation for admins
-            $this->validate($request, [
-                'link' => 'required|url',
-                'comment' => 'max:140'
-            ]);
-        }else{
-            $this->validate($request, [
-                'link' => 'required',
-                'comment' => 'max:140'
-            ]);
-        }
+        if ($request->ajax() && $input['type'] == 'check'){
+            $v = Validator::make(
+                $input,
+                [
+                    'link' => 'required|url'
+                ]
+            );
+            if ($v->fails()) {
+                $message = $v->messages();
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'message' => 'Input Error.'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors($message);
+                }
+            }
+            if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'message' => 'What?! Torrent?! Go away!'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors('What?! Torrent?! Go away!');
+                }
+            }
+            $main = new main();
 
-        if ($input['http_auth']) {
-            $this->validate($request, [
-                'http_username' => 'required|max:64',
-                'http_password' => 'required|max:64'
-            ]);
-        }
-
-        if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
-            return redirect::back()->withErrors('What?! Torrent?! Go away!');
-        }
-
-        $main = new main();
-
-        $blocked = $main->isBlocked($input['link']);
-        if ($blocked){
-            return redirect::back()->withErrors($blocked);
-        }
-
-        $url_inf = $main->get_info($input['link']);
-
-        $fileSize = $url_inf['filesize'];
-        $filename = $url_inf['filename'];
-
-        if ($url_inf['status'] != 200){
-            return redirect::back()->withErrors('File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')');
-        }
-
-        $blocked_ext = Config::get('leech.blocked_ext');
-        if (array_key_exists($url_inf['file_extension'], $blocked_ext)) {
-            if ($blocked_ext[$url_inf['file_extension']] === false){
-                return redirect::back()->withErrors('.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.');
-            }else{
-                $filename = pathinfo($url_inf['filename'],PATHINFO_FILENAME) . '.' . $blocked_ext[$url_inf['file_extension']];
+            $blocked = $main->isBlocked($input['link']);
+            if ($blocked) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'message' => $blocked
+                    ]);
+                } else {
+                    return redirect::back()->withErrors($blocked);
+                }
+            }
+            $url_inf = $main->get_info($input['link']);
+            if ($request->ajax()) {
+                return response()->json([
+                    'type' => 'success',
+                    'status' => $url_inf['status'],
+                    'filename' => $url_inf['filename'],
+                    'file_extension' => $url_inf['file_extension'],
+                    'filesize' => $main->formatBytes($url_inf['filesize'],1),
+                    'location' => $url_inf['location']
+                ]);
+            } else {
+                return redirect::back()->withErrors('sth is wrong.');
             }
         }
+        else
+        {
+            $v = Validator::make(
+                $input,
+                [
+                    'link' => 'required|url',
+                    'comment' => 'max:140'
+                ]
+            );
 
-        if ($fileSize < 1) {
-            return redirect::back()->withErrors('Invalid File Size!' . " (" . $url_inf['status']. ')');
-        }
+            if ($v->fails()) {
+                $message = $v->messages();
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'Input Error.'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors($message);
+                }
+            }
+//            $this->validate($request, [
+//                'link' => 'required|url',
+//                'comment' => 'max:140'
+//            ]);
 
-        if ($fileSize > Auth::user()->credit) {
-            return redirect::back()->withErrors('Not enough Credits!');
-        }
 
-        $q_credit = DB::table('download_list')
-            ->where('user_id', '=', Auth::user()->id)
-            ->where('deleted', '=', '0')
-            ->where('state', '<>', '0')
-            ->sum('length') + $fileSize;
+            if ($input['http_auth']) {
+                $v = Validator::make(
+                    $input,
+                    [
+                        'http_username' => 'required|max:64',
+                        'http_password' => 'required|max:64'
+                    ]
+                );
 
-        if ($q_credit > Auth::user()->credit) {
-            return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
-        }
+                if ($v->fails()) {
+                    $message = $v->messages();
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'type' => 'error',
+                            'id' => $input['id'],
+                            'message' => 'Input Error. HTTP Auth'
+                        ]);
+                    } else {
+                        return redirect::back()->withErrors($message);
+                    }
 
-        if (empty($filename)) {
-            return redirect::back()->withErrors('Invalid Filename!');
-        }
+                }
+//            $this->validate($request, [
+//                'http_username' => 'required|max:64',
+//                'http_password' => 'required|max:64'
+//            ]);
+            }
+
+            if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'What?! Torrent?! Go away!'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors('What?! Torrent?! Go away!');
+                }
+            }
+
+            $main = new main();
+
+            $blocked = $main->isBlocked($input['link']);
+            if ($blocked) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => $blocked
+                    ]);
+                } else {
+                    return redirect::back()->withErrors($blocked);
+                }
+            }
+
+            $url_inf = $main->get_info($input['link']);
+
+            $fileSize = $url_inf['filesize'];
+            $filename = $url_inf['filename'];
+
+            if ($url_inf['status'] != 200) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors('File not found or it has been moved! Response code was not 200' . " (" . $url_inf['status'] . ')');
+                }
+            }
+
+            $blocked_ext = Config::get('leech.blocked_ext');
+            if (array_key_exists($url_inf['file_extension'], $blocked_ext)) {
+                if ($blocked_ext[$url_inf['file_extension']] === false) {
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'type' => 'error',
+                            'id' => $input['id'],
+                            'message' => '.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.'
+                        ]);
+                    } else {
+                        return redirect::back()->withErrors('.' . $url_inf['file_extension'] . ' files are blocked by system administrator. Sorry.');
+                    }
+                } else {
+                    $filename = pathinfo($url_inf['filename'], PATHINFO_FILENAME) . '.' . $blocked_ext[$url_inf['file_extension']];
+                }
+            }
+
+            if ($fileSize < 1) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'Invalid File Size!' . " (" . $url_inf['status'] . ')'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors('Invalid File Size!' . " (" . $url_inf['status'] . ')');
+                }
+            }
+
+            if ($fileSize > Auth::user()->credit) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'Not enough Credits!'
+                    ]);
+                } else {
+                    return Redirect::to('/buy');
+                    //return redirect::back()->withErrors('Not enough Credits!');
+                }
+            }
+
+            $q_credit = DB::table('download_list')
+                    ->where('user_id', '=', Auth::user()->id)
+                    ->where('deleted', '=', '0')
+                    ->where(function ($query) {
+                        $query->whereNull('state');
+                        $query->orWhere('state', '<>', '0');
+                    })
+                    ->sum('length') + $fileSize;
+
+            if ($q_credit > Auth::user()->credit) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'You have too many files in your queue. Please wait until they finish up.'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
+                }
+            }
+
+            if (empty($filename)) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'type' => 'error',
+                        'id' => $input['id'],
+                        'message' => 'Invalid Filename!'
+                    ]);
+                } else {
+                    return redirect::back()->withErrors('Invalid Filename!');
+                }
+            }
 
 //        DB::table('users')
 //            ->where('id', Auth::user()->id)
@@ -471,29 +649,37 @@ class HomeController extends Controller
 //                'queue_credit' => $q_credit
 //            ]);
 
-        $hold = $input['hold'] ? -2 : NULL;
+            $hold = $input['hold'] ? -2 : NULL;
 
-        if ($input['http_auth']) {
-            $http_user = $input['http_username'];
-            $http_pass = $input['http_password'];
-        } else {
-            $http_user = $http_pass = NULL;
+            if ($input['http_auth']) {
+                $http_user = $input['http_username'];
+                $http_pass = $input['http_password'];
+            } else {
+                $http_user = $http_pass = NULL;
+            }
+
+            DB::table('download_list')->insertGetId(
+                array(
+                    'user_id' => Auth::user()->id,
+                    'link' => $url_inf['location'],
+                    'length' => $fileSize,
+                    'file_name' => $filename,
+                    'state' => $hold,
+                    'http_user' => $http_user,
+                    'http_password' => $http_pass,
+                    'comment' => $input['comment'],
+                )
+            );
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'type' => 'success',
+                    'id' => $input['id'],
+                    'message' => 'Link Added!'
+                ]);
+            } else {
+                return Redirect::to('downloads');
+            }
         }
-
-        DB::table('download_list')->insertGetId(
-            array(
-                'user_id' => Auth::user()->id,
-                'link' => $url_inf['location'],
-                'length' => $fileSize,
-                'file_name' => $filename,
-                'state' => $hold,
-                'http_user' => $http_user,
-                'http_password' => $http_pass,
-                'comment' => $input['comment'],
-            )
-        );
-
-        return Redirect::to('downloads');
     }
-
 }

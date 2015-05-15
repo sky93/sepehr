@@ -15,7 +15,8 @@
 	"autoload": {
 		"classmap": [
 			"database",
-            "lib"
+            "lib",
+            "lib/nusoap"
 		],
 		"psr-4": {
 			"App\\": "app/"
