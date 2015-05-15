@@ -104,7 +104,7 @@ class PaymentController extends Controller {
                    'userName' => Config::get('leech.userName'),
                    'userPassword' => Config::get('leech.userPassword'),
                    'orderId' => $id,
-                   'amount' => $request['amount'] * Config::get('leech.credit_unit'),
+                   'amount' => $amount,
                    'localDate' => date("ymd"),
                    'localTime' => date("His"),
                    'additionalData' => 'Sepehr (B) - ' . Auth::user()->username,
@@ -140,7 +140,7 @@ class PaymentController extends Controller {
                                'm' => '6',
                                'RefId' => $res[1],
                                'o_id' => $id,
-                               't_amount' => $request['amount'] * Config::get('leech.credit_unit') . ' ' . Config::get('leech.currency'),
+                               't_amount' => $amount . ' ' . Config::get('leech.currency'),
                                't_credits' => $request['amount'] . ' GB'
 
                            ]);
