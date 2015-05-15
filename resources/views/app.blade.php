@@ -47,7 +47,7 @@ if (!Auth::guest()){  // Only users can show new messages.
     <script>
         bootbox.dialog({
             title: "{{$change_title1}}",
-            message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}" width="450px"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
+            message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
         });
     </script>
 @endif
@@ -82,9 +82,7 @@ if (!Auth::guest()){  // Only users can show new messages.
                     @endif
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    @if (Auth::guest())
-                        <li><a href="{{ url('login') }}">@lang('messages.login')</a></li>
-                    @else
+                    @if (!Auth::guest())
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                aria-expanded="false"><span>Credits </span><span class="user-credit label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
@@ -108,11 +106,10 @@ if (!Auth::guest()){  // Only users can show new messages.
                                     <li><a href="{{ url('/tools/register-csv') }}"><i class="fa fa-plus"></i> @lang('messages.add.user.csv')</a></li>
                                     <li><a href="{{ url('/tools/users') }}"><i class="fa fa-users"></i> @lang('messages.manage.users')</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="{{ url('/tools/files') }}"><i class="fa fa-file-text-o"></i> @lang('messages.all_files')</a></li>
-                                    <li class="divider"></li>
                                     <li><a href="{{ url('/tools/status') }}"><i class="fa fa-area-chart"></i> @lang('messages.gband')</a></li>
                                     <li><a href="{{ url('/tools/aria2console') }}"><i class="fa fa-terminal"></i> @lang('messages.a2console')</a></li>
                                     <li class="divider"></li>
+                                    <li><a href="{{ url('/tools/files') }}"><i class="fa fa-file-text-o"></i> @lang('messages.all_files')</a></li>
                                     <li><a href="{{ url('/tools/payments') }}"><i class="fa fa-usd"></i> @lang('messages.all.payments')</a></li>
                                 </ul>
                             </li>
