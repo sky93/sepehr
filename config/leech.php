@@ -9,7 +9,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'credit_unit' => env('CREDIT_UNIT', '2'),
+
     'currency' => env('CURRENCY', 'USD'),
     'bank_url' => env('BANK_URL'),
     'soap_client' => env('SOAP_CLIENT'),
@@ -22,6 +22,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Payment Type
+    |--------------------------------------------------------------------------
+    |
+    | Options:
+    | 1) normal
+    | 2) discount
+    |
+    */
+
+    'payment_type' => 'discount',
+
+    //if 'payment_type' is normal:
+    'credit_unit' => 2,
+
+    //if 'payment_type' is discount:
+    '5GB_price' => 2.5,
+    '10GB_price' => 4,
+    '20GB_price' => 8,
+    '50GB_price' => 20,
+    '100GB_price' => 30,
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Auto Delete
     |--------------------------------------------------------------------------
     |
@@ -30,7 +56,7 @@ return [
     |
     */
     'auto_delete' => true,
-    'auto_delete_time' => 24 * 2,
+    'auto_delete_time' => 24 * 31,
 
 
 
@@ -166,7 +192,8 @@ return [
         'php' => false,
         'html' => '_html_',
         'torrent' => false,
-        'php4' =>  '_php4_',
+        'php4' =>  false,
+        'php5' =>  false,
     ),
 
 
@@ -201,7 +228,7 @@ return [
 
     'blocked_ports' => array(
         '20-79',
-        '81-442',
+        '89-442',
         '444-999',
         '10000',
     ),
@@ -230,7 +257,7 @@ return [
     | Rename Regex
     |--------------------------------------------------------------------------
     |
-    | What regex Arial Leech should use for rename file validation
+    | What regex Aria Leech should use for rename file validation
     |
     */
 
@@ -314,5 +341,37 @@ return [
     */
 
     'keep' => 'all',
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messages
+    |--------------------------------------------------------------------------
+    |
+    | Show a message on top of the page
+    |
+    */
+
+    'login_show_message' => true,
+    'login_dir' => 'ltr',
+    'login_message' => 'Your Message...',
+
+    'main_show_message' => true,
+    'main_dir' => 'ltr',
+    'main_message' =>  'Your Message...',
+
+    'download_show_message' => true,
+    'download_dir' => 'ltr',
+    'download_message' =>  'Your Message...',
+
+    'files_show_message' => true,
+    'files_dir' => 'ltr',
+    'files_message' =>  'Your Message...',
+
+    'public_show_message' => true,
+    'public_dir' => 'ltr',
+    'public_message' =>  'Your Message...',
 
 ];

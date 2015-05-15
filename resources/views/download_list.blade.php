@@ -8,6 +8,11 @@
             <div class="panel panel-default">
                 <div class="panel-heading">{{ Lang::get('messages.dl.list') }}</div>
                 <div class="panel-body">
+                    @if (Config::get('leech.download_show_message'))
+                        <div class="alert alert-info" dir="{{Config::get('leech.download_dir')}}">
+                            {{Config::get('leech.download_message')}}
+                        </div><hr />
+                    @endif
                     <div class="table-responsive" dir="ltr">
                         <table class="dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                             <thead>

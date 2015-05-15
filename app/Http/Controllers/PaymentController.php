@@ -58,6 +58,9 @@ class PaymentController extends Controller {
            {
                return is_numeric( $val ) && floor( $val ) == $val;
            }
+           if (Config::get('leech.payment_type') == 'discount' && ($request['amount'] != 5 && $request['amount'] != 10 && $request['amount'] != 20 && $request['amount'] != 50 && $request['amount'] != 100)){
+               return response()->json(['r' => 'e', 'm' => '1']);
+           }
            if (
                is_null($request['amount'])     ||
                !is_numeric($request['amount']) ||
@@ -69,10 +72,19 @@ class PaymentController extends Controller {
                return response()->json(['r' => 'e', 'm' => '1']);
            }else{
                /*******************************************/
-
+               if (Config::get('leech.payment_type') == 'discount'){
+                   if ($request['amount'] == 5) $amount = Config::get('leech.5GB_price');
+                   else if ($request['amount'] == 10) $amount = Config::get('leech.10GB_price');
+                   else if ($request['amount'] == 20) $amount = Config::get('leech.20GB_price');
+                   else if ($request['amount'] == 50) $amount = Config::get('leech.50GB_price');
+                   else if ($request['amount'] == 100) $amount = Config::get('leech.100GB_price');
+                   else return response()->json(['r' => 'e', 'm' => '1']);
+               }else{
+                   $amount = $request['amount'] * Config::get('leech.credit_unit');
+               }
                $id = DB::table('payments')->insertGetId([
                        'user_id' => Auth::user()->id,
-                       'amount' => $request['amount'] * Config::get('leech.credit_unit'),
+                       'amount' => $amount,
                        'credit' => $request['amount']
                ]);
 

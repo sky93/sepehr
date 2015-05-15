@@ -22,6 +22,11 @@
                 <div class="panel-heading">@lang('messages.files.list')</div>
                 <form class="form-horizontal" role="form" method="POST" action="">
                 <div class="panel-body">
+                    @if (Config::get('leech.files_show_message'))
+                        <div class="alert alert-info" dir="{{Config::get('leech.files_dir')}}">
+                            {{Config::get('leech.files_message')}}
+                        </div><hr />
+                    @endif
                     @if (count($errors) > 0)
                         <div class="alert alert-danger">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">

@@ -1,6 +1,6 @@
 @extends('app')
 
-@section('title', Lang::get('messages.ust_pay_hist') . ' - ')
+@section('title', Lang::get('messages.usr_pay_hist') . ' - ')
 
 @section('content')
 <div class="row">

@@ -22,7 +22,7 @@ if (!Auth::guest()){  // Only users can show new messages.
     <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
     <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">
+    {{--<link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">--}}
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/main.css?v=3') }}" rel="stylesheet">
     <link href="{{ asset('/favicon.ico?v=1') }}" type="image/x-icon" rel="favicon">

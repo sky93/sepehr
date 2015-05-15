@@ -17,6 +17,11 @@
                     @endif
                 </div>
                 <div class="panel-body">
+                    @if (Config::get('leech.public_show_message'))
+                        <div class="alert alert-info" dir="{{Config::get('leech.public_dir')}}">
+                            {{Config::get('leech.public_message')}}
+                        </div><hr />
+                    @endif
                     @if (count($errors) > 0)
                         <div class="alert alert-danger">
                             <strong>{{ Lang::get('messages.wops' )}}</strong> {{ Lang::get('messages.inputError' )}}<br><br>
@@ -36,6 +41,7 @@
                                     <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Link</a></li>
                                     <li role="presentation"><a href="#multi" aria-controls="multi" role="tab" data-toggle="tab">Multiple Links</a></li>
                                     <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent</a></li>
+                                    <li role="presentation"><a href="#check_tab" aria-controls="check_tab" role="tab" data-toggle="tab">Link Checker</a></li>
                                 </ul>
 
                                 <!-- Tab panes -->
@@ -232,7 +238,6 @@
                                             </fieldset>
                                         </form>
                                         </div>
-
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="torrent_tab">
                                         @if(Auth::user()->torrent != 1)
@@ -240,8 +245,47 @@
                                             <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>
                                         @endif
                                     </div>
+                                    <div role="tabpanel" class="tab-pane fade" id="check_tab">
+                                        <div id="checkres_div">
+                                            <br /><br />
+                                            <table class="users dl-list table table-hover table-bordered enFonts table-striped tableCenter">
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                            <div class="row">
+                                                <div class="col-sm-offset-9 col-sm-3">
+                                                    <button id="checkmore" style="width: 100%" class="btn btn-default"><i class="fa fa-plus-square-o"></i> @lang('messages.check.more')</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="check_div">
+                                            <h4><small>@lang('messages.check_link_desc')</small></h4>
+                                            <form id="frm_check" class="form-horizontal" method="POST" action="" novalidate="">
+                                                <input type="hidden" id="check_token" name="_token" value="{{ csrf_token() }}">
+                                                <fieldset>
+                                                    <br/>
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="check_link">{{ Lang::get('messages.link.to.check') }}</label>
+                                                        <div class="col-md-8 pull-left">
+                                                            <input id="check_link" name="check_link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md" required="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="check"></label>
+                                                        <div class="col-md-1">
+                                                            <button id="check" name="check" data-loading-text="Loading..." class="btn btn-primary"><i class="fa fa fa-check"></i> {{ Lang::get('messages.check') }}</button>
+                                                        </div>
+                                                    </div>
+                                                    <script>
+                                                        $('#check').on('click', function () {
+                                                            var $btn = $(this).button('loading');
+                                                        })
+                                                    </script>
+                                                </fieldset>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -257,8 +301,55 @@
         </div>
     </div>
     <script>
-
         $( document ).ready(function() {
+            $("#check").click(function (event) {
+                event.preventDefault();
+                $('#linksres_div table tbody').empty();
+
+                var data = 'type=check&_token=' + $('#check_token').val() + '&link=' +  encodeURIComponent( $('#check_link').val() );
+                $.ajax({
+                    url: "",
+                    type: "POST",
+                    data: data ,
+                    dataType: 'json',
+
+                    success: function (response) {
+                        $('#l' + response.id).text(response.message);
+                        if (response['type'] == 'success'){
+                            $('#check_div').fadeOut(500);
+                            $('#checkres_div').delay(500).fadeIn(500);
+                            $('#l' + response.id).attr('class', 'success');
+                            $('#checkres_div table tbody').append('<tr><td><strong>Location:</strong></td><td>' + response.location + '</td></tr>');
+                            $('#checkres_div table tbody').append('<tr><td><strong>File Name:</strong></td><td>' + response.filename + '</td></tr>');
+                            $('#checkres_div table tbody').append('<tr><td><strong>Extension:</strong></td><td>' + response.file_extension + '</td></tr>');
+                            $('#checkres_div table tbody').append('<tr><td><strong>File Size:</strong></td><td>' + response.filesize + '</td></tr>');
+                            $('#checkres_div table tbody').append('<tr><td><strong>Status:</strong></td><td>' + response.status + '</td></tr>');
+                            var $btn = $('#check').html('<i class="fa fa fa-check"></i> {{ Lang::get('messages.check') }}');
+                            $btn.button('reset');
+                        }
+                        else{
+                            toastr["error"](response.message, "Oh Snap!");
+                            var $btn = $('#check').html('<i class="fa fa fa-check"></i> {{ Lang::get('messages.check') }}');
+                            $btn.button('reset');
+                        }
+                    },
+
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        toastr["error"]("Cannot connect to the server. Please check your connection or refresh the page.", "Oh Snap!");
+                        var $btn = $('#check').html('<i class="fa fa fa-check"></i> {{ Lang::get('messages.check') }}');
+                        $btn.button('reset');
+                    }
+                });
+
+            });
+
+            $("#checkmore").click(function (event) {
+                $('#frm_check')[0].reset();
+                $('#checkres_div').fadeOut(500);
+                $('#check_div').delay(500).fadeIn(500);
+
+            });
+
             $("#addmore").click(function (event) {
                 $('#frm_multi')[0].reset();
                 $('#linksres_div').fadeOut(500);
@@ -267,9 +358,10 @@
             });
 
             $('#linksres_div').hide();
+            $('#checkres_div').hide();
+
             $("#frm_multi").submit(function (event) {
                 event.preventDefault();
-                //
                 $('#links_div').fadeOut(500);
                 $('#linksres_div').delay(500).fadeIn(500);
                 var lines = $('textarea[name=links]').val().split('\n');
@@ -283,8 +375,7 @@
                     $('#linksres_div table tbody').append('<tr><td>' + id + '</td><td>' + lline + '</td><td id="l' + id + '">' + 'Pending...' + '</td></tr>');
                     setTimeout( function(){
                         id1++;
-                        var data = $("#frm_multi :input[name!='links']").serialize() + '&id=' + id1 + '&link=' +  encodeURIComponent( lline );
-                        console.log(data);
+                        var data = 'type=multi&' + $("#frm_multi :input[name!='links']").serialize() + '&id=' + id1 + '&link=' +  encodeURIComponent( lline );
                         $.ajax({
                             url: "",
                             type: "POST",
@@ -304,7 +395,6 @@
                             }
                         });
                     }, time);
-                    console.log("\n\n");
                     time += 500;
                 });
 

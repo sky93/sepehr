@@ -29,8 +29,10 @@ return [
     'home'                  => 'Transload',
     'quick_acc'             => 'Quick Access',
     'link.to.transload'     => 'Link To Transload',
+    'link.to.check'         => 'Link To Check',
     'links'                 => 'Enter your links. Hit Enter to add another link.',
     'links.to.transload'    => 'Link(s) To Transload',
+    'check'                 => 'Check',
     'your.link'             => 'Your Link',
     'http.authorization'    => 'HTTP Authorization',
     'http.username'         => 'HTTP Username',
@@ -43,6 +45,7 @@ return [
     'public.tooltip'        => 'Make your files public to share them with other users!',
     'download.list'         => 'Download List',
     'add.more'              => 'Add More',
+    'check.more'            => 'Check More',
     'http.password'         => 'HTTP Password',
     'comment'               => 'Comment',
     'desired.comment'       => 'Desired Comment',
@@ -138,6 +141,7 @@ return [
     'email'                 => 'Email',
     'settle'                => 'Settle',
     'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
+    'check_link_desc'       => 'Use this feature to see whether a link is downloadable or not. Checking a link does not affect your credit amount.',
 
 
     /**

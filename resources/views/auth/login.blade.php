@@ -53,6 +53,11 @@
 							</div>
 						</div>
 					</form>
+                    @if (Config::get('leech.login_show_message'))
+                        <hr /><div class="alert alert-info" dir="{{Config::get('leech.login_dir')}}">
+                            {{Config::get('leech.login_message')}}
+                        </div>
+                    @endif
 				</div>
 			</div>
 		</div>

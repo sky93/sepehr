@@ -13,9 +13,13 @@
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-
                 <div class="panel-heading">@lang('messages.files.public')</div>
                 <div class="panel-body">
+                    @if (Config::get('leech.main_show_message'))
+                        <div class="alert alert-info" dir="{{Config::get('leech.main_dir')}}">
+                            {{Config::get('leech.main_message')}}
+                        </div><hr />
+                    @endif
                     <p>@lang('messages.public_tip')</p><br />
                     <div class="row">
                         <div class="col-md-12">

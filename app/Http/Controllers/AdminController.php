@@ -112,9 +112,9 @@ class AdminController extends Controller
                 $total = disk_total_space($main->get_storage_path());
                 $free = disk_free_space($main->get_storage_path());
                 return response()->json([
-                    'free' => $main->formatBytes($free, 0),
-                    'total' => $main->formatBytes($total, 0),
-                    'used' => $main->formatBytes($total-$free, 0),
+                    'free' => $main->formatBytes($free, 3),
+                    'total' => $main->formatBytes($total, 3),
+                    'used' => $main->formatBytes($total-$free, 3),
                     'percent' => round(((($total-$free) * 100) / $total), 2),
                 ]);
             }

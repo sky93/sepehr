@@ -27,8 +27,6 @@
                                                 <div class="tab-pane fade in{{ isset($post) ? '' : ' active'}}" id="plans">
                                                     <form class="form-horizontal" id="buy-form">
                                                         <fieldset>
-
-                                                            <!-- Multiple Radios -->
                                                             <div class="form-group">
                                                                 <label class="col-lg-3 hidden-md control-label" for="plans">Select a plan:</label>
                                                                 <div class="col-lg-8 col-lg-offset-0 col-md-offset-1 col-md-10">
@@ -49,28 +47,38 @@
                                                                     </div>
                                                                     <div class="radio space">
                                                                         <label for="plans-2" style="width: 100%">
-                                                                            <div id="15gb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
-                                                                                <input type="radio" name="plans" id="plans-2" value="15g">&nbsp;&nbsp; <strong>15</strong> Gigabytes
+                                                                            <div id="20gb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
+                                                                                <input type="radio" name="plans" id="plans-2" value="20g">&nbsp;&nbsp; <strong>20</strong> Gigabytes
                                                                             </div>
                                                                         </label>
                                                                     </div>
                                                                     <div class="radio space">
                                                                         <label for="plans-3" style="width: 100%">
-                                                                            <div id="20gb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
-                                                                                <input type="radio" name="plans" id="plans-3" value="20g">&nbsp;&nbsp; <strong>20</strong> Gigabytes
+                                                                            <div id="50gb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
+                                                                                <input type="radio" name="plans" id="plans-3" value="50g">&nbsp;&nbsp; <strong>50</strong> Gigabytes
                                                                             </div>
                                                                         </label>
                                                                     </div>
-                                                                    <div class="radio">
-                                                                        <label for="plans-4" style="width: 100%">
-                                                                            <div id="cgb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
-                                                                                <input type="radio" name="plans" id="plans-4" value="cg">&nbsp;&nbsp; <span id="err"><input id="plans-4t" style="width: 80px!important;" name="plans" type="number" placeholder="80" value="80" class="form-control input-sm form-control-inline" min="5" max="100"></span> Gigabytes
-                                                                            </div>
-                                                                        </label>
-                                                                    </div>
+                                                                    @if (Config::get('leech.payment_type') == 'discount')
+                                                                        <div class="radio space">
+                                                                            <label for="plans-4" style="width: 100%">
+                                                                                <div id="100gb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
+                                                                                    <input type="radio" name="plans" id="plans-4" value="100g">&nbsp;&nbsp; <strong>100</strong> Gigabytes
+                                                                                </div>
+                                                                            </label>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="radio">
+                                                                            <label for="plans-4" style="width: 100%">
+                                                                                <div id="cgb" class="well well-sm" style="width: 100%; padding: 10px 100px 10px 10px">
+                                                                                    <input type="radio" name="plans" id="plans-4" value="cg">&nbsp;&nbsp; <span id="err"><input id="plans-4t" style="width: 80px!important;" name="plans" type="number" placeholder="80" value="80" class="form-control input-sm form-control-inline" min="5" max="100"></span> Gigabytes
+                                                                                </div>
+                                                                            </label>
+                                                                        </div>
+                                                                    @endif
                                                                     <hr style="padding: 0!important;" />
                                                                     <div id="total-panel" class="alert alert-info"  style="text-align: center; padding: 15px 5px 5px 5px!important;">
-                                                                        <h4><strong id="total">{{Config::get('leech.credit_unit') * 10}}</strong> {{ Config::get('leech.currency') }}</h4>
+                                                                        <h4><strong id="total">{{number_format(Config::get('leech.payment_type') == 'normal' ? Config::get('leech.credit_unit') * 10 : Config::get('leech.10GB_price'))}}</strong> {{ Config::get('leech.currency') }}</h4>
                                                                     </div>
                                                                     <div id="err-panel" class="alert alert-danger" style="text-align: center; padding: 5px!important;">
                                                                         <h6></h6>
@@ -227,13 +235,21 @@
                                                     </div>
                                                 </div>
                                                 <script>
-
+                                                    function commafy( num ) {
+                                                        return num.toString().split( /(?=(?:\d{3})+(?:\.|$))/g ).join( "," );
+                                                    }
                                                     $(document).ready(function(){
-
                                                         var clk = 1;
                                                         var dis = 0;
                                                         var amount = 10;
-                                                        var unit = {{ Config::get('leech.credit_unit') }};
+                                                        var unit = {{ Config::get('leech.credit_unit','0') }};
+                                                        var type = '{{ Config::get('leech.paymenxt_type') }}';
+                                                        var p5 = {{ Config::get('leech.5GB_price',0) }};
+                                                        var p10 = {{ Config::get('leech.10GB_price',0) }};
+                                                        var p20 = {{ Config::get('leech.20GB_price',0) }};
+                                                        var p50 = {{ Config::get('leech.50GB_price',0) }};
+                                                        var p100 = {{ Config::get('leech.100GB_price',0) }};
+
                                                         var oldtext = 'Next <span class="fa fa-chevron-right" style=" vertical-align: middle; padding-left: 10px"></span>';
 
                                                         function ck(){
@@ -261,7 +277,7 @@
                                                             }
                                                             return ret;
                                                         }
-                                                        //$('#t3').tab('show');
+
                                                         $('input').iCheck({
                                                             checkboxClass: 'icheckbox_square-green',
                                                             radioClass: 'iradio_square-green'
@@ -294,7 +310,6 @@
                                                                                 $('#t_amount').text(response.t_amount);
                                                                                 $('#t_credits').text(response.t_credits);
                                                                                 $('#t2').tab('show');
-                                                                                //toastr["success"]("Yaaay", "Oha");
                                                                             } else {
                                                                                 toastr["error"]("Unknown error occured. Please refresh the page.", "Oh Snap!");
                                                                                 $('#buy-form :input').prop('disabled', false);
@@ -318,7 +333,7 @@
                                                         $('#5gb, #5gb *').click(function(e){
                                                             if (!dis)
                                                                 $('#total').fadeOut(100, function() {
-                                                                    $(this).text(unit * 5).fadeIn(100);
+                                                                    $(this).text(commafy(type == 'normal' ? unit * 5 : p5)).fadeIn(100);
                                                                 });
                                                             amount = 5;
                                                             $('#err-panel').hide();
@@ -328,19 +343,9 @@
                                                         $('#10gb, #10gb *').click(function(e){
                                                             if (!dis)
                                                                 $('#total').fadeOut(100, function() {
-                                                                    $(this).text(unit * 10).fadeIn(100);
+                                                                    $(this).text(commafy(type == 'normal' ? unit * 10 : p10)).fadeIn(100);
                                                                 });
                                                             amount = 10;
-                                                            $('#err-panel').hide();
-                                                            $('#total-panel').show();
-                                                        });
-
-                                                        $('#15gb, #15gb *').click(function(e){
-                                                            if (!dis)
-                                                                $('#total').fadeOut(100, function() {
-                                                                    $(this).text(unit * 15).fadeIn(100);
-                                                                });
-                                                            amount = 15;
                                                             $('#err-panel').hide();
                                                             $('#total-panel').show();
                                                         });
@@ -348,32 +353,51 @@
                                                         $('#20gb, #20gb *').click(function(e){
                                                             if (!dis)
                                                                 $('#total').fadeOut(100, function() {
-                                                                    $(this).text(unit * 20).fadeIn(100);
+                                                                    $(this).text(commafy(type == 'normal' ? unit * 20 : p20)).fadeIn(100);
                                                                 });
                                                             amount = 20;
                                                             $('#err-panel').hide();
                                                             $('#total-panel').show();
                                                         });
 
+                                                        $('#50gb, #50gb *').click(function(e){
+                                                            if (!dis)
+                                                                $('#total').fadeOut(100, function() {
+                                                                    $(this).text(commafy(type == 'normal' ? unit * 50 : p50)).fadeIn(100);
+                                                                });
+                                                            amount = 50;
+                                                            $('#err-panel').hide();
+                                                            $('#total-panel').show();
+                                                        });
+
+                                                        @if (Config::get('leech.payment_type') == 'discount')
+                                                        $('#100gb, #100gb *').click(function(e){
+                                                            if (!dis)
+                                                                $('#total').fadeOut(100, function() {
+                                                                    $(this).text(commafy(type == 'normal' ? unit * 100 : p100)).fadeIn(100);
+                                                                });
+                                                            amount = 100;
+                                                            $('#err-panel').hide();
+                                                            $('#total-panel').show();
+                                                        });
+                                                        @endif
+
                                                         $('#cgb, #cgb *').click(function(e){
                                                             var v = $('#plans-4t').val();
                                                             if (!dis && ck() && (v < 5 || v > 100)) {
                                                                 $('#total').fadeOut(100, function () {
-                                                                    $(this).text($('#plans-4t').val() * unit).fadeIn(100);
+                                                                    $(this).text(commafy($('#plans-4t').val() * unit)).fadeIn(100);
                                                                 });
                                                                 amount = v;
                                                                 $('#err-panel').hide();
                                                                 $('#total-panel').show();
                                                             }
-
                                                         });
                                                         $('#err-panel').hide();
                                                         $('#total-panel').show();
                                                         $('#plans-4t').change(function(){
                                                             ck();
                                                         });
-
-
                                                     });
                                                 </script>
                                             </div>
