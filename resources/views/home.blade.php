@@ -17,9 +17,9 @@
                     @endif
                 </div>
                 <div class="panel-body">
-                    @if (Config::get('leech.public_show_message'))
-                        <div class="alert alert-info" dir="{{Config::get('leech.public_dir')}}">
-                            {{Config::get('leech.public_message')}}
+                    @if (Config::get('leech.main_show_message'))
+                        <div class="alert alert-info" dir="{{Config::get('leech.main_dir')}}">
+                            {{Config::get('leech.main_message')}}
                         </div><hr />
                     @endif
                     @if (count($errors) > 0)

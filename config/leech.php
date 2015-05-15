@@ -34,14 +34,14 @@ return [
     'payment_type' => 'discount',
 
     //if 'payment_type' is normal:
-    'credit_unit' => 2,
+    'credit_unit' => 5000,
 
     //if 'payment_type' is discount:
-    '5GB_price' => 2.5,
-    '10GB_price' => 4,
-    '20GB_price' => 8,
-    '50GB_price' => 20,
-    '100GB_price' => 30,
+    '5GB_price' => 25000,
+    '10GB_price' => 45000,
+    '20GB_price' => 85000,
+    '50GB_price' => 200000,
+    '100GB_price' => 300000,
 
 
 
@@ -192,8 +192,7 @@ return [
         'php' => false,
         'html' => '_html_',
         'torrent' => false,
-        'php4' =>  false,
-        'php5' =>  false,
+        'php4' =>  '_php4_',
     ),
 
 
@@ -354,23 +353,23 @@ return [
     |
     */
 
-    'login_show_message' => true,
+    'login_show_message' => false,
     'login_dir' => 'ltr',
     'login_message' => 'Your Message...',
 
-    'main_show_message' => true,
+    'main_show_message' => false,
     'main_dir' => 'ltr',
     'main_message' =>  'Your Message...',
 
-    'download_show_message' => true,
+    'download_show_message' => false,
     'download_dir' => 'ltr',
     'download_message' =>  'Your Message...',
 
-    'files_show_message' => true,
+    'files_show_message' => false,
     'files_dir' => 'ltr',
     'files_message' =>  'Your Message...',
 
-    'public_show_message' => true,
+    'public_show_message' => false,
     'public_dir' => 'ltr',
     'public_message' =>  'Your Message...',
 
