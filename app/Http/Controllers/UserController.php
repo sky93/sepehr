@@ -67,7 +67,7 @@ class UserController extends Controller {
             ->get();
 
         if (count($ip) >= Config::get('leech.password_retry_count')){
-            $diffrence_mins = Config::get('leech.ip_block_duration') - round(abs(time() - strtotime($ip[0]->date)) / 60);
+            $diffrence_mins = Config::get('leech.ip_block_duration') - round(abs(time() - strtotime($ip[Config::get('leech.password_retry_count') - 1]->date)) / 60);
             if($diffrence_mins > 0){
                 return redirect($this->loginPath())
                     ->withInput($request->only('username', 'remember', 'password'))
@@ -76,11 +76,11 @@ class UserController extends Controller {
                     ]);
             }
             else{
-                DB::table('ip_blacklist')
-                    ->where('ip', '=', $request->getClientIp())
-                    ->where('username', '=', $credentials['username'])
-                    ->orderBy('date', 'desc')
-                    ->delete();
+//                DB::table('ip_blacklist')
+//                    ->where('ip', '=', $request->getClientIp())
+//                    ->where('username', '=', $credentials['username'])
+//                    ->orderBy('date', 'desc')
+//                    ->delete();
             }
         }
 
@@ -97,11 +97,12 @@ class UserController extends Controller {
 
         if (Auth::attempt($credentials, $request->has('remember')))
         {
-            DB::table('ip_blacklist')
-                ->where('ip', '=', $request->getClientIp())
-                ->where('username', '=', $credentials['username'])
-                ->orderBy('date', 'desc')
-                ->delete();
+            
+//            DB::table('ip_blacklist')
+//                ->where('ip', '=', $request->getClientIp())
+//                ->where('username', '=', $credentials['username'])
+//                ->orderBy('date', 'desc')
+//                ->delete();
 
             if (Auth::user()->role == 2){
                 return Redirect::to('tools/status');
