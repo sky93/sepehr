@@ -18,4 +18,4 @@ Download your links to your server for local use!
 
 ###License
 
-The Laravel framework is open-sourced software licensed under the [GNU General Public License v3.0](https://www.gnu.org/copyleft/gpl.html)
+The Aria Leecher is open-sourced software licensed under the [GNU General Public License v3.0](https://www.gnu.org/copyleft/gpl.html)
