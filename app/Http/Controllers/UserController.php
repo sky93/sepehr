@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -22,65 +24,53 @@ class UserController extends Controller {
      */
     protected $registrar;
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		//
-	}
 
     public function login()
     {
-        if (Auth::check())
-        {
+        if (Auth::check()){
             return Redirect::to('/');
         }
 
-        return view('auth.login', array('main' => new main()));
+        return view('auth.login', ['main' => new main()]);
     }
+
+
+
 
     /**
      * Handle a login request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function postLogin(Request $request)
     {
-        if (Auth::check())
-        {
+        if (Auth::check()){
             return Redirect::to('/');
         }
 
-        //Now unconfirmed users or banned users cannot login
+        //Unconfirmed users or banned users cannot login
         $credentials['active'] = 1;
 
         $credentials = $request->only('username', 'password');
 
+        $ip_block_duration = Config::get('leech.ip_block_duration');
+
         $ip = DB::table('ip_blacklist')
             ->where('ip', '=', $request->getClientIp())
             ->where('username', '=', $credentials['username'])
+            ->where('date', '>', date('Y-m-d G:i:s', time() - $ip_block_duration * 60))
             ->orderBy('date', 'desc')
             ->get();
 
-        if (count($ip) >= Config::get('leech.password_retry_count')){
-            $diffrence_mins = Config::get('leech.ip_block_duration') - round(abs(time() - strtotime($ip[Config::get('leech.password_retry_count') - 1]->date)) / 60);
-            if($diffrence_mins > 0){
-                return redirect($this->loginPath())
+        if (count($ip) >= Config::get('leech.password_retry_count')) {
+
+            $diffrence_mins = Config::get('leech.ip_block_duration') - round(abs(time() - strtotime($ip[0]->date)) / 60);
+
+            if($diffrence_mins > 0) {
+                return redirect('login')
                     ->withInput($request->only('username', 'remember', 'password'))
                     ->withErrors([
                         'IP_Block' => Lang::get('errors.ip_block', ['min' => $diffrence_mins])
                     ]);
-            }
-            else{
-//                DB::table('ip_blacklist')
-//                    ->where('ip', '=', $request->getClientIp())
-//                    ->where('username', '=', $credentials['username'])
-//                    ->orderBy('date', 'desc')
-//                    ->delete();
             }
         }
 
@@ -89,40 +79,28 @@ class UserController extends Controller {
         ]);
 
         $main = new main();
-        if (!$main->trusted_ip($_SERVER['REMOTE_ADDR'])){
+        if (!$main->trusted_ip($_SERVER['REMOTE_ADDR'])) {
             $this->validate($request, [
                 'g-recaptcha-response' => 'required|captcha'
             ]);
         }
 
-        if (Auth::attempt($credentials, $request->has('remember')))
-        {
-            
-//            DB::table('ip_blacklist')
-//                ->where('ip', '=', $request->getClientIp())
-//                ->where('username', '=', $credentials['username'])
-//                ->orderBy('date', 'desc')
-//                ->delete();
-
-            if (Auth::user()->role == 2){
-                return Redirect::to('tools/status');
-            }else{
-                return Redirect::to('/');
-            }
+        if (Auth::attempt($credentials, $request->has('remember'))) {
+            return Redirect::to('/');
         }
 
         $main = new main();
         if (($main->ip_is_private($request->getClientIp()) && (Config::get('leech.ip_block_kind') == 'private' || Config::get('leech.ip_block_kind') == 'both')) || (!$main->ip_is_private($request->getClientIp()) && (Config::get('leech.ip_block_kind') == 'public' || Config::get('leech.ip_block_kind') == 'both'))) {
             DB::table('ip_blacklist')->insert(
-                array(
+                [
                     'username' => $credentials['username'],
                     'password' => $credentials['password'],
                     'ip' => $request->getClientIp()
-                )
+                ]
             );
         }
 
-        return redirect($this->loginPath())
+        return redirect('login')
             ->withInput($request->only('username', 'remember', 'password'))
             ->withErrors([
                 'email' => Lang::get('messages.wrongPass'),
@@ -130,31 +108,23 @@ class UserController extends Controller {
     }
 
 
-    /**
-     * Get the path to the login route.
-     *
-     * @return string
-     */
-    public function loginPath()
-    {
-        return property_exists($this, 'loginPath') ? $this->loginPath : 'login';//todo check this.
-    }
+
 
     /**
      * Shows register form
      *
-     * @return string
      */
     public function register()
     {
         return view('auth.register');
     }
 
+
+
+
     /**
      * Handle a registration request for the application.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function postregister(Request $request)
     {
@@ -168,18 +138,19 @@ class UserController extends Controller {
         ]);
 
         $user = new User;
-
         $user->first_name = $request['first_name'];
         $user->last_name = $request['last_name'];
         $user->username = $request['username'];
         $user->email = $request['email'];
         $user->password = Hash::make($request['password']);
         $user->credit = $request['credit'] * 1024 * 1024 * 1024;
-
         $user->save();
 
         return redirect()->back()->with('message', $request['username']);
     }
+
+
+
 
     /**
      * Shows change password form
@@ -187,15 +158,23 @@ class UserController extends Controller {
      */
     public function password($username)
     {
-        if (Auth::user()->username == $username || Auth::user()->role == 2)
+        if (Auth::user()->username == $username || Auth::user()->role == 2) {
             return view('auth.change_password');
-        else
-            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
+        } else {
+            return view('errors.general', [
+                'error_title' => 'ERROR 401',
+                'error_message' => 'Access Denied'
+            ]);
+        }
 
     }
 
+
+
+
+
 	/**
-     * Changes user password
+     * Change user password
 	 *
 	 */
     public function post_password(Request $request, $username)
@@ -228,70 +207,51 @@ class UserController extends Controller {
 
     }
 
-	/**
-     * Display the specified resource.
-	 *
-     * @param  int $id
-	 * @return Response
-	 */
-    public function show($id)
-	{
-		//
-	}
+
+
 
 	/**
-     * Show the form for editing the specified resource.
+	 * Logs out a user
 	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-    public function edit($id)
-	{
-		//
-	}
-
-	/**
-     * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-    public function update($id)
-	{
-		//
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
 	 */
 	public function logout()
 	{
         Auth::logout();
-        return redirect('/');
+        return redirect('login');
 	}
 
+
+
+
+    /**
+     * Shows CSV Register form
+     *
+     */
     public function register_csv()
     {
         $main = new main();
         return view('auth.register_csv', array('main' => $main));
     }
 
+
+
+    /**
+     * Process POST method for CSV register
+     *
+     */
     public function postregister_csv(Request $request)
     {
         ignore_user_abort(true);
         ini_set('max_execution_time', 0);
-        if (ini_get('max_execution_time') != 0){
+        if (ini_get('max_execution_time') != 0) {
             return redirect::back()->withErrors('Could not change max_execution_time variable. Please review php.ini file.');
-        };
-        if ($request->hasFile('csv_file') && $request->file('csv_file')->isValid())
-        {
-            if (mb_strtolower($request->file('csv_file')->getClientOriginalExtension()) != 'csv'){
+        }
+
+        if ($request->hasFile('csv_file') && $request->file('csv_file')->isValid()) {
+            if (mb_strtolower($request->file('csv_file')->getClientOriginalExtension()) != 'csv') {
                 return redirect::back()->withErrors('The uploaded file is not a valid CSV file.');
             }
-            if ($request->file('csv_file')->getClientSize() > 1024 * 1024){
+            if ($request->file('csv_file')->getClientSize() > 1024 * 1024) {
                 return redirect::back()->withErrors('The uploaded file is bigger than 1MB.');
             }
 
@@ -306,7 +266,7 @@ class UserController extends Controller {
                     if($num != 4){
                         return redirect::back()->withErrors('CSV file should have 4 rows. First name, Last name, Password and Username');
                     }
-//                    echo "<p> $num fields in line $row: <br /></p>\n";
+
                     $row++;
                     $input['username'] = $data[3];
                     $rules = array('username' => 'unique:users,username');
@@ -357,22 +317,30 @@ class UserController extends Controller {
                 }
                 fclose($handle);
 
-            }else{
+            } else {
                 return redirect::back()->withErrors('CSV is not valid.');
             }
-            if ($success)
+            if ($success) {
                 return redirect()->back()
                     ->with('message', $success . ' users added successfully and ' . $fails . ' failed.')
                     ->withErrors($conflicts);
-            else
+            } else {
                 return redirect()->back()
                     ->withErrors($conflicts);
+            }
 
-        }else{
+        } else {
             return redirect::back()->withErrors('CSV file did not upload to server. Try again.');
         }
     }
 
+
+    /**
+     * Shows user information form
+     *
+     * @param $username
+     * @return \Illuminate\View\View
+     */
     public function user_info($username)
     {
         if (Auth::user()->username == $username || Auth::user()->role == 2) {
@@ -380,12 +348,24 @@ class UserController extends Controller {
                 ->where('username', '=', $username)
                 ->first();
             return view('user.user_info', ['user' => $user]);
+        } else {
+            return view('errors.general', [
+                'error_title' => 'ERROR 401',
+                'error_message' => 'Access Denied'
+            ]);
         }
-        else
-            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
     }
 
-    public function post_user_info(Request $request,$username){
+
+    /**
+     * Shows user information form (For POST method)
+     *
+     * @param Request $request
+     * @param $username
+     * @return \Illuminate\View\View
+     */
+    public function post_user_info(Request $request, $username)
+    {
         if (Auth::user()->username == $username || Auth::user()->role == 2) {
             $this->validate($request, [
                 'email' => 'required|email|unique:users,email'
@@ -407,13 +387,23 @@ class UserController extends Controller {
 
             }else
                 return redirect()->back()->with('message', Lang::get('messages.info_updates'));
+        } else {
+            return view('errors.general', [
+                'error_title' => 'ERROR 401',
+                'error_message' => 'Access Denied'
+            ]);
         }
-        else
-            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
     }
 
 
 
+
+    /**
+     * Shows Credit history form
+     *
+     * @param $user_name
+     * @return \Illuminate\View\View
+     */
     public function credit_history($user_name)
     {
         if (Auth::user()->username == $user_name || Auth::user()->role == 2) {
@@ -431,16 +421,5 @@ class UserController extends Controller {
         else
             return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
     }
-
-    /**
-     * Get the failed login message.
-     *
-     * @return string
-     */
-    protected function getFailedLoginMesssage()
-    {
-        return '';
-    }
-
 
 }

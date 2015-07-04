@@ -159,7 +159,7 @@ return [
     |
     */
 
-    'aria2_ip' => 'http://127.0.0.1',
+    'aria2_ip' => '127.0.0.1',
     'aria2_port' => 6800,
     'aria2_route' => 'jsonrpc',
 
@@ -192,7 +192,8 @@ return [
         'php' => false,
         'html' => '_html_',
         'torrent' => false,
-        'php4' =>  '_php4_',
+        'php4' =>  false,
+        'php5' =>  false,
     ),
 
 
@@ -276,8 +277,8 @@ return [
 
     'show_change_message' => true,
     'change_title1' => "What's New",
-    'change_title2' => "Tired of adding multiple links?",
-    'change_message' => '<p>No Worries!  Finally we have added "Multiple Links" option. Simply add your links and split them by pressing "Enter" button!</p><hr /><p>• Also added <strong>"Keep Files"</strong> feature. Keep some of your important files so they will never be deleted automatically.</p><hr /><p>BTW, Torrent is currently in my high priority todo list..</p><p>To see all changes, take a look at our <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">Change log</a>.',
+    'change_title2' => " ",
+    'change_message' =>'<p dir="rtl">• تمامي قيمت ها به صورت پله اي کاهش يافت.</p><p dir="rtl">• گزينه Link Checker براي مشاهده حجم فايل و اطلاعات ديگر به صفحه اصلي اضافه شد.</p><hr /><p dir="rtl">• درصورت داشتن سوال يا مشکل با ايميل <a target="_blank" href="mailto:sepehr@sadjad.ac.ir">sepehr@sadjad.ac.ir</a> در تماس باشيد.</p><p dir="rtl">• براي مشاهده آخرين  تغييرات سايت به <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">اينجا</a> برويد.</a></p>',
 
 
 
@@ -290,7 +291,7 @@ return [
     |
     */
 
-    'logo_address' => 'img/links.png',
+    'logo_address' => 'img/login_logo.png',
 
 
 
@@ -353,9 +354,9 @@ return [
     |
     */
 
-    'login_show_message' => false,
-    'login_dir' => 'ltr',
-    'login_message' => 'Your Message...',
+    'login_show_message' => true,
+    'login_dir' => 'rtl',
+    'login_message' => 'دانشجوي گرامي ؛ نام کاربري و کلمه عبور شما، شماره دانشجويي و شماره شناسنامه شما مي باشد.',
 
     'main_show_message' => false,
     'main_dir' => 'ltr',
@@ -365,12 +366,12 @@ return [
     'download_dir' => 'ltr',
     'download_message' =>  'Your Message...',
 
-    'files_show_message' => false,
-    'files_dir' => 'ltr',
-    'files_message' =>  'Your Message...',
+    'files_show_message' => true,
+    'files_dir' => 'rtl',
+    'files_message' =>  'براي دانلود با سرعت بالا و کم نشدن از حساب اينترنت بايد از اينترنت خارج شويد (ولي به شبکه داخلي متصل باشيد)',
 
-    'public_show_message' => false,
-    'public_dir' => 'ltr',
-    'public_message' =>  'Your Message...',
+    'public_show_message' => true,
+    'public_dir' => 'rtl',
+    'public_message' =>  'براي دانلود با سرعت بالا و کم نشدن از حساب اينترنت بايد از اينترنت خارج شويد (ولي به شبکه داخلي متصل باشيد)',
 
 ];

@@ -240,6 +240,10 @@
                                         </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="torrent_tab">
+                                        <br />
+                                        Please select your <kbd>.torrent</kbd> file...<br /><br />
+                                        <input type="file">
+
                                         @if(Auth::user()->torrent != 1)
                                             <br/>
                                             <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>

@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use Illuminate\Http\Request;
@@ -13,34 +15,12 @@ use aria2;
 use main;
 use Illuminate\Support\Facades\Config;
 
+
 class HomeController extends Controller
 {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Home Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller renders your application's "dashboard" for users that
-    | are authenticated. Of course, you are free to change or remove the
-    | controller as you wish. It is just here to get your app started!
-    |
-    */
-
     /**
-     * Create a new controller instance.
+     * Shows main form
      *
-     * @return void
-     */
-    public function __construct()
-    {
-        //$this->middleware('auth');
-    }
-
-    /**
-     * Show the application dashboard to the user.
-     *
-     * @return Response
      */
     public function index()
     {
@@ -50,7 +30,6 @@ class HomeController extends Controller
 
     public function public_files()
     {
-
         $main = new main();
 
         $users = DB::table('download_list')
@@ -59,12 +38,11 @@ class HomeController extends Controller
             ->where('deleted', '=', 0)
             ->get();
 
-        return view('public_list', array('files' => $users, 'main' => $main));
+        return view('public_list', ['files' => $users, 'main' => $main]);
     }
 
     public function files()
     {
-
         $main = new main();
 
         $users = DB::table('download_list')
@@ -73,8 +51,10 @@ class HomeController extends Controller
             ->where('deleted', 0)
             ->get();
 
-        return view('files_list', array('files' => $users, 'main' => $main));
+        return view('files_list', ['files' => $users, 'main' => $main]);
     }
+
+
 
 
     public function postfiles()
@@ -91,16 +71,16 @@ class HomeController extends Controller
             ->where('deleted', 0)
             ->get();
 
-        $auth_files = array();
-        $files_list = array();
+        $auth_files = [];
+        $files_list = [];
 
         foreach ($files_query as $files) {
             $auth_files[] = $files->id;
             $files_list[$files->id] = $files->file_name;
         }
 
-        $message = array();
-        $errors = array();
+        $message = [];
+        $errors = [];
         if ($_POST['action'] === 'delete') {
             foreach ($_POST['files'] as $file) {
                 if (in_array($file, $auth_files)) {
@@ -135,7 +115,7 @@ class HomeController extends Controller
                             ->update(['keep' => 1]);
                     }
                 }
-            }else{
+            } else {
                 return redirect::back()->withErrors(Lang::get('errors.cannot_keep'));
             }
         }
@@ -146,26 +126,31 @@ class HomeController extends Controller
             ->where('deleted', 0)
             ->get();
 
-        return view('files_list', array('files' => $users, 'main' => $main, 'messages' => $message, 'error' => $errors));
+        return view('files_list', ['files' => $users, 'main' => $main, 'messages' => $message, 'error' => $errors]);
     }
+
+
 
 
     public function post_download_id($id, Request $request)
     {
         $main = new main();
         $input = $request->only('action', 'new_name');
-        if (!isset($input['action']) || $input['action'] == NULL)
+        if (!isset($input['action']) || $input['action'] == null) {
             return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Permission Denied!'));
+        }
 
         $user_files = DB::table('download_list')
             ->where('user_id', Auth::user()->id)
             ->get();
 
-        $auth_files = array();
+        $auth_files = [];
 
         foreach ($user_files as $file) {
             $auth_files[] = $file->id;
-            if ($file->id == $id) $file_details = $file;
+            if ($file->id == $id) {
+                $file_details = $file;
+            }
         }
 
         if (Auth::user()->role == 2 && (!isset($file_details) || empty($file_details))) { //$file_details for admins may be empty
@@ -193,27 +178,21 @@ class HomeController extends Controller
             } else {
                 @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
 
-                //We try to delete .aria2 file if exist.
+                //try to delete .aria2 file if exists.
                 @unlink(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name . '.aria2');
 
                 DB::table('download_list')
                     ->where('id', $file_details->id)
                     ->update([
                         'deleted' => 1,
-                        //'state' => -3 //I decided to remove this because we lose the last state of the file after delete.
+                        //'state' => -3 //decided to remove this because we lose the last state of the file after delete.
                     ]);
 
-                if (+$file_details->state === 0 && $file_details->state !== NULL){
-                    return Redirect::to('/files/');
-                }else{
-                    return Redirect::to('/downloads/');
+                if (+$file_details->state === 0 && $file_details->state !== null) {
+                    return Redirect::to('files');
+                } else {
+                    return Redirect::to('downloads');
                 }
-                // Decrease queue credit
-//                if ($file_details->state != 0) {
-//                    DB::table('users')
-//                        ->where('id', $file_details->user_id)
-//                        ->decrement('queue_credit', $file_details->length);
-//                }
             }
         } elseif ($input['action'] == 'pause') { //Pause action
             if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
@@ -233,33 +212,33 @@ class HomeController extends Controller
                         'state' => NULL
                     ]);
             }
-        } elseif ($input['action'] == 'retry') { //retry action (we just change the state to NULL)
+        } elseif ($input['action'] == 'retry') { //retry action (we just change the state to null)
             DB::table('download_list')
                 ->where('id', $file_details->id)
                 ->update([
-                    'state' => NULL
+                    'state' => null
                 ]);
             return Redirect::to('/downloads/');
-        }elseif ($input['action'] == 'public' && $file_details->state == 0){
+        } elseif ($input['action'] == 'public' && $file_details->state == 0){
             if (Auth::user()->public == 1) {
                 DB::table('download_list')
                     ->where('id', '=', $file_details->id)
                     ->update(['public' => DB::raw('!public')]);
                 return Redirect::to('/files/' . $file_details->id);
-            }else{
+            } else {
                 return redirect::back()->withErrors(Lang::get('errors.cannot_public'));
             }
-        }elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
+        } elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
             if(preg_match(Config::get('leech.rename_regex'), $input['new_name'])) {
             $blocked_ext = Config::get('leech.blocked_ext');
             $ext = pathinfo($input['new_name'], PATHINFO_EXTENSION);
             if (array_key_exists($ext, $blocked_ext)) {
                 if ($blocked_ext[$ext] === false){
                     return redirect::back()->withErrors('.' . $ext . ' files are blocked by the system administrator. Sorry.');
-                }else{
+                } else {
                     $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $blocked_ext[$ext];
                 }
-            }else{
+            } else {
                 $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $ext;
             }
                 $result = @rename(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name, public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $filename);
@@ -268,24 +247,24 @@ class HomeController extends Controller
                         ->where('id', '=', $file_details->id)
                         ->update(['file_name' => $filename]);
                     return Redirect::to('/files/' . $file_details->id)->with('message' , 'File successfully renamed to <strong>' . $filename . '</strong>.');
-                }else{
+                } else {
                     return redirect::back()->withErrors('It is not possible to change the filename. Sorry.');
                 }
-            }else{
+            } else {
                 return redirect::back()->withErrors('Filename is not in valid format.');
             }
-        }elseif ($input['action'] == 'sha1' && $file_details->state == 0){
+        } elseif ($input['action'] == 'sha1' && $file_details->state == 0){
             $sha1 = sha1_file(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
             if ($sha1){
                 return Redirect::to('/files/' . $file_details->id)->with('message' , 'SHA1: <kbd>' . $sha1 . '</kbd>.');
-            }else{
+            } else {
                 return redirect::back()->withErrors('It is not possible to get SHA1. Sorry.');
             }
-        }elseif ($input['action'] == 'md5' && $file_details->state == 0){
+        } elseif ($input['action'] == 'md5' && $file_details->state == 0){
             $sha1 = md5_file(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name);
             if ($sha1){
                 return Redirect::to('/files/' . $file_details->id)->with('message' , 'MD5: <kbd>' . $sha1 . '</kbd>.');
-            }else{
+            } else {
                 return redirect::back()->withErrors('It is not possible to get MD5. Sorry.');
             }
         }
@@ -293,22 +272,28 @@ class HomeController extends Controller
         return Redirect::back();
     }
 
+
+
+
     public function download_id($id)
     {
-
-        if (Auth::user()->role != 2)
+        if (Auth::user()->role != 2) {
             $file = DB::table('download_list')
                 ->where('id', '=', $id)
                 ->where('deleted', '=', 0)
                 ->first();
-        else
+        } else {
             $file = DB::table('download_list')
                 ->where('id', '=', $id)
                 ->first();
+        }
 
         if (!$file || !$file->public)
             if (!$file || ($file->user_id != Auth::user()->id && Auth::user()->role != 2)) {
-                return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This file does not exist or you do not have the right permission to view this file.'));
+                return view('errors.general', [
+                    'error_title' => 'ERROR 404',
+                    'error_message' => 'This file does not exist or you do not have the right permission to view this file.'
+                ]);
             }
 
         $main = new main();
@@ -318,24 +303,27 @@ class HomeController extends Controller
     }
 
 
+
+
     public function downloads()
     {
         $main = new main();
         if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
 
-        if (Auth::user()->role == 2) //Admins need to see all downloads + username
+        if (Auth::user()->role == 2) { //Admins need to see all downloads + username
             $users = DB::table('download_list')
                 ->join('users', 'download_list.user_id', '=', 'users.id')
                 ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();
-        else
+        } else {
             $users = DB::table('download_list')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('user_id', '=', Auth::user()->id)
                 ->where('deleted', '=', 0)
                 ->get();
+        }
 
         $aria2 = new aria2();
         return view('download_list', array('files' => $users, 'main' => $main, 'aria2' => $aria2));
@@ -361,12 +349,9 @@ class HomeController extends Controller
         $json = [];
         foreach ($users as $file){
             $downloaded_speed_kb = $downloaded_speed = $downloaded_size = 0;
-            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"]))
-            {
+            if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"])) {
                 $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
-            }
-            else
-            {
+            } else {
                 $result = null;
             }
 

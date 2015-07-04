@@ -18,17 +18,18 @@ class main
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
         stream_context_set_default(
-            array(
-                'http' => array(
+            [
+                'http' => [
                     'method' => 'GET'
-                )
-            )
+                ]
+            ]
         );
 
         $headers = @get_headers($url, 1);
-        if (!$headers) return false;
+        if (!$headers)
+            return false;
 
-        $headerso = $headers;
+        //$headerso = $headers;
 
         $lastresp = 0;
         foreach ($headers as $key => $value) { //Make every key lowercase
@@ -39,12 +40,13 @@ class main
             if (preg_match("/^HTTP\/1\.[01] (\d\d\d)/", $st, $matches)) {
                 $lastresp = $matches[1];
             }
-            if (strtolower($key) == $key) continue;
+            if (strtolower($key) == $key)
+                continue;
             $headers[strtolower($key)] = $headers[$key];
             unset($headers[$key]);
         }
 
-        $file_size = NULL;
+        $file_size = null;
         if (array_key_exists('content-length', $headers)) { //File Size
             if (is_array($headers['content-length']))
                 $file_size = $headers['content-length'][count($headers['content-length'])-1];
@@ -55,7 +57,7 @@ class main
             $file_size = -1;
         }
 
-        $location = NULL;
+        $location = null;
         if (array_key_exists('location', $headers)) { //File Location
             if (is_array($headers['location']))
                 $location = $headers['location'][count($headers['location'])-1]; //todo: add FILTER_SANITIZE_URL validate
@@ -66,7 +68,7 @@ class main
         }
 
 
-        $filename = NULL;
+        $filename = null;
         if (array_key_exists('content-disposition', $headers) && strpos($headers['content-disposition'], 'filename=') !== false) { //Header contains filename
             if (is_array($headers['content-disposition']))
                 $str = $headers['content-disposition'][count($headers['content-disposition']) - 1];
@@ -84,14 +86,14 @@ class main
 
 
         ini_set("default_socket_timeout", $current_timeout); //restore the default socket time out.
-        return array(
+        return [
             'status' => $lastresp,
             'filename' => $filename,
             'file_extension' => pathinfo($filename, PATHINFO_EXTENSION),
             'filesize' => $file_size,
             'location' => $location,
             'full_headers' => $headers
-        );
+        ];
     }
 
 
@@ -105,10 +107,10 @@ class main
      */
     public function trusted_ip($ip)
     {
-        $whitelist = array(
+        $whitelist = [
             '127.0.0.1',
             '::1'
-        );
+        ];
 
         if (in_array($ip, $whitelist))
             return config('leech.trust_localhost') ? true : false;
@@ -220,7 +222,7 @@ class main
         $negative = $bytes < 0;
         if ($negative) $bytes *= -1;
         $size = $bytes;
-        $units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         $power = $size > 0 ? floor(log($size, 1024)) : 0;
         $sz = $size / pow(1024, $power);
         if ($sz - round($sz) == 0) $precision = 0;
@@ -239,18 +241,18 @@ class main
      */
     public function ip_is_private($ip)
     {
-        $pri_addrs = array (
+        $pri_addrs = [
             '10.0.0.0|10.255.255.255', // single class A network
             '172.15.0.0|172.31.255.255', // 16 contiguous class B network
             '192.168.0.0|192.168.255.255', // 256 contiguous class C network
             '169.254.0.0|169.254.255.255', // Link-local address also refered to as Automatic Private IP Addressing
             '127.0.0.0|127.255.255.255' // localhost
-        );
+        ];
 
         $long_ip = ip2long ($ip);
         if ($long_ip != -1) {
 
-            foreach ($pri_addrs AS $pri_addr) {
+            foreach ($pri_addrs as $pri_addr) {
                 list ($start, $end) = explode('|', $pri_addr);
 
                 // IF IS PRIVATE
@@ -259,7 +261,6 @@ class main
                 }
             }
         }
-
         return false;
     }
 
@@ -272,9 +273,9 @@ class main
      * @param $h
      * @return string
      */
-    public function hours2day($h){
-        if ($h > 24)
-        {
+    public function hours2day($h)
+    {
+        if ($h > 24){
             return round($h/24) == 1 ? round($h/24) . ' Day': round($h/24) . ' Days';
         }
         return round($h) . ' Hours';
@@ -288,12 +289,55 @@ class main
      *
      * @return string
      */
-    public function get_storage_path(){
+    public function get_storage_path()
+    {
         $path = public_path() . '/' . Config::get('leech.save_to') . '/';
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
         }
         $symbol_link = @readlink($path);
         return $symbol_link ? $symbol_link : $path;
+    }
+
+
+
+
+    /**
+     * Returns time ago...
+     *
+     * @param $datetime
+     * @param bool $full
+     * @return string
+     */
+    function time_elapsed_string($datetime, $full = false)
+    {
+        $now = new DateTime;
+        $ago = new DateTime($datetime);
+        $diff = $now->diff($ago);
+
+        $diff->w = floor($diff->d / 7);
+        $diff->d -= $diff->w * 7;
+
+        $string = [
+            'y' => 'year',
+            'm' => 'month',
+            'w' => 'week',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
+        ];
+        foreach ($string as $k => &$v) {
+            if ($diff->$k){
+                $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+            } else {
+                unset($string[$k]);
+            }
+        }
+
+        if (!$full){
+            $string = array_slice($string, 0, 1);
+        }
+        return $string ? implode(', ', $string) . ' ago' : 'just now';
     }
 }

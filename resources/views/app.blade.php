@@ -1,9 +1,10 @@
 <?php
 $main = new main();
 $show_message = false;
-if (!Auth::guest()){  // Only users can show new messages.
+// Only users can show new messages.
+if (!Auth::guest()){
     $message = Request::cookie('change_log');
-    if (Config::get('leech.show_change_message') == true && ($message == NULL || $message != Config::get('leech.change_message'))){
+    if (Config::get('leech.show_change_message') == true && ($message == null || $message != Config::get('leech.change_message'))){
         $show_message = true;
         $message_content = Config::get('leech.change_message');
         $change_title1 = Config::get('leech.change_title1');
@@ -41,6 +42,7 @@ if (!Auth::guest()){  // Only users can show new messages.
 
     <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/toastr.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/jquery.timeago.js') }}"></script>
 </head>
 <body>
 @if($show_message == true)
@@ -92,9 +94,6 @@ if (!Auth::guest()){  // Only users can show new messages.
                                 <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
                                 <li class="divider"></li>
                                 <li><a href="{{ url('buy') }}"><i class="fa fa-money"></i> @lang('messages.credit_buy')</a></li>
-                                {{--<li><a href="{{ url('user/'. Auth::user()->username .'/password') }}"><i class="fa fa-unlock-alt"></i> @lang('messages.change_password')</a></li>--}}
-                                {{--<li class="divider"></li>--}}
-                                {{--<li><a href="{{ url('logout') }}"><i class="fa fa-sign-out"></i> @lang('messages.logout')</a></li>--}}
                             </ul>
                         </li>
                         @if (Auth::user()->role == 2)
@@ -138,17 +137,15 @@ if (!Auth::guest()){  // Only users can show new messages.
             </div>
         </div>
     </nav>
-
     <div class="container1" style=" height: 100%">
         @yield('content')
     </div>
-
 </div>
 <div id="footer">
     <div class="container"  style="padding-right: 35px">
         <div class="row">
             <div class="col-md-5">
-                <p class="text-muted">&copy; {{date("Y")}} - <a style="text-decoration: none !important;color: #777777" target="_blank" href="{{ env('CP_LINK', '') }}">{{ env('CP', '') }}</a></p>
+                <p class="text-muted">&copy; {{date("Y")}} - <a style="text-decoration: none !important;color: #777777" target="_blank" href="{{ env('FOOTER_LINK', '') }}">{{ env('FOOTER_TEXT', 'SEPEHR') }}</a></p>
             </div>
             <div class="col-md-7">
                 <div class=" pull-right">

@@ -1,29 +1,31 @@
-<?php namespace App\Console;
+<?php
+
+namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use DB;
 use Config;
 
-class Kernel extends ConsoleKernel {
+class Kernel extends ConsoleKernel
+{
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        \App\Console\Commands\Inspire::class,
+    ];
 
-	/**
-	 * The Artisan commands provided by your application.
-	 *
-	 * @var array
-	 */
-	protected $commands = [
-		'App\Console\Commands\Inspire',
-	];
-
-	/**
-	 * Define the application's command schedule.
-	 *
-	 * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-	 * @return void
-	 */
-	protected function schedule(Schedule $schedule)
-	{
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
         $schedule->call(function()
         {
             if (config('leech.auto_delete')) {
@@ -43,10 +45,10 @@ class Kernel extends ConsoleKernel {
                     DB::table('download_list')
                         ->where('id', $old_file->id)
                         ->update(['deleted' => 1]);
-                    if (!$res) echo 'Not deleted: ' . public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . "\n";
+                    if (!$res)
+                        echo 'Not deleted: ' . public_path() . '/' . Config::get('leech.save_to') . '/' . $old_file->id . '_' . $old_file->file_name . "\n";
                 }
             }
         })->everyTenMinutes()->sendOutputTo(storage_path() . '/cron/logs.log');
-	}
-
+    }
 }
