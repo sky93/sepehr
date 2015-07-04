@@ -1,7 +1,7 @@
-[![Version     ](https://img.shields.io/github/release/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/releases/)
-[![Issues      ](https://img.shields.io/github/issues/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/issues/)
-[![GitHub stars](https://img.shields.io/github/stars/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/Becca4Eva/Aria-Leecher.svg)](https://github.com/Becca4Eva/Aria-Leecher/network)
+[![Version     ](https://img.shields.io/github/release/be4ev/sepehr.svg)](https://github.com/be4ev/sepehr/releases/)
+[![Issues      ](https://img.shields.io/github/issues/be4ev/sepehr.svg)](https://github.com/be4ev/sepehr/issues/)
+[![GitHub stars](https://img.shields.io/github/stars/be4ev/sepehr.svg)](https://github.com/be4ev/sepehr/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/be4ev/sepehr.svg)](https://github.com/be4ev/sepehr/network)
 
 ![Logo](logo.jpg)
 
