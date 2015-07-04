@@ -4,12 +4,12 @@ $show_message = false;
 // Only users can show new messages.
 if (!Auth::guest()){
     $message = Request::cookie('change_log');
-    if (Config::get('leech.show_change_message') == true && ($message == null || $message != Config::get('leech.change_message'))){
+    if (Config::get('leech.show_change_message') == true && ($message == null || $message != md5(Config::get('leech.change_message')))){
         $show_message = true;
         $message_content = Config::get('leech.change_message');
         $change_title1 = Config::get('leech.change_title1');
         $change_title2 = Config::get('leech.change_title2');
-        Cookie::queue('change_log', Config::get('leech.change_message'), 2592000); //2592000 = 60 * 24 * 30 * 12 * 5
+        Cookie::queue('change_log', md5(Config::get('leech.change_message')), 129600); //2592000 = 60 * 24 * 30 * 3 = 3 months
     }
 }
 ?>
