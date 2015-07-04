@@ -34,14 +34,14 @@ return [
     'payment_type' => 'discount',
 
     //if 'payment_type' is normal:
-    'credit_unit' => 5000,
+    'credit_unit' => 5,
 
     //if 'payment_type' is discount:
-    '5GB_price' => 25000,
-    '10GB_price' => 45000,
-    '20GB_price' => 85000,
-    '50GB_price' => 200000,
-    '100GB_price' => 300000,
+    '5GB_price' => 2.5,
+    '10GB_price' => 4.5,
+    '20GB_price' => 8.5,
+    '50GB_price' => 20,
+    '100GB_price' => 30,
 
 
 
@@ -275,10 +275,10 @@ return [
     |
     */
 
-    'show_change_message' => true,
-    'change_title1' => "What's New",
-    'change_title2' => " ",
-    'change_message' =>'<p dir="rtl">• تمامي قيمت ها به صورت پله اي کاهش يافت.</p><p dir="rtl">• گزينه Link Checker براي مشاهده حجم فايل و اطلاعات ديگر به صفحه اصلي اضافه شد.</p><hr /><p dir="rtl">• درصورت داشتن سوال يا مشکل با ايميل <a target="_blank" href="mailto:sepehr@sadjad.ac.ir">sepehr@sadjad.ac.ir</a> در تماس باشيد.</p><p dir="rtl">• براي مشاهده آخرين  تغييرات سايت به <a target="_blank" href="https://github.com/Becca4Eva/Aria-Leecher/commits">اينجا</a> برويد.</a></p>',
+    'show_change_message' => false,
+    'change_title1' => 'What\'s New',
+    'change_title2' => '',
+    'change_message' => '',
 
 
 
@@ -354,24 +354,24 @@ return [
     |
     */
 
-    'login_show_message' => true,
-    'login_dir' => 'rtl',
-    'login_message' => 'دانشجوي گرامي ؛ نام کاربري و کلمه عبور شما، شماره دانشجويي و شماره شناسنامه شما مي باشد.',
+    'login_show_message' => false,
+    'login_dir' => 'ltr',
+    'login_message' => 'Your Message...',
 
     'main_show_message' => false,
     'main_dir' => 'ltr',
-    'main_message' =>  'Your Message...',
+    'main_message' => 'Your Message...',
 
     'download_show_message' => false,
     'download_dir' => 'ltr',
-    'download_message' =>  'Your Message...',
+    'download_message' => 'Your Message...',
 
-    'files_show_message' => true,
-    'files_dir' => 'rtl',
-    'files_message' =>  'براي دانلود با سرعت بالا و کم نشدن از حساب اينترنت بايد از اينترنت خارج شويد (ولي به شبکه داخلي متصل باشيد)',
+    'files_show_message' => false,
+    'files_dir' => 'ltr',
+    'files_message' => 'Your Message...',
 
-    'public_show_message' => true,
-    'public_dir' => 'rtl',
-    'public_message' =>  'براي دانلود با سرعت بالا و کم نشدن از حساب اينترنت بايد از اينترنت خارج شويد (ولي به شبکه داخلي متصل باشيد)',
+    'public_show_message' => false,
+    'public_dir' => 'ltr',
+    'public_message' => 'Your Message...',
 
 ];
