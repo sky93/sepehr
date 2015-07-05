@@ -18,4 +18,4 @@ Download your links to your server for local use!
 
 ###License
 
-The Sepehr is open-sourced software licensed under the [GNU General Public License v3.0](https://www.gnu.org/copyleft/gpl.html)
+The Sepehr is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
