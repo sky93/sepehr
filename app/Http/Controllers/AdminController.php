@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -17,17 +19,6 @@ use Input;
 
 class AdminController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        //
-    }
-
-
 
     public function payments()
     {
@@ -39,16 +30,21 @@ class AdminController extends Controller
             ->get();
 
         $main = new main();
-        return view('payment.history', array('main' => $main, 'tracks' => $tracks));
+
+        return view('payment.history', ['main' => $main, 'tracks' => $tracks]);
     }
 
     public function stat()
     {
         $main = new main();
-        if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+
+        if (!$main->aria2_online()) {
+            return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+        }
 
         $aria2 = new aria2();
-        return view('tools.stats', array('main' => $main, 'aria2' => $aria2));
+
+        return view('tools.stats', ['main' => $main, 'aria2' => $aria2]);
     }
 
 
@@ -57,10 +53,12 @@ class AdminController extends Controller
     public function post_stat(Request $request)
     {
         $main = new main();
+
         if ($request->ajax()) {
             if (isset($request['gs'])) {
-                if (!$main->aria2_online())
+                if (!$main->aria2_online()) {
                     return response()->json(['ERROR 10002' => 'Aria2 is not running!']);
+                }
 
                 $aria2 = new aria2();
 
@@ -72,8 +70,10 @@ class AdminController extends Controller
                     'numStopped' => $aria2->getGlobalStat()['result']['numStopped'],
                     'numWaiting' => $aria2->getGlobalStat()['result']['numWaiting']
                 ]);
-            }elseif(isset($request['lf'])){
+
+            } elseif (isset($request['lf'])) {
                 $table = [];
+
                 $files = DB::table('download_list')
                     ->leftJoin('users', 'users.id', '=', 'download_list.user_id')
                     ->select('download_list.*', 'users.username')
@@ -107,10 +107,12 @@ class AdminController extends Controller
                         'username_l' => url('tools/users/' . $file->username)
                     ];
                 }
+
                 return response()->json($table);
-            }elseif(isset($request['sz'])){
+            } elseif (isset($request['sz'])) {
                 $total = disk_total_space($main->get_storage_path());
                 $free = disk_free_space($main->get_storage_path());
+
                 return response()->json([
                     'free' => $main->formatBytes($free, 3),
                     'total' => $main->formatBytes($total, 3),
@@ -132,9 +134,12 @@ class AdminController extends Controller
             ->where('username', '=', $user_name)
             ->first();
 
-        if ($user == null)
-            return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'This file does not exist or you do not have the right permission to view this file.'));
-
+        if ($user == null) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 404',
+                'error_message' => 'This file does not exist or you do not have the right permission to view this file.'
+            ]);
+        }
 
         $tracks = DB::table('credit_log')
             ->select('credit_log.*', 'users.username')
@@ -143,7 +148,8 @@ class AdminController extends Controller
             ->get();
 
         $main = new main();
-        return view('tools.user_credits', array('main' => $main, 'user' => $user, 'tracks' => $tracks));
+
+        return view('tools.user_credits', ['main' => $main, 'user' => $user, 'tracks' => $tracks]);
     }
 
 
@@ -186,11 +192,14 @@ class AdminController extends Controller
     {
         $main = new main();
         if (!$main->aria2_online())
-            return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+            return view('errors.general', [
+                'error_title' => 'ERROR 10002',
+                'error_message' => 'Aria2c is not running!'
+            ]);
 
         $aria2 = new aria2();
 
-        return view('tools.aria2console', array('main' => $main, 'aria2' => $aria2));
+        return view('tools.aria2console', ['main' => $main, 'aria2' => $aria2]);
     }
 
 
@@ -206,7 +215,7 @@ class AdminController extends Controller
             ]);
         }
 
-        $functions = array('addUri', 'addTorrent', 'addMetalink', 'remove', 'forceRemove', 'pause', 'pauseAll', 'forcePause', 'forcePauseAll', 'unpause', 'unpauseAll', 'tellStatus', 'getUris', 'getFiles', 'getPeers', 'getServers', 'tellActive', 'tellWaiting', 'tellStopped', 'changePosition', 'changeUri', 'getOption', 'changeOption', 'getGlobalOption', 'changeGlobalOption', 'getGlobalStat', 'purgeDownloadResult', 'removeDownloadResult', 'getVersion', 'getSessionInfo', 'shutdown', 'forceShutdown', 'saveSession', 'multicall');
+        $functions = ['addUri', 'addTorrent', 'addMetalink', 'remove', 'forceRemove', 'pause', 'pauseAll', 'forcePause', 'forcePauseAll', 'unpause', 'unpauseAll', 'tellStatus', 'getUris', 'getFiles', 'getPeers', 'getServers', 'tellActive', 'tellWaiting', 'tellStopped', 'changePosition', 'changeUri', 'getOption', 'changeOption', 'getGlobalOption', 'changeGlobalOption', 'getGlobalStat', 'purgeDownloadResult', 'removeDownloadResult', 'getVersion', 'getSessionInfo', 'shutdown', 'forceShutdown', 'saveSession', 'multicall'];
 
         if (!in_array($input['function'], $functions)) {
             if ($request->ajax()) {
@@ -221,7 +230,10 @@ class AdminController extends Controller
             if ($request->ajax()) {
                 return response()->json(['ERROR 10002' => 'Aria2c is not running!']);
             } else {
-                return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
+                return view('errors.general', [
+                    'error_title' => 'ERROR 10002',
+                    'error_message' => 'Aria2c is not running!'
+                ]);
             }
 
 
@@ -231,7 +243,7 @@ class AdminController extends Controller
 
         $aria2 = new aria2();
 
-        $res = call_user_func_array(array($aria2, 'JSON_INPUT' . $input['function']), array($params));
+        $res = call_user_func_array([$aria2, 'JSON_INPUT' . $input['function']], [$params]);
 
         if ($request->ajax()) {
             return response()->json($res);
@@ -247,7 +259,7 @@ class AdminController extends Controller
 
     public function postuser_details($username)
     {
-        if (!empty($username) || !isset($_POST['action'])) {
+        if (! empty($username) || ! isset($_POST['action'])) {
             if ($_POST['action'] == 'delete' && Config::get('leech.user_delete') == true) {
                 $atu = Auth::user()->username;
                 $user = User::where('username', '=', $username);
@@ -272,7 +284,6 @@ class AdminController extends Controller
             }
         }
         return Redirect::to('/tools/users/' . $username);
-
     }
 
 
@@ -281,11 +292,14 @@ class AdminController extends Controller
 
     public function user_details($user_name)
     {
-
         $users = User::where('username', '=', $user_name)->first();
 
-        if ($users == null)
-            return view('errors.general', array('error_title' => 'ERROR 404', 'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'));
+        if ($users == null) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 404',
+                'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+            ]);
+        }
 
         $main = new main();
 
@@ -308,7 +322,7 @@ class AdminController extends Controller
             ->where('user_id' ,'=', $users->id)
             ->get();
 
-        return view('tools.userdetails', array('user_files' => $user_files, 'user' => $users, 'userd' => $user_detailed, 'main' => $main));
+        return view('tools.userdetails', ['user_files' => $user_files, 'user' => $users, 'userd' => $user_detailed, 'main' => $main]);
     }
 
 
@@ -319,25 +333,27 @@ class AdminController extends Controller
         $main = new main();
 
         $page = Input::get('page');
-        if (!$page)
+
+        if (!$page) {
             $page = 1;
+        }
 
         $users_count = DB::table('users')->count();
         $skip = ($page - 1) * 20;
         $take = 20;
 
-        if ($page == 'all')
-        {
+        if ($page == 'all') {
             $skip = 0;
             $take = $users_count;
         }
+
         $users = DB::table('users')
             ->where('id', '>' , 0)
             ->skip($skip)
             ->take($take)
             ->get();
 
-        return view('tools.users', array('users' => $users, 'main' => $main, 'users_count' => $users_count));
+        return view('tools.users', ['users' => $users, 'main' => $main, 'users_count' => $users_count]);
     }
 
 
@@ -367,10 +383,6 @@ class AdminController extends Controller
         elseif ($input['active'] == 3) $input['active'] = 0;
         else $input['active'] = '%';
 
-//        return $input['active'];
-
-//        return $input['id'];
-
         $users = DB::table('users')
             ->where('id', '>' , 0)
             ->where('id', 'like' , '%' . $input['id'] . '%')
@@ -382,9 +394,8 @@ class AdminController extends Controller
             ->where('public', 'like' , '%' . $input['public'] . '%')
             ->where('torrent', 'like' , '%' . $input['torrent'] . '%')
             ->get();
-//        'id' => ,
 
-        return view('tools.users', array(
+        return view('tools.users', [
             'users' => $users,
             'main' => $main,
             'page' => false,
@@ -396,7 +407,7 @@ class AdminController extends Controller
             'active' => $post_back['active'],
             'public' => $post_back['public'],
             'torrent' => $post_back['torrent'],
-        ));
+        ]);
     }
 
 
