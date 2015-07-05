@@ -27,7 +27,7 @@ class UserController extends Controller {
 
     public function login()
     {
-        if (Auth::check()){
+        if (Auth::check()) {
             return Redirect::to('/');
         }
 
@@ -43,7 +43,7 @@ class UserController extends Controller {
      */
     public function postLogin(Request $request)
     {
-        if (Auth::check()){
+        if (Auth::check()) {
             return Redirect::to('/');
         }
 
@@ -179,15 +179,18 @@ class UserController extends Controller {
 	 */
     public function post_password(Request $request, $username)
     {
-        if (!(Auth::user()->username == $username || Auth::user()->role == 2))
-            return view('errors.general', array('error_title' => 'ERROR 401', 'error_message' => 'Access Denied'));
+        if (! (Auth::user()->username == $username || Auth::user()->role == 2)) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 401',
+                'error_message' => 'Access Denied']);
+        }
 
         $this->validate($request, [
             'old_password' => 'required|min:6',
             'new_password' => 'required|min:6|confirmed:new_password_confirmation',
         ]);
 
-        if (!Hash::check($request['old_password'], Auth::user()->password)){
+        if (!Hash::check($request['old_password'], Auth::user()->password)) {
             return redirect()->back()
                 ->withInput($request->only('username', 'remember', 'password'))
                 ->withErrors([
