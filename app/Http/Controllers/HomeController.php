@@ -6,14 +6,13 @@ use App\Http\Requests;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Redirect;
-use Lang;
-use Validator;
-use Auth;
-use DB;
-use Cookie;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 use aria2;
 use main;
-use Illuminate\Support\Facades\Config;
 
 
 class HomeController extends Controller

@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Auth;
-use DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Http\Request;
-use Lang;
-use aria2;
-use App\User;
-use Hash;
-use Validator;
-use main;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Config;
-use Input;
+use Illuminate\Http\Request;
+
+use App\User;
+
+use aria2;
+use main;
+
 
 class AdminController extends Controller
 {
