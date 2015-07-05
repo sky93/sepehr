@@ -18,4 +18,4 @@ Download your links to your server for local use!
 
 ###License
 
-The Sepehr is free and open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+The Sepehr is a free and open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)

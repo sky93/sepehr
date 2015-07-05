@@ -1,8 +1,10 @@
-<?php namespace App\Http\Middleware;
+<?php
+
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
-use Auth;
+
 
 class EmptyEmail {
 
@@ -33,8 +35,8 @@ class EmptyEmail {
 	 */
 	public function handle($request, Closure $next)
 	{
-		if (empty(Auth::user()->email) && $request->route()->getPath() != 'user/{username}') {
-            return redirect()->to('/user/' . Auth::user()->username . '?first');
+		if (empty($request->user()->email) && $request->route()->getPath() != 'user/{username}') {
+            return redirect()->to('/user/' . $request->user()->username . '?first');
         } else {
             return $next($request);
         }
