@@ -16,11 +16,12 @@ Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
 
-
-
 $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::get('/', 'HomeController@index');
     Route::post('/', 'HomeController@postindex');
+
+    Route::get('/home', 'HomeController@index');
+    Route::post('/home', 'HomeController@postindex');
 
     Route::get('/downloads', 'HomeController@downloads');
     Route::post('/downloads', 'HomeController@post_downloads');
@@ -83,6 +84,7 @@ $router->group(['middleware' => ['auth', 'role:2', 'empty_email']], function() {
 
     Route::get('/tools/payments', 'AdminController@payments');
 });
+
 
 Route::controllers([
     'password' => 'Auth\PasswordController',
