@@ -16,6 +16,8 @@ Route::get('/login', 'UserController@login');
 Route::post('/login', 'UserController@postLogin');
 
 
+
+
 $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::get('/', 'HomeController@index');
     Route::post('/', 'HomeController@postindex');
@@ -83,7 +85,6 @@ $router->group(['middleware' => ['auth', 'role:2', 'empty_email']], function() {
 });
 
 Route::controllers([
-    'auth' => 'Auth\AuthController',
     'password' => 'Auth\PasswordController',
 ]);
 
