@@ -21,8 +21,7 @@ class EmptyEmail {
 	 * @param  Guard  $auth
 	 * @return void
 	 */
-	public function __construct(Guard $auth)
-	{
+	public function __construct(Guard $auth) {
 		$this->auth = $auth;
 	}
 
@@ -33,8 +32,7 @@ class EmptyEmail {
 	 * @param  \Closure  $next
 	 * @return mixed
 	 */
-	public function handle($request, Closure $next)
-	{
+	public function handle($request, Closure $next)	{
 		if (empty($request->user()->email) && $request->route()->getPath() != 'user/{username}') {
             return redirect()->to('/user/' . $request->user()->username . '?first');
         } else {
