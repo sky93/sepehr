@@ -14,6 +14,8 @@ Download your links to your server for local use!
     PHP >= 5.5.9
     Python >= 2
     Aria2c >= 1.18
+    
+    Don't forget to run 'composer install'
 
 
 ###License
