@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use aria2;
 use main;
+use Torrent;
 
 
 class HomeController extends Controller
@@ -395,9 +396,160 @@ class HomeController extends Controller
 
     public function postindex(Request $request)
     {
-        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold', 'id', 'type');
+        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold', 'id', 'type', 'torrent_file_name', 't_submit_name');
 
-        if ($request->ajax() && $input['type'] == 'check'){
+        // Final Submit for torrents
+        if (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) {
+
+            $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . Auth::user()->username . '_' . $input['torrent_file_name'];
+            if (! file_exists($path)) {
+                return redirect::back()->withErrors('Couldn\'t get your request');
+            }
+            $torrent = new Torrent($path);
+
+            if (! $torrent->is_torrent($path)) {
+                return redirect::back()->withErrors('Your Torrent file is not valid!');
+            }
+
+            $torrent_size = $torrent->size();
+            if ($torrent_size < 1) {
+                return redirect::back()->withErrors('Invalid Torrent size.');
+            }
+
+            if ($torrent_size > Auth::user()->credit) {
+                return Redirect::to('/buy');
+            }
+
+            $q_credit = DB::table('download_list')
+                    ->where('user_id', '=', Auth::user()->id)
+                    ->where('deleted', '=', '0')
+                    ->where(function ($query) {
+                        $query->whereNull('state');
+                        $query->orWhere('state', '<>', '0');
+                    })
+                    ->sum('length') + $torrent_size;
+
+            if ($q_credit > Auth::user()->credit) {
+                return redirect::back()->withErrors('You have too many files in your queue. Please wait until they finish up.');
+            }
+
+            $main = new main();
+            $zip_name = $main->sanitize_filename($input['t_submit_name'] . '.zip');
+
+            $hold = $input['hold'] ? -2 : null;
+
+            DB::table('download_list')->insertGetId(
+                [
+                    'user_id' => Auth::user()->id,
+                    'link' => $path,
+                    'length' => $torrent_size,
+                    'file_name' => $zip_name,
+                    'state' => $hold,
+                    'http_user' => null,
+                    'http_password' => null,
+                    'comment' => $input['comment'],
+                    'torrent' => 1,
+                    'date_added' => date('Y-m-d H:i:s', time())
+                ]
+            );
+
+            return Redirect::to('downloads');
+
+        } elseif ($request->ajax() && $input['type'] == 'torrent') {
+
+            if (isset($_FILES[0])) {
+                $maxsize    = 5 * 1024 * 1024; //5 MB
+                $acceptable = [
+                    'application/x-bittorrent'
+                ];
+                if(($_FILES[0]['size'] >= $maxsize) || ($_FILES[0]['size'] == 0)) {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'File too large. File must be less than 5 megabytes.'
+                        ]);
+                }
+                if(! in_array($_FILES[0]['type'], $acceptable) && !empty($_FILES[0]['type']) ) {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'Invalid file type. Only Torrent files are accepted.'
+                    ]);
+                }
+
+                $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/';
+                if (!file_exists($path)) {
+                    mkdir($path, 0777, true);
+                }
+                $path .= Auth::user()->username . '_' . $_FILES[0]['name'];
+
+                move_uploaded_file($_FILES[0]['tmp_name'], $path);
+
+                $torrent = new Torrent($path);
+
+                $torrent->name();
+                $main = new main();
+
+                $new_content = [];
+                foreach($torrent->content() as $key => $value) {
+                    $key = str_replace('\\', '/', $key);
+                    $new_content[] = $key . ' (' . $main->formatBytes($value,2) . ')';
+                }
+
+                $paths = $new_content;
+                sort($paths);
+                $array = [];
+                foreach ($paths as $path) {
+                    $path = trim($path, '/');
+                    $list = explode('/', $path);
+                    $n = count($list);
+
+                    $arrayRef = &$array; // start from the root
+                    for ($i = 0; $i < $n; $i++) {
+                        $key = $list[$i];
+                        $arrayRef = &$arrayRef[$key]; // index into the next level
+                    }
+                }
+
+                $GLOBALS['rec'] = '{ "core" : { "data" : [';
+                function rec ($array) {
+                    $c = count($array);
+                    foreach ($array as $key => $value) {
+                        if (is_array($value)) {
+                            $GLOBALS['rec'] .= '{"text": "' . $key . '"';
+                            $GLOBALS['rec'] .= ', "children": [';
+                                rec($value);
+                            $GLOBALS['rec'] .= ']}';
+                        } else {
+                            $GLOBALS['rec'] .= '"' . $key . '"';
+                            $c--;
+                            if($c) $GLOBALS['rec'] .= ",";
+                        }
+                    }
+                }
+                rec($array);
+                $GLOBALS['rec'] .= ']}}';
+                $JSTreeContent = $GLOBALS['rec'];
+                unset($GLOBALS['rec']);
+
+                return response()->json([
+                    'result' => 'ok',
+                    'size' => $main->formatBytes($torrent->size(), 1) ,
+                    'name' =>  $torrent->name(),
+                    'file_name' => $_FILES[0]['name'],
+                    'hash' => $torrent->hash_info(),
+                    'comment' => $torrent->comment(),
+                    'piece_length' => $main->formatBytes($torrent->piece_length(),3),
+                    'content' => $JSTreeContent
+                ]);
+
+
+            } else {
+                return response()->json([
+                'result' => 'error',
+                'message' => 'Nothing uploaded to the server.'
+            ]);
+            }
+
+        } elseif ($request->ajax() && $input['type'] == 'check') {
             $v = Validator::make(
                 $input,
                 [
@@ -474,10 +626,6 @@ class HomeController extends Controller
                     return redirect::back()->withErrors($message);
                 }
             }
-//            $this->validate($request, [
-//                'link' => 'required|url',
-//                'comment' => 'max:140'
-//            ]);
 
 
             if ($input['http_auth']) {
@@ -502,10 +650,6 @@ class HomeController extends Controller
                     }
 
                 }
-//            $this->validate($request, [
-//                'http_username' => 'required|max:64',
-//                'http_password' => 'required|max:64'
-//            ]);
             }
 
             if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
@@ -541,6 +685,7 @@ class HomeController extends Controller
             $filename = $url_inf['filename'];
 
             if ($url_inf['status'] != 200) {
+                if (empty($url_inf['status'])) $url_inf['status'] = "N/A";
                 if ($request->ajax()) {
                     return response()->json([
                         'type' => 'error',
@@ -633,17 +778,17 @@ class HomeController extends Controller
 //                'queue_credit' => $q_credit
 //            ]);
 
-            $hold = $input['hold'] ? -2 : NULL;
+            $hold = $input['hold'] ? -2 : null;
 
             if ($input['http_auth']) {
                 $http_user = $input['http_username'];
                 $http_pass = $input['http_password'];
             } else {
-                $http_user = $http_pass = NULL;
+                $http_user = $http_pass = null;
             }
 
             DB::table('download_list')->insertGetId(
-                array(
+                [
                     'user_id' => Auth::user()->id,
                     'link' => $url_inf['location'],
                     'length' => $fileSize,
@@ -652,7 +797,9 @@ class HomeController extends Controller
                     'http_user' => $http_user,
                     'http_password' => $http_pass,
                     'comment' => $input['comment'],
-                )
+                    'torrent' => 0,
+                    'date_added' => date('Y-m-d H:i:s', time())
+                ]
             );
 
             if ($request->ajax()) {

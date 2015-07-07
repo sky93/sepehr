@@ -70,7 +70,8 @@ $torrent->send();
  * @version  Release: 1.2 (6 july 2010)
  */
 
-class Torrent {
+class Torrent
+{
 
     /**
      * @const float Default http timeout

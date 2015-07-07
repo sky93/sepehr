@@ -2,7 +2,10 @@
 
 @section('content')
     <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
+    <link href="{{ asset('/css/jstree/style.min.css') }}" rel="stylesheet">
     <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
+    <script src="{{ asset('/js/torrent.js') }}"></script>
+    <script src="{{ asset('/js/jstree.min.js') }}"></script>
     <script>
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
@@ -241,12 +244,128 @@
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="torrent_tab">
                                         <br />
-                                        Please select your <kbd>.torrent</kbd> file...<br /><br />
-                                        <input type="file">
-
                                         @if(Auth::user()->torrent != 1)
                                             <br/>
                                             <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>
+                                        @else
+                                            <div id="torrent_res_div">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <span class="pull-right">Torrent Name :</span>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <strong><kbd id="t_name"></kbd></strong>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <span class="pull-right">Torrent Size :</span>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <strong><kbd id="t_size"></kbd></strong>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <span class="pull-right">Comment :</span>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <strong><kbd id="t_comment"></kbd></strong>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <span class="pull-right">Hash Info :</span>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <strong><kbd id="t_hash"></kbd></strong>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <span class="pull-right">Piece Length :</span>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <strong><kbd id="t_pl"></kbd></strong>
+                                                    </div>
+                                                </div>
+                                                <br /><br />
+                                                <div id="jstree_demo_div"></div>
+                                                <br />
+
+
+
+
+
+
+                                                <form id="torrent_submit_form" class="form-horizontal" method="POST" action="">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                    <input type="hidden" id="torrent_file_name" name="torrent_file_name" value="">
+                                                        <fieldset>
+                                                            {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
+                                                            <br/><br/>
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="t_submit_name">Torrent Name</label>
+                                                                <div class="col-md-8 pull-left">
+                                                                    <input id="t_submit_name" name="t_submit_name" type="text" class="form-control input-md" required="">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
+                                                                <div class="col-md-5">
+                                                                    <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="t_submit_comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="hold"></label>
+                                                                <div class="col-md-3">
+                                                                    <div class="checkbox">
+                                                                        <label for="hold">
+                                                                            <input type="checkbox" name="hold" id="hold" value="1">
+                                                                            {{ Lang::get('messages.http.hold') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="transload"></label>
+                                                                <div class="col-md-1">
+                                                                    <button id="transload" name="t_transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+
+                                                </form>
+
+
+
+
+
+                                            </div>
+                                            <div id="torrent_div">
+                                                <form id="torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                    <fieldset>
+                                                        <br/>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="torrent_file_upload">Torrent File Name: </label>
+                                                            <div class="col-md-8 pull-left">
+                                                                <input id="torrent_upload_form_files" name="torrent_file_upload" type="file" class="input-file" required="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="submit"></label>
+                                                            <div class="col-md-1">
+                                                                <button id="torrent_upload_form_submit" name="submit" class="btn btn-primary"><i class="fa fa fa-check"></i> Get Info</button>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                    <br />
+                                                </form>
+                                            </div>
                                         @endif
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="check_tab">
@@ -363,6 +482,8 @@
 
             $('#linksres_div').hide();
             $('#checkres_div').hide();
+            $('#torrent_res_div').hide();
+
 
             $("#frm_multi").submit(function (event) {
                 event.preventDefault();
