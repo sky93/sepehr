@@ -335,17 +335,18 @@ class HomeController extends Controller
 
     public function post_downloads(Request $request)
     {
-        if (Auth::user()->role == 2) //Admins need to see all downloads + username
+        if (Auth::user()->role == 2) { //Admins need to see all downloads + username
             $users = DB::table('download_list')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
                 ->get();
-        else
+        } else {
             $users = DB::table('download_list')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('user_id', '=', Auth::user()->id)
                 ->where('deleted', '=', 0)
                 ->get();
+        }
 
         $aria2 = new aria2();
         $main = new main();
@@ -359,32 +360,29 @@ class HomeController extends Controller
                 $result = null;
             }
 
-            if (isset($result["completedLength"]))
-            {
-                $downloaded_size = $result["completedLength"];
+            if (isset($result['completedLength'])) {
+                $downloaded_size = $result['completedLength'];
             }
 
-            if ($downloaded_size == 0)
-            {
+            if ($downloaded_size == 0) {
                 $downloaded_size = $file->completed_length;
             }
 
-            if (isset($result['downloadSpeed']))
-            {
+            if (isset($result['downloadSpeed'])) {
                 $speed_bytes = $result['downloadSpeed'];
                 $downloaded_speed = $main->formatBytes($speed_bytes, 0) . '/s';
                 $downloaded_speed_kb = round($speed_bytes/1024);
             }
 
-            if ($file->state != -1)
-            {
-                if ($file->state == NULL)
+            if ($file->state != -1) {
+                if ($file->state == null)
                     $downloaded_speed = 'In queue';
                 elseif ($file->state == -2)
                     $downloaded_speed = 'Paused';
                 else
-                    $downloaded_speed = (($file->state === NULL) ? ('waiting...') : ('Error (' . $file->state . ')'));
+                    $downloaded_speed = (($file->state === null) ? ('waiting...') : ('Error (' . $file->state . ')'));
             }
+
             $json[$file->id] = [
                 'speed' => $downloaded_speed,
                 'dled_size' => $main->formatBytes($downloaded_size,1),
@@ -392,6 +390,7 @@ class HomeController extends Controller
                 'speed_kb' => $downloaded_speed_kb
             ];
         }
+
         return response()->json($json);
     }
 
