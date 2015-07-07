@@ -353,6 +353,7 @@ class HomeController extends Controller
 
         $json = [];
         foreach ($users as $file){
+            $status = 1;
             $downloaded_speed_kb = $downloaded_speed = $downloaded_size = 0;
             if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"])) {
                 $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
@@ -375,15 +376,19 @@ class HomeController extends Controller
             }
 
             if ($file->state != -1) {
-                if ($file->state == null)
+                if ($file->state == null) {
                     $downloaded_speed = 'In queue';
-                elseif ($file->state == -2)
+                } elseif ($file->state == -2) {
                     $downloaded_speed = 'Paused';
-                else
-                    $downloaded_speed = (($file->state === null) ? ('waiting...') : ('Error (' . $file->state . ')'));
+                    $status = 2;
+                } else {
+                    $downloaded_speed = 'Error (' . $file->state . ')';
+                    $status = 3;
+                }
             }
 
             $json[$file->id] = [
+                'status' => $status,
                 'speed' => $downloaded_speed,
                 'dled_size' => $main->formatBytes($downloaded_size,1),
                 'pprog' => round($downloaded_size/$file->length*100,0) . '%',

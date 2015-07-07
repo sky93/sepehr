@@ -68,8 +68,8 @@
                                     <td id="dled">{{ $main->formatBytes($downloaded_size,1) }}</td>
                                     <td>{{ $main->formatBytes($file->length,1) }}</td>
                                     <td  style="vertical-align:top !important;">
-                                        <div class="progress progress_dl">
-                                            <div id="prog" class="progress-bar progress-bar-custom" role="progressbar"
+                                        <div class="progress progress_dl"  >
+                                            <div id="prog" class="progress-bar progress-bar-success" role="progressbar"
                                                  aria-valuenow="0" aria-valuemin="0"
                                                  aria-valuemax="100"
                                                  style="width: {{  round($downloaded_size/$file->length*100,0) }}%">
@@ -90,7 +90,7 @@
                                 </td>
                                 <td  style="vertical-align:top !important;">
                                     <div class="progress progress_dl">
-                                        <div id="totalProg" class="progress-bar progress-bar-custom" role="progressbar"
+                                        <div id="totalProg" class="progress-bar progress-bar-info" role="progressbar"
                                              aria-valuenow="0" aria-valuemin="0"
                                              aria-valuemax="100"
                                              style="width: 0%">
@@ -148,7 +148,13 @@
                             activeDownloads.push(index);
                             $('#r-' + index + ' #speed').html(jsonObject.speed);
                             $('#r-' + index + ' #dled').html(jsonObject.dled_size);
-                            $('#r-' + index + ' #prog').attr('style', 'width:' + jsonObject.pprog);
+                            var prg = $('#r-' + index + ' #prog').attr('style', 'width:' + jsonObject.pprog);
+                            if (jsonObject.status == 1)
+                                prg.attr('class', 'progress-bar progress-bar-success');
+                            if (jsonObject.status == 2)
+                                prg.attr('class', 'progress-bar progress-bar-warning');
+                            if (jsonObject.status == 3)
+                                prg.attr('class', 'progress-bar progress-bar-danger');
                         });
                         files_count = files_count ? files_count : 0;
                         $('#totalProg').attr('style', 'width:' + totalSpeed_p / files_count + '%');
