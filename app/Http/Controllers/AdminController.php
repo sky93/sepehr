@@ -424,6 +424,7 @@ class AdminController extends Controller
                 ->where('download_list.id', '>' , 0)
                 ->where('deleted', '=' , 0)
                 ->where('state', '=' , 0)
+                ->orderBy('id','DEC')
                 ->get();
 
             return view('tools.all_files', ['files' => $files, 'main' => $main]);
