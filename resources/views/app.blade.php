@@ -25,7 +25,7 @@ if (!Auth::guest()){
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
     {{--<link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">--}}
     <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/main.css?v=3') }}" rel="stylesheet">
+    <link href="{{ asset('/css/main.css?v=5') }}" rel="stylesheet">
     <link href="{{ asset('/favicon.ico?v=1') }}" type="image/x-icon" rel="favicon">
     <link href="{{ asset('/css/toastr.min.css') }}" rel="stylesheet">
 

@@ -92,10 +92,10 @@ body {
     font-family: "Varela Round", Tahoma, Arial, sans-serif;
 }
 
+
 .pace {
     -webkit-pointer-events: none;
     pointer-events: none;
-
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
@@ -105,10 +105,8 @@ body {
     display: none;
 }
 
-
-
 .pace .pace-progress {
-    background: #777;
+    background: #777777;
     position: fixed;
     z-index: 2000;
     top: 0;
@@ -117,12 +115,64 @@ body {
     height: 2px;
 }
 
-/*Firefox fix for showing Left Credit in dropdown menu*/
+.pace .pace-progress-inner {
+    display: block;
+    position: absolute;
+    right: 0px;
+    width: 100px;
+    height: 100%;
+    box-shadow: 0 0 10px #777777, 0 0 5px #777777;
+    opacity: 1.0;
+    -webkit-transform: rotate(3deg) translate(0px, -4px);
+    -moz-transform: rotate(3deg) translate(0px, -4px);
+    -ms-transform: rotate(3deg) translate(0px, -4px);
+    -o-transform: rotate(3deg) translate(0px, -4px);
+    transform: rotate(3deg) translate(0px, -4px);
+}
+
+.pace .pace-activity {
+    display: block;
+    position: fixed;
+    z-index: 2000;
+    top: 15px;
+    right: 15px;
+    width: 14px;
+    height: 14px;
+    border: solid 2px transparent;
+    border-top-color: #777777;
+    border-left-color: #656565;
+    border-radius: 10px;
+    -webkit-animation: pace-spinner 400ms linear infinite;
+    -moz-animation: pace-spinner 400ms linear infinite;
+    -ms-animation: pace-spinner 400ms linear infinite;
+    -o-animation: pace-spinner 400ms linear infinite;
+    animation: pace-spinner 400ms linear infinite;
+}
+
+@-webkit-keyframes pace-spinner {
+    0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+}
+@-moz-keyframes pace-spinner {
+    0% { -moz-transform: rotate(0deg); transform: rotate(0deg); }
+    100% { -moz-transform: rotate(360deg); transform: rotate(360deg); }
+}
+@-o-keyframes pace-spinner {
+    0% { -o-transform: rotate(0deg); transform: rotate(0deg); }
+    100% { -o-transform: rotate(360deg); transform: rotate(360deg); }
+}
+@-ms-keyframes pace-spinner {
+    0% { -ms-transform: rotate(0deg); transform: rotate(0deg); }
+    100% { -ms-transform: rotate(360deg); transform: rotate(360deg); }
+}
+@keyframes pace-spinner {
+    0% { transform: rotate(0deg); transform: rotate(0deg); }
+    100% { transform: rotate(360deg); transform: rotate(360deg); }
+}
+
 .dropdown-menu > li > a {
     white-space: normal;
 }
-
-
 
 .panel.with-nav-tabs .panel-heading{
     padding: 5px 5px 0 5px;
@@ -133,8 +183,6 @@ body {
 .panel.with-nav-tabs .nav-justified{
     margin-bottom: -1px;
 }
-/********************************************************************/
-/*** PANEL DEFAULT ***/
 .with-nav-tabs.panel-default .nav-tabs > li > a,
 .with-nav-tabs.panel-default .nav-tabs > li > a:hover,
 .with-nav-tabs.panel-default .nav-tabs > li > a:focus {
@@ -174,8 +222,7 @@ body {
     color: #fff;
     background-color: #555;
 }
-/********************************************************************/
-/*** PANEL PRIMARY ***/
+
 .with-nav-tabs.panel-primary .nav-tabs > li > a,
 .with-nav-tabs.panel-primary .nav-tabs > li > a:hover,
 .with-nav-tabs.panel-primary .nav-tabs > li > a:focus {
@@ -337,8 +384,7 @@ body {
     color: #fff;
     background-color: #8a6d3b;
 }
-/********************************************************************/
-/*** PANEL DANGER ***/
+
 .with-nav-tabs.panel-danger .nav-tabs > li > a,
 .with-nav-tabs.panel-danger .nav-tabs > li > a:hover,
 .with-nav-tabs.panel-danger .nav-tabs > li > a:focus {
