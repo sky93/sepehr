@@ -127,7 +127,7 @@ def main():
     dbConnection.begin();
     
     dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password FROM download_list
-                                  WHERE state is null and deleted = 0
+                                  WHERE state is null and deleted = 0 and torrent = 0
                                   GROUP BY user_id
                                   ORDER BY id
                                """ );
@@ -243,7 +243,7 @@ def main():
                         dlListFetchCursor = dbConnection.cursor();
                         dbConnection.begin();
                         dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password FROM download_list
-                                                      WHERE state is null and deleted = 0
+                                                      WHERE state is null and deleted = 0 and torrent = 0
                                                       GROUP BY user_id
                                                       ORDER BY id
                                                    """ );
