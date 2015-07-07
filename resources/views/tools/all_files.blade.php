@@ -12,18 +12,20 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">
-                                <table class="users dl-list table table-hover table-bordered enFonts table-striped tableCenter">
+                                <table style="table-layout: fixed" class="users dl-list table table-hover table-bordered enFonts table-striped tableCenter">
                                     <thead>
                                     <tr class="warning">
-                                        <th>@lang('messages.id')</th>
+                                        <th style="width: 5%">@lang('messages.id')</th>
                                         <th >@lang('messages.username')</th>
-                                        <th >@lang('messages.file.name')</th>
+                                        <th style="width: 35%">@lang('messages.file.name')</th>
                                         <th style="width: 12%">@lang('messages.size')</th>
                                         <th style="width: 12%">@lang('messages.date')</th>
                                         @if(Config::get('leech.auto_delete'))
                                         <th style="width: 7%">@lang('messages.delete_in')</th>
                                         @endif
+                                        @if (! isset($_GET['showall']) || (isset($_GET['showall']) && $_GET['showall'] == 0))
                                         <th>@lang('messages.status')</th>
+                                        @endif
                                         <th>@lang('messages.comments')</th>
                                         <th style="width: 85px">@lang('messages.details')</th>
                                     </tr>
@@ -52,6 +54,7 @@
                                                 <td>{{ $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) < 0 ? 'Deleted' : $main->hours2day(Config::get('leech.auto_delete_time') - ((time() - strtotime($file->date_completed))/60/60)) }}</td>
                                                 @endif
                                             @endif
+                                            @if (! isset($_GET['showall']) || (isset($_GET['showall']) && $_GET['showall'] == 0))
                                             @if($file->state == -3 || $file->deleted==1)
                                                 <td>Deleted</td>
                                             @elseif($file->state === null)
@@ -64,6 +67,7 @@
                                                 <td>Finished</td>
                                             @else
                                                 <td>Error</td>
+                                            @endif
                                             @endif
                                             <td>{{ $file->comment }}</td>
                                             <td>
