@@ -91,7 +91,7 @@
                                                 <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                             </td>
                                             <td>{{ $main->formatBytes($file->length,1) }}</td>
-                                            <td><time class="timeago" datetime="{{ date( 'c', strtotime( $file->date_added ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</time></td>
+                                            <td><time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $file->date_added ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</time></td>
                                             @if(Config::get('leech.auto_delete'))
                                                 @if($file->keep)
                                                 <td>Never</td>
@@ -146,7 +146,6 @@
 
     <script>
         $(document).ready(function() {
-            $("time.timeago").timeago();
             $('#copy').click(function (e) {
                 e.preventDefault();
                 //$("#list").find('span[id^="id_"]').each(function(index) {
@@ -186,7 +185,7 @@
                 check = !check;
             });
 
-
+            $("time.timeago").timeago();
         });
     </script>
 @endsection

@@ -39,7 +39,7 @@
                                         <td>{{ $track->credit }} GB</td>
                                         <td><kbd>{{ $track->RefId }}</kbd></td>
                                         <td {{ ($track->settleResponse !== null  && $track->settleResponse == 0) ? 'class=success' : 'class=danger' }}>{{ ($track->settleResponse !== null  && $track->settleResponse == 0) ? 'YES' : 'NO' }}</td>
-                                        <td>{{ date( 'd/m/Y H:i', strtotime( $track->pay_time ) ) }}</td>
+                                        <td><time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $track->pay_time ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $track->pay_time ) ) }}</time></td>
                                     </tr>
                                 @endforeach
                                 <tr style="font-size: 17px">
@@ -65,4 +65,8 @@
         </div>
     </div>
 </div>
+<script>   $(document).ready(function() {
+        $("time.timeago").timeago();
+    });
+</script>
 @endsection

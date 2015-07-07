@@ -39,7 +39,7 @@
                                                 <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                             </td>
                                             <td>{{ $main->formatBytes($file->length) }}</td>
-                                            <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
+                                            <td><time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $file->date_added ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</time></td>
                                             <td>{{ $file->comment }}</td>
                                         </tr>
                                     @endforeach
@@ -51,5 +51,9 @@
             </div>
         </div>
     </div>
-
+    <script>
+    $(document).ready(function() {
+    $("time.timeago").timeago();
+    });
+    </script>
 @endsection

@@ -77,7 +77,7 @@
                                         </div>
                                     </td>
                                     <td id="speed">{{ $downloaded_speed }}</td>
-                                    <td>{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
+                                    <td><time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $file->date_added ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</time></td>
                                         <td>
                                             <a style="width: 100%; padding:0 5px 0 5px; margin-bottom: 1px;" href="{{ url('/files/' . $file->id) }}" class="btn btn-sm btn-primary"><i class="fa fa-info"></i> @lang('messages.details') </a>
                                         </td>
@@ -187,6 +187,10 @@
                     }
                 });
             }, 1000);
+        });
+
+        $(document).ready(function() {
+            $("time.timeago").timeago();
         });
     </script>
 @endsection
