@@ -36,6 +36,7 @@ class HomeController extends Controller
             ->where('public', '=', 1)
             ->where('state', '=', 0)
             ->where('deleted', '=', 0)
+            ->orderBy('date_added', 'DESC')
             ->get();
 
         return view('public_list', ['files' => $users, 'main' => $main]);
@@ -49,6 +50,7 @@ class HomeController extends Controller
             ->where('user_id', Auth::user()->id)
             ->where('state', 0)
             ->where('deleted', 0)
+            ->orderBy('date_added', 'DESC')
             ->get();
 
         return view('files_list', ['files' => $users, 'main' => $main]);
@@ -310,18 +312,20 @@ class HomeController extends Controller
         $main = new main();
         if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
 
-        if (Auth::user()->role == 2) { //Admins need to see all downloads + username
+        if (Auth::user()->role == 2) { //Admins need to see all downloads + usernames
             $users = DB::table('download_list')
-                ->join('users', 'download_list.user_id', '=', 'users.id')
+                ->leftjoin('users', 'download_list.user_id', '=', 'users.id')
                 ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('deleted', '=', 0)
+                ->orderBy('date_added', 'DESC')
                 ->get();
         } else {
-            $users = DB::table('download_list')
+            $users = DB::table('download_list') //Normal users just see their downloads
                 ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('user_id', '=', Auth::user()->id)
                 ->where('deleted', '=', 0)
+                ->orderBy('date_added', 'DESC')
                 ->get();
         }
 

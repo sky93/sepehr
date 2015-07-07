@@ -148,7 +148,6 @@
         $(document).ready(function() {
             $('#copy').click(function (e) {
                 e.preventDefault();
-                //$("#list").find('span[id^="id_"]').each(function(index) {
                 var links = '';
                 $('td input[id^="file_"]:checked').each(function (index) {
                     //this.id = "id_" + (index + 1);
