@@ -64,7 +64,7 @@ if (!Auth::guest()){
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" rel="home" href="{{ asset('') }}" title="@lang('messages.slogan')"><img style="max-width:50px; margin-top: -17px; margin-right: -10px" src="{{ asset('/img/logo_small.png') }}"></a>
-                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">{{ env('MAIN_TITLE', 'Aria Leecher') }}</a>
+                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">{{ env('APP_NAME', 'SEPEHR') }}</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
