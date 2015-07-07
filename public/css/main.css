@@ -49,10 +49,11 @@ body {
     margin: 10px 0;
 }
 .progress_dl {
-    top: 20px!important;
-    margin-bottom: -30px!important;
-    background: rgba(245, 245, 245, 1); border: 0px solid rgba(245, 231, 231, 1); border-radius: 3px; height: 10px!important;}
-.progress-bar-custom {background: rgba(65, 201, 119, 1); background: -webkit-linear-gradient(top, rgba(23, 153, 29, 1) 0%, rgba(65, 201, 119, 1) 100%); background: linear-gradient(to bottom, rgba(23, 153, 29, 1) 0%, rgba(65, 201, 119, 1) 100%);}
+    /*top: 20px!important;*/
+    margin-bottom: -40px!important;
+   // background: rgba(245, 245, 245, 1); border: 0 solid rgba(245, 231, 231, 1); border-radius: 20px; height: 17px!important;
+}
+
 
 .dl-list, .dl-list thead tr th, .dl-list tr td {
     text-align: center;
