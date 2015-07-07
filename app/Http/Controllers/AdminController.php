@@ -417,6 +417,18 @@ class AdminController extends Controller
     {
         $main = new main();
 
+        if (Input::get('showall') == 1) {
+            $files = DB::table('download_list')
+                ->leftJoin('users', 'users.id', '=', 'download_list.user_id')
+                ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
+                ->where('download_list.id', '>' , 0)
+                ->where('deleted', '=' , 0)
+                ->where('state', '=' , 0)
+                ->get();
+
+            return view('tools.all_files', ['files' => $files, 'main' => $main]);
+        }
+
         $page = Input::get('page');
         if (!$page)
             $page = 1;

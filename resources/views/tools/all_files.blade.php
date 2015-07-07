@@ -35,14 +35,14 @@
                                                 <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->first_name . ' ' . $file->last_name }}</a>
                                             </td>
                                             <td>
-                                                @if ($file->state == 0 && $file->deleted == 0 && $file->state != null)
+                                                @if ($file->state == 0 && $file->deleted == 0 && $file->state !== null)
                                                 <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                                 @else
                                                 {{ $file->file_name }}
                                                 @endif
                                             </td>
                                             <td>{{ $main->formatBytes($file->completed_length,1) }}/{{ $main->formatBytes($file->length,1) }}</td>
-                                            <td>{{  date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</td>
+                                            <td><time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $file->date_added ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</time></td>
                                             @if(Config::get('leech.auto_delete'))
                                                 @if($file->keep)
                                                 <td>Never</td>
@@ -54,7 +54,7 @@
                                             @endif
                                             @if($file->state == -3 || $file->deleted==1)
                                                 <td>Deleted</td>
-                                            @elseif($file->state == null)
+                                            @elseif($file->state === null)
                                                 <td>In queue</td>
                                             @elseif($file->state == -1)
                                                 <td>Downloading</td>
@@ -72,17 +72,36 @@
                                         </tr>
                                     @endforeach
                                 </table>
+                                @if (! isset($_GET['showall']) || (isset($_GET['showall']) && $_GET['showall'] == 0))
                                 <div style="width: 100%;  text-align: center;">
                                     <ul id="page" style="display: table; margin: 0 auto;" class="pagination-sm pagination-demo"></ul>
                                 </div>
+                                @endif
                                 <script>
+                                    $(document).ready(function() {
+                                        $("time.timeago").timeago();
+                                    });
+                                    @if (! isset($_GET['showall']))
                                     $('.pagination-demo').twbsPagination({
                                         totalPages: {{ ceil ($files_count / 20) }},
                                         visiblePages: 10,
                                         href: <?= "'?page={{number}}#page'" ?>
                                     });
+                                    @endif
                                 </script>
                             </div>
+                            <br >
+                            @if (! isset($_GET['showall']) || (isset($_GET['showall']) && $_GET['showall'] == 0))
+                                <div align="center">
+                                    <a class="btn btn-warning" href="?showall=1"><i class="fa fa-sort-alpha-asc"></i> Show All Files Available On Disk</a>
+                                </div>
+                            @else
+                                <div align="center">
+                                    <a class="btn btn-warning" href="?showall=0"><i class="fa fa-arrow-left"></i> Go Back</a>
+                                </div>
+                            @endif
+
+
                         </div>
                     </div>
                 </div>
