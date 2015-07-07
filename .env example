@@ -1,0 +1,39 @@
+APP_ENV=local
+APP_DEBUG=true
+APP_KEY=RANDOM_KEY!
+
+APP_NAME=Sepehr
+APP_TITLE=Sepehr Leecher
+FOOTER_TEXT=Sepehr
+FOOTER_LINK=https://github.com/be4ev/sepehr
+VERSION=2.0.0 (Nightly Build: 070720151)
+
+DB_HOST=localhost
+DB_DATABASE=leech
+DB_USERNAME=DB_username
+DB_PASSWORD=DB_password
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_DRIVER=sync
+
+MAIL_DRIVER=smtp
+MAIL_HOST=Mail_host
+MAIL_PORT=587
+MAIL_USERNAME=mail_username
+MAIL_PASSWORD=mail_password
+EMAIL_TITLE=Sepehr System
+
+GA=UA-60769821-1
+
+NOCAPTCHA_SECRET=Google Recaptcha
+NOCAPTCHA_SITEKEY=Google Recaptcha
+
+BANK_URL=Bank main payment url
+SOAP_CLIENT=bank soap client
+NAMESPACE=bank namespace
+TERMINAL_ID=your terminal ID
+BANK_USERNAME=username
+BANK_PASSWORD=password
+BANK_LOGO=/img/YourbankLOGO.png
+CURRENCY=dollar
