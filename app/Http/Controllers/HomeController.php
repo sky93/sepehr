@@ -404,10 +404,101 @@ class HomeController extends Controller
 
     public function postindex(Request $request)
     {
-        $input = $request->only('link', 'http_auth', 'http_username', 'http_password', 'comment', 'hold', 'id', 'type', 'torrent_file_name', 't_submit_name');
+        $input = $request->only(
+            'link',
+            'http_auth',
+            'http_username',
+            'http_password',
+            'comment',
+            'hold',
+            'id',
+            'type',
+            'torrent_file_name',
+            't_submit_name',
+            'fetch_filter'
+        );
 
-        // Final Submit for torrents
-        if (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) {
+        if ($request->ajax() && $input['type'] == 'fetch') {
+
+            $v = Validator::make(
+                $input,
+                [
+                    'link' => 'required|url'
+                ]
+            );
+            if ($v->fails()) {
+                return response()->json([
+                    'result' => 'error',
+                    'message' => 'Link is invalid.'
+                ]);
+            }
+
+            //echo $html = file_get_contents($input['link']);
+
+            //get_headers($input['link'], 1)
+
+            $main = new main();
+            $link = $main->get_info($input['link']);
+           // echo $link['content_type'];
+           // print_r($link['full_headers']['content-type']);
+
+            if (isset($link['full_headers']['content-type'])){
+                if (is_array($link['full_headers']['content-type'])) {
+                    $contet_type = $link['full_headers']['content-type'][count($link['full_headers']['content-type']) - 1];
+                }else{
+                    $contet_type = $link['full_headers']['content-type'];
+                }
+
+                if (strpos($contet_type, 'text/') === false) {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'Not a valid HTML link.'
+                    ]);
+                }
+            }else{
+                return response()->json([
+                    'result' => 'error',
+                    'message' => 'Not a valid HTML link.'
+                ]);
+            }
+
+            $html = file_get_contents($input['link']);
+            $pattern = '`.*?((http|https)://[\w#$&+,\/:;=?@.-]+)[^\w#$&+,\/:;=?@.-]*?`i';
+
+            $links = [];
+            if (preg_match_all($pattern,$html,$matches)) {
+                foreach($matches[1] as $url) {
+                    if ($input['fetch_filter'] == '' || strpos($url, $input['fetch_filter']) !== false) {
+                        $links[] = $url;
+                    }
+                }
+
+                if (count($links)) {
+                    return response()->json([
+                        'result' => 'ok',
+                        'links' => $links
+                    ]);
+                } else {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'No links found with the provided filter :('
+                    ]);
+                }
+
+            }else{
+                return response()->json([
+                    'result' => 'error',
+                    'message' => 'Could not find any link.'
+                ]);
+            }
+
+
+
+
+
+
+
+        }elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents
 
             $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . Auth::user()->username . '_' . $input['torrent_file_name'];
             if (! file_exists($path)) {

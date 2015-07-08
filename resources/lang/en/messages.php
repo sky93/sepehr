@@ -140,6 +140,10 @@ return [
     'lastname'              => 'Last name',
     'email'                 => 'Email',
     'settle'                => 'Settle',
+    'fetch'                 => 'URL to fetch',
+    'fetch.place.holder'    => 'Fetch all links in this URL',
+    'filter'                => 'Filter',
+    'find.all.matches'      => 'Find all matches',
     'valid_email'           => "Before using, you have to enter your valid E-mail address. We're not responsible for invalid E-mail accounts.",
     'check_link_desc'       => 'Use this feature to see whether a link is downloadable or not. Checking a link does not affect your credit amount.',
 

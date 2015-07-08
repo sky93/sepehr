@@ -159,11 +159,41 @@
                                             </div>
                                         </div>
                                         <div id="links_div">
+                                            <br /><br />
+                                            <form id="frm_fetch" class="form-horizontal" method="POST" action="">
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                <fieldset>
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label"
+                                                               for="link">{{ Lang::get('messages.fetch') }}</label>
+                                                        <div class="col-md-8 pull-left">
+                                                            <input id="fetch_link" name="link" type="text" placeholder="{{ Lang::get('messages.fetch.place.holder') }}" class="form-control input-md" required="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label"
+                                                               for="fetch_filter">{{ Lang::get('messages.filter') }}</label>
+                                                        <div class="col-md-5 pull-left">
+                                                            <input style="font-family: 'Courier New'" id="fetch_filter" name="fetch_filter" type="text" placeholder=".mp4" value=".mp4" class="form-control input-md">
+                                                            <span style="word-break: break-all;" class="help-block">Search for all links in the URL<span id="empty_filter"> that contains <kbd id="f_help">.mp4</kbd></span>.</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="fetch_submit"></label>
+                                                        <div class="col-md-1">
+                                                            <button id="fetch_submit" name="fetch_submit" class="btn btn-success btn-sm"><i class="fa fa-search"></i> {{ Lang::get('messages.find.all.matches') }}</button>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </form>
+
+                                            <hr />
+
                                             <form id="frm_multi" class="form-horizontal" method="POST" action="" novalidate="">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <fieldset>
                                                 {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
-                                                <br/><br/>
+                                                <br/>
                                                 <script type="text/javascript">
                                                     $(document).ready(function () {
                                                         $('#http_auth_multi').click(function () {
@@ -174,7 +204,7 @@
 
                                                 <div class="form-group">
                                                     <label class="col-md-3 control-label"
-                                                           for="link">{{ Lang::get('messages.links.to.transload') }}</label>
+                                                           for="links">{{ Lang::get('messages.links.to.transload') }}</label>
                                                     <div class="col-md-8">
                                                             <textarea style="max-width: 486px; max-height: 500px; min-height: 100px" class="form-control" id="links" name="links" wrap="off" placeholder="{{ Lang::get('messages.links') }}"></textarea>
                                                     </div>
