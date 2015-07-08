@@ -48,6 +48,9 @@ $router->group(['middleware' => ['auth', 'empty_email']], function() {
     Route::post('buy', 'PaymentController@post_credit_buy');
 
     Route::get('user/{username}/payments/history', 'PaymentController@payment_history');
+
+    Route::get('/ping', 'HomeController@redirect_ping');
+    Route::post('/ping', 'HomeController@ping');
 });
 
 $router->group(['middleware' => 'auth'], function() {

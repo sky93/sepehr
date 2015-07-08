@@ -168,6 +168,8 @@
                                                                for="link">{{ Lang::get('messages.fetch') }}</label>
                                                         <div class="col-md-8 pull-left">
                                                             <input id="fetch_link" name="link" type="text" placeholder="{{ Lang::get('messages.fetch.place.holder') }}" class="form-control input-md" required="">
+                                                            <span style="word-break: break-all;" class="help-block">Example: <kbd>https://class.coursera.org/machlearning-001/lecture</kbd></span>
+
                                                         </div>
                                                     </div>
                                                     <div class="form-group">

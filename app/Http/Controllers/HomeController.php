@@ -19,6 +19,42 @@ use Torrent;
 class HomeController extends Controller
 {
     /**
+     * Redirect get requests of ping route to /
+     *
+     */
+    public function redirect_ping ()
+    {
+        return Redirect::to('/');
+    }
+
+
+
+    /**
+     * Updates online users
+     *
+     */
+    public function ping (Request $request)
+    {
+        if ($request->ajax() && $request['ping'] == true) {
+            DB::table('users')
+                ->where('id', Auth::user()->id)
+                ->update([
+                    'last_seen' => date('Y-m-d H:i:s', time())
+                ]);
+
+                return response()->json([
+                    'r' => 'k',
+                ]);
+        }
+
+        return response()->json([
+            'r' => 'n',
+        ]);
+
+    }
+
+
+    /**
      * Shows main form
      *
      */
