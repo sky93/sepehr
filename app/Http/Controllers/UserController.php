@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -90,7 +91,13 @@ class UserController extends Controller {
         }
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
-            return Redirect::to('/');
+            if (Session::has('pre_login_url')) {
+                $redirect_url = Session::get('pre_login_url');
+                Session::forget('pre_login_url');
+                return Redirect::to($redirect_url);
+            } else {
+                return Redirect::to('/');
+            }
         }
 
         $main = new main();
