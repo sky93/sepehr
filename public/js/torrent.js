@@ -5,14 +5,24 @@ $(function()
     $('#torrent_upload_form_files').on('change', prepareUpload);
     $('#torrent_upload_form').on('submit', uploadFiles);
 
+    $('#frm_fetch').on('submit', fetchFiles);
+
+    $('#fetch_filter').on('input',function(e){
+        if ($('#fetch_filter').val() == ''){
+            $('#empty_filter').hide();
+        }else{
+            $('#empty_filter').show();
+            $('#f_help').text($('#fetch_filter').val());
+        }
+    });
+
 
     function prepareUpload(event)
     {
         files = event.target.files;
     }
 
-    function uploadFiles(event)
-    {
+    function uploadFiles(event) {
         event.stopPropagation();
         event.preventDefault();
 
@@ -81,4 +91,42 @@ $(function()
             }
         });
     }
+
+    function fetchFiles(event) {
+        event.preventDefault();
+
+        var btnhtml = $('#fetch_submit').html();
+        var btn = $('#fetch_submit').prop('disabled', true);
+        btn.html('<i class="fa fa-refresh fa-spin"></i> Fetching...');
+
+        $.ajax({
+            url: "",
+            type: "POST",
+            data: $("#frm_fetch").serialize() + '&type=fetch',
+            dataType: 'json',
+
+            success: function (response) {
+                if (response.result == 'error') {
+                    toastr["error"](response.message, "Oh Snap!");
+                } else {
+                    var ln = $('#links').val('');
+                    $.each(response.links, function(key, val) {
+                        ln.val(ln.val() +  val + '\n');
+                    });
+
+                }
+                btn.html(btnhtml);
+                btn.prop('disabled', false);
+            },
+
+            error: function (jqXHR, textStatus, errorThrown) {
+                toastr["error"]("Unknow error.", "Oh Snap!");
+                btn.html(btnhtml);
+                btn.prop('disabled', false);
+            }
+        });
+    }
+
+
+
 });

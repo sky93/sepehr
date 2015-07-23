@@ -84,7 +84,6 @@ class main
             $filename = urldecode(basename(preg_replace('/\\?.*/', '', $location)));
         }
 
-
         ini_set("default_socket_timeout", $current_timeout); //restore the default socket time out.
         return [
             'status' => $lastresp,
@@ -92,7 +91,7 @@ class main
             'file_extension' => pathinfo($filename, PATHINFO_EXTENSION),
             'filesize' => $file_size,
             'location' => $location,
-            'full_headers' => $headers
+            'full_headers' => $headers,
         ];
     }
 

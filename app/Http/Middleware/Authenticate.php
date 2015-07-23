@@ -4,6 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
+
 
 class Authenticate
 {
@@ -36,6 +39,7 @@ class Authenticate
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
             } else {
+                Session::put('pre_login_url', URL::current());
                 return redirect()->guest('/login');
             }
         }

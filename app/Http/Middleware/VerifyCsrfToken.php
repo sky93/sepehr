@@ -15,5 +15,6 @@ class VerifyCsrfToken extends BaseVerifier
         'buy',
         'tools/status',
         'downloads',
+        'ping'
     ];
 }

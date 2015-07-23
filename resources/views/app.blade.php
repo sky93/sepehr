@@ -20,6 +20,7 @@ if (!Auth::guest()){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com AND Pejman Yaghmaie | yaghmaie.p@gmail.com">
+    <meta property="root" content="{{ asset('/') }}" />
     <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
     <script src="{{ asset('/js/pace.min.js') }}"></script>
     <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -35,7 +36,6 @@ if (!Auth::guest()){
 
     <![endif]-->
 
-
     <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/bootbox.min.js') }}"></script>
@@ -43,6 +43,7 @@ if (!Auth::guest()){
     <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/toastr.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/jquery.timeago.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/ping.js') }}"></script>
 </head>
 <body>
 @if($show_message == true)
