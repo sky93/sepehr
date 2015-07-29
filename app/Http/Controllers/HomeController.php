@@ -390,11 +390,23 @@ class HomeController extends Controller
         $json = [];
         foreach ($users as $file){
             $status = 1;
-            $downloaded_speed_kb = $downloaded_speed = $downloaded_size = 0;
+            $downloaded_speed_kb = $downloaded_speed = $downloaded_size = $connections = $numPieces = $numSeeders = 0;
             if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"])) {
                 $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
             } else {
                 $result = null;
+            }
+
+            if (isset($result['numPieces'])) {
+                $numPieces = $result['numPieces'];
+            }
+
+            if (isset($result['numSeeders'])) {
+                $numSeeders = $result['numSeeders'];
+            }
+
+            if (isset($result['connections'])) {
+                $connections = $result['connections'];
             }
 
             if (isset($result['completedLength'])) {
@@ -411,25 +423,48 @@ class HomeController extends Controller
                 $downloaded_speed_kb = round($speed_bytes/1024);
             }
 
+
+            // -1   : Files is downloading by Aria2
+            // -2   : Files is paused
+            // null : Files is in queue
             if ($file->state != -1) {
                 if ($file->state == null) {
                     $downloaded_speed = 'In queue';
                 } elseif ($file->state == -2) {
                     $downloaded_speed = 'Paused';
                     $status = 2;
+                } elseif ($file->state == -3) {
+                    $downloaded_speed = 'Zipping';
+                    $status = 4;
                 } else {
                     $downloaded_speed = 'Error (' . $file->state . ')';
                     $status = 3;
                 }
             }
 
-            $json[$file->id] = [
-                'status' => $status,
-                'speed' => $downloaded_speed,
-                'dled_size' => $main->formatBytes($downloaded_size,1),
-                'pprog' => round($downloaded_size/$file->length*100,0) . '%',
-                'speed_kb' => $downloaded_speed_kb
-            ];
+            // Type: t = Torrent, n = Normal Download
+            if ($file->torrent) {
+                $json[$file->id] = [
+                    'type' => 't',
+                    'status' => $status,
+                    'speed' => $downloaded_speed,
+                    'dled_size' => $main->formatBytes($downloaded_size,1),
+                    'pprog' => round($downloaded_size/$file->length*100,0) . '%',
+                    'speed_kb' => $downloaded_speed_kb,
+                    'numPieces' => $numPieces,
+                    'numSeeders' => $numSeeders,
+                    'connections' => $connections
+                ];
+            } else {
+                $json[$file->id] = [
+                    'type' => 'n',
+                    'status' => $status,
+                    'speed' => $downloaded_speed,
+                    'dled_size' => $main->formatBytes($downloaded_size,1),
+                    'pprog' => round($downloaded_size/$file->length*100,0) . '%',
+                    'speed_kb' => $downloaded_speed_kb
+                ];
+            }
         }
 
         return response()->json($json);
