@@ -8,7 +8,7 @@ import subprocess, atexit;
 import MySQLdb;
 import MySQLdb.cursors;
 
-import urllib2, json;
+import urllib2, json, base64, shutil;
 
 from pprint import pprint;
 from datetime import datetime;
@@ -18,7 +18,10 @@ from datetime import datetime;
 #
 state = 'start';
 activeList = [];
+torrentList = [];
 maxConcurrentDownloads = 10;
+torrentDir = '/mnt/hd0/torrent/';
+torrentSave = '/mnt/hd0/torrent_save/';
 
 # MySQL variables
 dbConnection = None;
@@ -29,7 +32,8 @@ dbPassword = 'BP@756cha';
 # Aria variables
 ariaPort = 'http://127.0.0.1:6800/jsonrpc';
 ariaProcess = None;
-workingDirectory = '/mnt/hd0';
+zipProcesses = [];
+workingDirectory = '/mnt/hd0/';
 
 # Class definitions
 
@@ -76,7 +80,7 @@ def send2Aria( method, params = [] ):
             'id':'backPy',
             'method':method,
             'params':params
-        }, encoding='utf8');
+        });
     try:
         c = urllib2.urlopen( ariaPort, jsonreq );
         #print "message sent to aria2::" + method;
@@ -94,7 +98,8 @@ def runAria2():
     ariaProcess = subprocess.Popen([
             "aria2c","--enable-rpc", "--dir=" + workingDirectory, "--download-result=full", "--file-allocation=none",
             "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0",
-            "--max-concurrent-downloads=" + str(maxConcurrentDownloads), "--max-resume-failure-tries=5", "--follow-metalink=false"
+            "--max-concurrent-downloads=" + str(maxConcurrentDownloads), "--max-resume-failure-tries=5", "--follow-metalink=false",
+
          ], stdout=FLOG, stderr=FERR);
     i = 0;
     resp = send2Aria( 'aria2.getVersion' , [] );
@@ -115,19 +120,19 @@ def systemDiagnosis():
 def main():
     print "Service started";
 
-    global dbConnection, dbUser, dbPassword, dbName, activeList;
+    global dbConnection, dbUser, dbPassword, dbName, activeList, torrentList, torrentDir, torrentSave;
 
     runAria2();
     systemDiagnosis();
 
     
     # dbConnection
-    dbConnection = MySQLdb.connect( "localhost", dbUser, dbPassword, dbName, cursorclass=MySQLdb.cursors.DictCursor, charset='utf8' );
+    dbConnection = MySQLdb.connect( "localhost", dbUser, dbPassword, dbName, cursorclass=MySQLdb.cursors.DictCursor );
     dlListFetchCursor = dbConnection.cursor();
     dbConnection.begin();
     
-    dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password FROM download_list
-                                  WHERE state is null and deleted = 0 and torrent = 0
+    dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password, torrent FROM download_list
+                                  WHERE state is null and deleted = 0
                                   GROUP BY user_id
                                   ORDER BY id
                                """ );
@@ -200,7 +205,12 @@ def main():
                             dlListUpdateCursor.execute( """INSERT INTO credit_log ( user_id, credit_change, agent )
                                                            SELECT user_id, %s, user_id FROM download_list WHERE id = %s""",
                                                            ( str( -int (res['result']['completedLength'] ) ), id, ) );
-                            dlListUpdateCursor.execute( """UPDATE download_list SET state=0, date_completed=%s, completed_length=%s
+                            if id in torrentList:
+                                dlListUpdateCursor.execute( """UPDATE download_list SET state=-3, date_completed=%s, completed_length=%s
+                                                    WHERE id = %s """, (datetime.now(),
+                                                    res['result']['completedLength'], id,) );
+                            else:
+                                dlListUpdateCursor.execute( """UPDATE download_list SET state=0, date_completed=%s, completed_length=%s
                                                     WHERE id = %s """, (datetime.now(),
                                                     res['result']['completedLength'], id,) );
                             dlListUpdateCursor.execute( """UPDATE users SET credit = credit - %s
@@ -209,28 +219,67 @@ def main():
                             dbConnection.commit();
                             activeList.remove(id);
                             send2Aria( 'aria2.removeDownloadResult', [cid] );
-                            print "Request " + res['result']['gid'] + " completed";
+                            print "Request " + res['result']['gid'] + " completed.";
+                            if id in torrentList:
+                                print "Zipping..."
+                                tempCur = dbConnection.cursor();
+                                tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""", ( str(id) ) );
+                                zipProcesses.append( {id : subprocess.Popen([ "zip", "-r", "-j", "-0", workingDirectory + str(id) + "_" + tempCur.fetchone()['file_name'], torrentSave + str(id) ] )} );
+                                torrentList.remove( id );
                         except BaseException as e:
                             dbConnection.rollback();
                             print "Exception in completion procedure: %s" % e;
                 # End FOR
-                
+                for field in zipProcesses:
+                    for id, proc in field.iteritems(): # Check for zipping processes
+                        retCode = proc.poll();
+                        if retCode is not None:
+                            if retCode == 0:
+                                try:
+                                    dlListUpdateCursor.execute( """UPDATE download_list SET state=0
+                                                        WHERE id = %s """, (id) );
+                                    dbConnection.commit();
+                                    shutil.rmtree(torrentSave + str(id));
+                                    zipProcesses.remove(field);
+                                except BaseException as e:
+                                    dbConnection.rollback();
+                                    print "Exception in zip procedure: %s" % e;
+                            else:
+                                print "Error while zipping " + str(id);
+                # End FOR
                 # Add a new link if posible
                 while int(send2Aria( 'aria2.getGlobalStat' )['result']['numActive']) < maxConcurrentDownloads:
                     # Find next request to be processed
                     row = dlListFetchCursor.fetchone();
                     
                     if row is not None:
-                        print "Adding new url: " + row['link'];
-                        print "With gid: " + "%016d" % row['id'];
-                        # Send request to Aria2
-                        send2Aria( 'aria2.addUri', [ [row['link']], {
-                                'out':str(row['id']) + "_" + row['file_name'],
-                                'gid':"%016d" % row['id'],
-                                'http-user':row['http_user'],
-                                'http-passwd':row['http_password']
-                            } 
-                        ] );
+                        if row['torrent'] == 1:
+                            print "Adding new torrent: " + row['link'];
+                            print "With gid: " + "%016d" % row['id'];
+                            # Send request to Aria2
+                            torrent = base64.b64encode(open(row['link']).read())
+                            if not os.path.exists( torrentSave + str(row['id']) ):
+                                os.makedirs( torrentSave + str(row['id']) )
+                            send2Aria( 'aria2.addTorrent', [ torrent, [],{
+                                    'follow-torrent':'false',
+                                    'dir':torrentSave + str(row['id']),
+                                    'seed-time':'0',
+                                    'gid':"%016d" % row['id']
+                                } 
+                            ] );
+                            torrentList.append(row['id']);
+                        else:
+                            print "Adding new url: " + row['link'];
+                            print "With gid: " + "%016d" % row['id'];
+                            # Send request to Aria2
+                            send2Aria( 'aria2.addUri', [ [row['link']], {
+                                    'out':str(row['id']) + "_" + row['file_name'],
+                                    'gid':"%016d" % row['id'],
+                                    'http-user':row['http_user'],
+                                    'http-passwd':row['http_password']
+                                } 
+                            ] );
+                        # End if row['torrent'] == 1:
                         # Update DataBase
                         activeList.append(row['id']);
                         try:
@@ -239,18 +288,19 @@ def main():
                             dbConnection.commit();
                         except:
                             dbConnection.rollback();
+                    # End if row is not None:
                     else:
                         dlListFetchCursor = dbConnection.cursor();
                         dbConnection.begin();
-                        dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password FROM download_list
-                                                      WHERE state is null and deleted = 0 and torrent = 0
+                        dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password, torrent FROM download_list
+                                                      WHERE state is null and deleted = 0
                                                       GROUP BY user_id
                                                       ORDER BY id
                                                    """ );
                         break;
                 # End While
                 
-                if counter % 150 == 0: # Each 5 mins retry downlaod errors
+                if counter % 150 == 0: # Each 5 mins retry download errors
                     counter = 1;
                     try:
                         dlListUpdateCursor.execute("""UPDATE download_list set state = null WHERE state > 0 and deleted = 0""");
