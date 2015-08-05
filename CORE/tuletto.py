@@ -1,7 +1,9 @@
 #!/usr/bin/python2
 
 # imports
-import os, signal, sys;
+from os.path import basename
+
+import os, os.path, signal, sys, threading, zipfile;
 import time;
 import subprocess, atexit;
 
@@ -36,6 +38,16 @@ zipProcesses = [];
 workingDirectory = '/mnt/hd0/';
 
 # Class definitions
+
+# Class FuncThread imported from http://softwareramblings.com/2008/06/running-functions-as-threads-in-python.html
+class FuncThread(threading.Thread):
+    def __init__(self, target, *args):
+        self._target = target
+        self._args = args
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self._target(*self._args)
 
 # Class "GracefulInterruptHandler" imported from https://gist.github.com/nonZero/2907502
 class GracefulInterruptHandler(object):
@@ -72,8 +84,17 @@ class GracefulInterruptHandler(object):
 
         return True
 
-
 # Function definitions
+def zipDir( zipFile, path ):
+    if os.path.isfile(zipFile):
+        os.remove(zipFile);
+    ziph = zipfile.ZipFile( zipFile, 'w', zipfile.ZIP_STORED, True );
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file), os.path.join(root, file)[len(path):] );
+    ziph.close();
+    # shutil.make_archive(zipName, 'zip', dir);
+
 def send2Aria( method, params = [] ):
     jsonreq = json.dumps({
             'jsonrpc':'2.0',
@@ -82,6 +103,8 @@ def send2Aria( method, params = [] ):
             'params':params
         });
     try:
+        if ariaProcess.poll() is not None:
+            runAria2();
         c = urllib2.urlopen( ariaPort, jsonreq );
         #print "message sent to aria2::" + method;
         return json.loads(c.read());
@@ -99,7 +122,7 @@ def runAria2():
             "aria2c","--enable-rpc", "--dir=" + workingDirectory, "--download-result=full", "--file-allocation=none",
             "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0",
             "--max-concurrent-downloads=" + str(maxConcurrentDownloads), "--max-resume-failure-tries=5", "--follow-metalink=false",
-
+            "--bt-max-peers=16"
          ], stdout=FLOG, stderr=FERR);
     i = 0;
     resp = send2Aria( 'aria2.getVersion' , [] );
@@ -112,9 +135,15 @@ def runAria2():
 
 def systemDiagnosis():
     global state;
-    #
-    # Body of systemDiagnosis
-    #
+    dlListFetchCursor = dbConnection.cursor();
+    dlListFetchCursor.execute( """SELECT id, file_name, completed_length FROM download_list WHERE state = -3 and deleted = 0""" );
+    row = dlListFetchCursor.fetchone();
+    while row is not None:
+        id = row['id'];
+        t = FuncThread( zipDir, workingDirectory + str(id) + "_" + row['file_name'], torrentSave + str(id) );
+        zipProcesses.append( { 'id' : id, 'proc' : t, 'size' : row['completed_length'] } );
+        t.start();
+        row = dlListFetchCursor.fetchone();
     state = 'stable';
 
 def main():
@@ -123,14 +152,15 @@ def main():
     global dbConnection, dbUser, dbPassword, dbName, activeList, torrentList, torrentDir, torrentSave;
 
     runAria2();
-    systemDiagnosis();
-
     
     # dbConnection
     dbConnection = MySQLdb.connect( "localhost", dbUser, dbPassword, dbName, cursorclass=MySQLdb.cursors.DictCursor );
     dlListFetchCursor = dbConnection.cursor();
     dbConnection.begin();
-    
+
+    # Check for errors
+    systemDiagnosis();
+
     dlListFetchCursor.execute( """SELECT min(id) as id, user_id, link, file_name, http_user, http_password, torrent FROM download_list
                                   WHERE state is null and deleted = 0
                                   GROUP BY user_id
@@ -193,8 +223,11 @@ def main():
                             send2Aria( 'aria2.removeDownloadResult', [cid] );
                             print "Request " + res['result']['gid'] + " canceled";
                             # remove file
-                            os.remove( res['result']['files'][0]['path'] );
-                            os.remove( res['result']['files'][0]['path'] + '.aria2' );
+                            if id in torrentList:
+                                shutil.rmtree(torrentSave + str(id));
+                            else:
+                                os.remove( res['result']['files'][0]['path'] );
+                                os.remove( res['result']['files'][0]['path'] + '.aria2' );
                         except BaseException as e:
                             dbConnection.rollback();
                             print "Exception in remove procedure: %s" % e;
@@ -202,50 +235,56 @@ def main():
                     elif res['result']['status'] == 'complete':
                         # Update UserDB, download_list and activeList
                         try:
-                            dlListUpdateCursor.execute( """INSERT INTO credit_log ( user_id, credit_change, agent )
+                            if id in torrentList:
+                                dlListUpdateCursor.execute( """UPDATE download_list SET state=-3, date_completed=%s
+                                                    WHERE id = %s """, (datetime.now(), id,) );
+                            else:
+                                dlListUpdateCursor.execute( """INSERT INTO credit_log ( user_id, credit_change, agent )
                                                            SELECT user_id, %s, user_id FROM download_list WHERE id = %s""",
                                                            ( str( -int (res['result']['completedLength'] ) ), id, ) );
-                            if id in torrentList:
-                                dlListUpdateCursor.execute( """UPDATE download_list SET state=-3, date_completed=%s, completed_length=%s
-                                                    WHERE id = %s """, (datetime.now(),
-                                                    res['result']['completedLength'], id,) );
-                            else:
                                 dlListUpdateCursor.execute( """UPDATE download_list SET state=0, date_completed=%s, completed_length=%s
                                                     WHERE id = %s """, (datetime.now(),
                                                     res['result']['completedLength'], id,) );
-                            dlListUpdateCursor.execute( """UPDATE users SET credit = credit - %s
-                                                    WHERE id in ( SELECT user_id FROM download_list WHERE id = %s ) """,
-                                                    ( res['result']['completedLength'], id,) );
+                                dlListUpdateCursor.execute( """UPDATE users SET credit = credit - %s
+                                                        WHERE id in ( SELECT user_id FROM download_list WHERE id = %s ) """,
+                                                        ( res['result']['completedLength'], id,) );
                             dbConnection.commit();
                             activeList.remove(id);
                             send2Aria( 'aria2.removeDownloadResult', [cid] );
                             print "Request " + res['result']['gid'] + " completed.";
                             if id in torrentList:
-                                print "Zipping..."
+                                print "Zipping...";
                                 tempCur = dbConnection.cursor();
                                 tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""", ( str(id) ) );
-                                zipProcesses.append( {id : subprocess.Popen([ "zip", "-r", "-j", "-0", workingDirectory + str(id) + "_" + tempCur.fetchone()['file_name'], torrentSave + str(id) ] )} );
+                                t = FuncThread( zipDir, workingDirectory + str(id) + "_" + tempCur.fetchone()['file_name'], torrentSave + str(id) );
+                                zipProcesses.append( { 'id' : id, 'proc' : t, 'size' : res['result']['completedLength'] } );
+                                t.start();
                                 torrentList.remove( id );
                         except BaseException as e:
                             dbConnection.rollback();
                             print "Exception in completion procedure: %s" % e;
                 # End FOR
-                for field in zipProcesses:
-                    for id, proc in field.iteritems(): # Check for zipping processes
-                        retCode = proc.poll();
-                        if retCode is not None:
-                            if retCode == 0:
-                                try:
-                                    dlListUpdateCursor.execute( """UPDATE download_list SET state=0
-                                                        WHERE id = %s """, (id) );
-                                    dbConnection.commit();
-                                    shutil.rmtree(torrentSave + str(id));
-                                    zipProcesses.remove(field);
-                                except BaseException as e:
-                                    dbConnection.rollback();
-                                    print "Exception in zip procedure: %s" % e;
-                            else:
-                                print "Error while zipping " + str(id);
+                for field in zipProcesses: # Check for zipping processes
+                    if not field['proc'].isAlive():
+                        try:
+                            dlListUpdateCursor.execute( """INSERT INTO credit_log ( user_id, credit_change, agent )
+                                                           SELECT user_id, %s, user_id FROM download_list WHERE id = %s""",
+                                                           ( str( -int (field['size'] ) ), field['id'], ) );
+                            dlListUpdateCursor.execute( """UPDATE download_list SET state=0, date_completed=%s, completed_length=%s
+                                                WHERE id = %s """, (datetime.now(), field['size'], field['id'],) );
+                            dlListUpdateCursor.execute( """UPDATE users SET credit = credit - %s
+                                                    WHERE id in ( SELECT user_id FROM download_list WHERE id = %s ) """,
+                                                    ( field['size'], field['id'],) );
+                            dbConnection.commit();
+                            shutil.rmtree(torrentSave + str(field['id']));
+                        except BaseException as e:
+                            dbConnection.rollback();
+                            dlListUpdateCursor.execute( """UPDATE download_list SET state=32
+                                                WHERE id = %s """, field['id'] );
+                            dbConnection.commit();
+                            print "Exception in zip procedure: %s" % e;
+                        zipProcesses.remove(field);
+
                 # End FOR
                 # Add a new link if posible
                 while int(send2Aria( 'aria2.getGlobalStat' )['result']['numActive']) < maxConcurrentDownloads:
@@ -303,6 +342,8 @@ def main():
                 if counter % 150 == 0: # Each 5 mins retry download errors
                     counter = 1;
                     try:
+                        dlListUpdateCursor.execute("""UPDATE download_list set state = -3 WHERE state = 32 and deleted = 0""");
+                        dbConnection.commit();
                         dlListUpdateCursor.execute("""UPDATE download_list set state = null WHERE state > 0 and deleted = 0""");
                         dbConnection.commit();
                     except BaseException as e:
