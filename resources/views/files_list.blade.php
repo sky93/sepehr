@@ -83,12 +83,12 @@
                                     </tr>
                                     </thead>
                                     @foreach($files as $file)
-                                        <tr>
+                                        <tr<?= ($file->downloads > 0) ? ' class="success"' : '' ?>>
                                             <td onmousedown="checkFile({{ $file->id }}); return false;">
                                                 <input onmousedown="checkFile({{ $file->id }}); return false;" type="checkbox" name="files[]" id="file_{{ $file->id }}" value="{{ $file->id }}" />
                                             </td>
                                             <td>
-                                                <a target="_blank" href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
+                                                <a target="_blank" href="{{ asset('/' . 'link' . '/' . $file->id . '_' . $file->file_name) }}">{{ $file->file_name }}</a>
                                             </td>
                                             <td>{{ $main->formatBytes($file->length,1) }}</td>
                                             <td><time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $file->date_added ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $file->date_added ) ) }}</time></td>

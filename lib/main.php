@@ -368,6 +368,22 @@ class main
     }
 
 
+    /**
+     *
+     * Checks if the string contains blocked words.
+     *
+     * @param $string
+     * @return bool
+     */
+    function word_filter($string) {
+        $words = config('leech.blocked_words');
+        if(preg_match("[$words]", $string) == true) {
+            return true;
+        }
+        return false;
+    }
+
+
 
 
 }

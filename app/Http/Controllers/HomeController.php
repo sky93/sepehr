@@ -24,7 +24,28 @@ class HomeController extends Controller
      */
     public function redirect_ping ()
     {
+
         return Redirect::to('/');
+    }
+
+
+
+    /**
+     * Redirects links
+     *
+     */
+    public function link ($link)
+    {
+        $filename_array = explode('_', $link, 2);
+        if (count($filename_array) != 2 || ! is_numeric($filename_array[0])){
+            abort(404);
+        }
+        $file = DB::table('download_list')->where('id', '=', $filename_array[0])->where('deleted', '=', '0')->where('state', 0)->first();
+        if (! $file || $file->file_name != $filename_array[1]){
+            abort(404);
+        }
+        DB::table('download_list')->where('id', '=', $filename_array[0])->where('deleted', '=', '0')->where('state', 0)->increment('downloads');
+        return Redirect::to(Config::get('leech.save_to') . '/' . $link);
     }
 
 
@@ -489,6 +510,20 @@ class HomeController extends Controller
             'fetch_filter'
         );
 
+        $main = new main();
+        if ($main->word_filter($input['link']) || $main->word_filter($input['comment']) || $main->word_filter($input['torrent_file_name'])) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'type' => 'error',
+                    'message' => Lang::get('messages.blocked_file')
+                ]);
+            } else {
+                return redirect::back()->withErrors(Lang::get('messages.blocked_file'));
+            }
+        }
+
+return time();
+
         if ($request->ajax() && $input['type'] == 'fetch') {
 
             $v = Validator::make(
@@ -508,7 +543,7 @@ class HomeController extends Controller
 
             //get_headers($input['link'], 1)
 
-            $main = new main();
+
             $link = $main->get_info($input['link']);
            // echo $link['content_type'];
            // print_r($link['full_headers']['content-type']);
@@ -562,11 +597,6 @@ class HomeController extends Controller
                     'message' => 'Could not find any link.'
                 ]);
             }
-
-
-
-
-
 
 
         }elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents

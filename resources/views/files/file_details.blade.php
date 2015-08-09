@@ -78,7 +78,7 @@
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
                             @if($file->deleted == 0)
                                 Click <a target="_blank"
-                                         href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">Here</a>
+                                         href="{{ asset('/' . 'link' . '/' . $file->id . '_' . $file->file_name) }}">Here</a>
                                 to download the file.
                             @endif
                         </div>
