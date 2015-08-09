@@ -511,7 +511,7 @@ class HomeController extends Controller
         );
 
         $main = new main();
-        if ($main->word_filter($input['link']) || $main->word_filter($input['comment']) || $main->word_filter($input['torrent_file_name'])) {
+        if ($main->word_filter($input['link']) || $main->word_filter($input['comment']) || $main->word_filter($input['t_submit_name'])) {
             if ($request->ajax()) {
                 return response()->json([
                     'type' => 'error',
@@ -521,8 +521,6 @@ class HomeController extends Controller
                 return redirect::back()->withErrors(Lang::get('messages.blocked_file'));
             }
         }
-
-return time();
 
         if ($request->ajax() && $input['type'] == 'fetch') {
 
