@@ -24,7 +24,28 @@ class HomeController extends Controller
      */
     public function redirect_ping ()
     {
+
         return Redirect::to('/');
+    }
+
+
+
+    /**
+     * Redirects links
+     *
+     */
+    public function link ($link)
+    {
+        $filename_array = explode('_', $link, 2);
+        if (count($filename_array) != 2 || ! is_numeric($filename_array[0])){
+            abort(404);
+        }
+        $file = DB::table('download_list')->where('id', '=', $filename_array[0])->where('deleted', '=', '0')->where('state', 0)->first();
+        if (! $file || $file->file_name != $filename_array[1]){
+            abort(404);
+        }
+        DB::table('download_list')->where('id', '=', $filename_array[0])->where('deleted', '=', '0')->where('state', 0)->increment('downloads');
+        return Redirect::to(Config::get('leech.save_to') . '/' . $link);
     }
 
 
@@ -390,11 +411,23 @@ class HomeController extends Controller
         $json = [];
         foreach ($users as $file){
             $status = 1;
-            $downloaded_speed_kb = $downloaded_speed = $downloaded_size = 0;
+            $downloaded_speed_kb = $downloaded_speed = $downloaded_size = $connections = $numPieces = $numSeeders = 0;
             if (isset($aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"])) {
                 $result = $aria2->tellStatus(str_pad($file->id, 16, '0', STR_PAD_LEFT))["result"];
             } else {
                 $result = null;
+            }
+
+            if (isset($result['numPieces'])) {
+                $numPieces = $result['numPieces'];
+            }
+
+            if (isset($result['numSeeders'])) {
+                $numSeeders = $result['numSeeders'];
+            }
+
+            if (isset($result['connections'])) {
+                $connections = $result['connections'];
             }
 
             if (isset($result['completedLength'])) {
@@ -411,25 +444,48 @@ class HomeController extends Controller
                 $downloaded_speed_kb = round($speed_bytes/1024);
             }
 
+
+            // -1   : Files is downloading by Aria2
+            // -2   : Files is paused
+            // null : Files is in queue
             if ($file->state != -1) {
                 if ($file->state == null) {
                     $downloaded_speed = 'In queue';
                 } elseif ($file->state == -2) {
                     $downloaded_speed = 'Paused';
                     $status = 2;
+                } elseif ($file->state == -3) {
+                    $downloaded_speed = 'Zipping';
+                    $status = 4;
                 } else {
                     $downloaded_speed = 'Error (' . $file->state . ')';
                     $status = 3;
                 }
             }
 
-            $json[$file->id] = [
-                'status' => $status,
-                'speed' => $downloaded_speed,
-                'dled_size' => $main->formatBytes($downloaded_size,1),
-                'pprog' => round($downloaded_size/$file->length*100,0) . '%',
-                'speed_kb' => $downloaded_speed_kb
-            ];
+            // Type: t = Torrent, n = Normal Download
+            if ($file->torrent) {
+                $json[$file->id] = [
+                    'type' => 't',
+                    'status' => $status,
+                    'speed' => $downloaded_speed,
+                    'dled_size' => $main->formatBytes($downloaded_size,1),
+                    'pprog' => round($downloaded_size/$file->length*100,0) . '%',
+                    'speed_kb' => $downloaded_speed_kb,
+                    'numPieces' => $numPieces,
+                    'numSeeders' => $numSeeders,
+                    'connections' => $connections
+                ];
+            } else {
+                $json[$file->id] = [
+                    'type' => 'n',
+                    'status' => $status,
+                    'speed' => $downloaded_speed,
+                    'dled_size' => $main->formatBytes($downloaded_size,1),
+                    'pprog' => round($downloaded_size/$file->length*100,0) . '%',
+                    'speed_kb' => $downloaded_speed_kb
+                ];
+            }
         }
 
         return response()->json($json);
@@ -454,6 +510,18 @@ class HomeController extends Controller
             'fetch_filter'
         );
 
+        $main = new main();
+        if ($main->word_filter($input['link']) || $main->word_filter($input['comment']) || $main->word_filter($input['t_submit_name'])) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'type' => 'error',
+                    'message' => Lang::get('messages.blocked_file')
+                ]);
+            } else {
+                return redirect::back()->withErrors(Lang::get('messages.blocked_file'));
+            }
+        }
+
         if ($request->ajax() && $input['type'] == 'fetch') {
 
             $v = Validator::make(
@@ -473,7 +541,7 @@ class HomeController extends Controller
 
             //get_headers($input['link'], 1)
 
-            $main = new main();
+
             $link = $main->get_info($input['link']);
            // echo $link['content_type'];
            // print_r($link['full_headers']['content-type']);
@@ -527,11 +595,6 @@ class HomeController extends Controller
                     'message' => 'Could not find any link.'
                 ]);
             }
-
-
-
-
-
 
 
         }elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents

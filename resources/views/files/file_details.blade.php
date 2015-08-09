@@ -78,7 +78,7 @@
                                     style="font-weight: bold">Yaay! </span>@lang('errors.0')
                             @if($file->deleted == 0)
                                 Click <a target="_blank"
-                                         href="{{ asset('/' . Config::get('leech.save_to') . '/' . $file->id . '_' . $file->file_name) }}">Here</a>
+                                         href="{{ asset('/' . 'link' . '/' . $file->id . '_' . $file->file_name) }}">Here</a>
                                 to download the file.
                             @endif
                         </div>
@@ -116,7 +116,6 @@
                             <div class="form-horizontal" method="GET" action="" novalidate="">
                                 <fieldset>
                                     <h4>File Info:</h4>
-
                                     <div class="form-group">
                                         <label class="col-md-4 control-label" for="link">File Name:</label>
 
@@ -125,6 +124,7 @@
                                                    value="{{ $file->file_name }}" readonly>
                                         </div>
                                     </div>
+                                    @if(! $file->torrent)
                                     <div class="form-group">
                                         <label class="col-md-4 control-label" for="link">Link:</label>
 
@@ -151,6 +151,7 @@
                                                    readonly>
                                         </div>
                                     </div>
+                                    @endif
                                     <div class="form-group">
                                         <label class="col-md-4 control-label"
                                                for="comment">{{ Lang::get('messages.comment') }}</label>
@@ -188,6 +189,7 @@
                                                 @yield('pause')
                                                 @yield('edit')
                                                 @yield('remove')
+                                            @elseif($file->state == -3)
                                             @else
                                                 @yield('retry')
                                                 @yield('remove')

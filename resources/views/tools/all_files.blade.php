@@ -31,7 +31,7 @@
                                     </tr>
                                     </thead>
                                     @foreach($files as $file)
-                                        <tr <?=$file->deleted == 1 ? 'class="danger"' : ''?>>
+                                        <tr<?=$file->deleted == 1 ? ' class="danger"' : ''?><?=$file->downloads > 0 && $file->deleted != 1 ? ' class="success"' : ''?>>
                                             <td>{{ $file->id }}</td>
                                             <td>
                                                 <a href="{{ url('tools/users/' . $file->username) }}">{{ $file->first_name . ' ' . $file->last_name }}</a>
