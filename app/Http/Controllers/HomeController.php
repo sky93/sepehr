@@ -658,7 +658,8 @@ class HomeController extends Controller
             if (isset($_FILES[0])) {
                 $maxsize    = 5 * 1024 * 1024; //5 MB
                 $acceptable = [
-                    'application/x-bittorrent'
+                    'application/x-bittorrent',
+                    'application/octet-stream'
                 ];
                 if(($_FILES[0]['size'] >= $maxsize) || ($_FILES[0]['size'] == 0)) {
                     return response()->json([
@@ -666,6 +667,14 @@ class HomeController extends Controller
                         'message' => 'File too large. File must be less than 5 megabytes.'
                         ]);
                 }
+
+                if( pathinfo($_FILES[0]['name'], PATHINFO_EXTENSION) != 'torrent') {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'Your file is not a Torrent file!'
+                    ]);
+                }
+
                 if(! in_array($_FILES[0]['type'], $acceptable) && !empty($_FILES[0]['type']) ) {
                     return response()->json([
                         'result' => 'error',
