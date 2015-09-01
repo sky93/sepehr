@@ -43,7 +43,7 @@
                                 <ul class="nav nav-tabs" role="tablist">
                                     <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Link</a></li>
                                     <li role="presentation"><a href="#multi" aria-controls="multi" role="tab" data-toggle="tab">Multiple Links</a></li>
-                                    <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent</a></li>
+                                    <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent <span class="label label-danger">NEW</span></a></li>
                                     <li role="presentation"><a href="#check_tab" aria-controls="check_tab" role="tab" data-toggle="tab">Link Checker</a></li>
                                 </ul>
 
@@ -168,8 +168,7 @@
                                                                for="link">{{ Lang::get('messages.fetch') }}</label>
                                                         <div class="col-md-8 pull-left">
                                                             <input id="fetch_link" name="link" type="text" placeholder="{{ Lang::get('messages.fetch.place.holder') }}" class="form-control input-md" required="">
-                                                            <span style="word-break: break-all;" class="help-block">Example: <kbd>https://class.coursera.org/machlearning-001/lecture</kbd></span>
-
+                                                            <span style="word-break: break-all;" class="help-block">Example: <kbd>https://class.coursera.org/machlearning-001/lecture</kbd>.<br /> <a target="_blank" href="http://sepehr.sadjad.ac.ir/storage/coursera.mp4">آموزش دانلود از کورسرا</a></span>
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
@@ -192,86 +191,86 @@
                                             <hr />
 
                                             <form id="frm_multi" class="form-horizontal" method="POST" action="" novalidate="">
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                            <fieldset>
-                                                {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
-                                                <br/>
-                                                <script type="text/javascript">
-                                                    $(document).ready(function () {
-                                                        $('#http_auth_multi').click(function () {
-                                                            $("#HTTP_multi").slideToggle(150);
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                <fieldset>
+                                                    {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
+                                                    <br/>
+                                                    <script type="text/javascript">
+                                                        $(document).ready(function () {
+                                                            $('#http_auth_multi').click(function () {
+                                                                $("#HTTP_multi").slideToggle(150);
+                                                            });
                                                         });
-                                                    });
-                                                </script>
+                                                    </script>
 
-                                                <div class="form-group">
-                                                    <label class="col-md-3 control-label"
-                                                           for="links">{{ Lang::get('messages.links.to.transload') }}</label>
-                                                    <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label"
+                                                               for="links">{{ Lang::get('messages.links.to.transload') }}</label>
+                                                        <div class="col-md-8">
                                                             <textarea style="max-width: 486px; max-height: 500px; min-height: 100px" class="form-control" id="links" name="links" wrap="off" placeholder="{{ Lang::get('messages.links') }}"></textarea>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <label id="http_auth_multil" class="col-md-3 control-label" for="http_auth1"></label>
-                                                    <div class="col-md-3">
-                                                        <div class="checkbox">
-                                                            <label for="http_auth">
-                                                                <input type="checkbox" name="http_auth" id="http_auth_multi" value="1">
-                                                                {{ Lang::get('messages.http.authorization') }}
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div id="HTTP_multi" style="display: none;">
-                                                    <div class="form-group">
-                                                        <label class="col-md-3 control-label" for="http_username">{{ Lang::get('messages.http.username') }}</label>
-                                                        <div class="col-md-3">
-                                                            <input id="http_username" name="http_username" type="text" placeholder="{{ Lang::get('messages.http.username') }}" class="form-control input-md" required="">
                                                         </div>
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <label class="col-md-3 control-label" for="http_password">{{ Lang::get('messages.http.password') }}</label>
+                                                        <label id="http_auth_multil" class="col-md-3 control-label" for="http_auth1"></label>
                                                         <div class="col-md-3">
-                                                            <input id="http_password" name="http_password" type="password" placeholder="{{ Lang::get('messages.http.password') }}" class="form-control input-md" required="">
+                                                            <div class="checkbox">
+                                                                <label for="http_auth">
+                                                                    <input type="checkbox" name="http_auth" id="http_auth_multi" value="1">
+                                                                    {{ Lang::get('messages.http.authorization') }}
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="form-group">
-                                                    <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
-                                                    <div class="col-md-5">
-                                                        <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
-                                                    </div>
-                                                </div>
+                                                    <div id="HTTP_multi" style="display: none;">
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="http_username">{{ Lang::get('messages.http.username') }}</label>
+                                                            <div class="col-md-3">
+                                                                <input id="http_username" name="http_username" type="text" placeholder="{{ Lang::get('messages.http.username') }}" class="form-control input-md" required="">
+                                                            </div>
+                                                        </div>
 
-                                                <div class="form-group">
-                                                    <label class="col-md-3 control-label" for="hold"></label>
-                                                    <div class="col-md-3">
-                                                        <div class="checkbox">
-                                                            <label for="hold">
-                                                                <input type="checkbox" name="hold" id="hold" value="1">
-                                                                {{ Lang::get('messages.http.hold') }}
-                                                            </label>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="http_password">{{ Lang::get('messages.http.password') }}</label>
+                                                            <div class="col-md-3">
+                                                                <input id="http_password" name="http_password" type="password" placeholder="{{ Lang::get('messages.http.password') }}" class="form-control input-md" required="">
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="form-group">
-                                                    <label class="col-md-3 control-label" for="transload"></label>
-                                                    <div class="col-md-1">
-                                                        <button id="transload" name="transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
+                                                        <div class="col-md-5">
+                                                            <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <script>
-                                                    $('#transload').on('click', function () {
-                                                        var $btn = $(this).button('loading');
-                                                    })
-                                                </script>
-                                            </fieldset>
-                                        </form>
+
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="hold"></label>
+                                                        <div class="col-md-3">
+                                                            <div class="checkbox">
+                                                                <label for="hold">
+                                                                    <input type="checkbox" name="hold" id="hold" value="1">
+                                                                    {{ Lang::get('messages.http.hold') }}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="transload"></label>
+                                                        <div class="col-md-1">
+                                                            <button id="transload" name="transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
+                                                        </div>
+                                                    </div>
+                                                    <script>
+                                                        $('#transload').on('click', function () {
+                                                            var $btn = $(this).button('loading');
+                                                        })
+                                                    </script>
+                                                </fieldset>
+                                            </form>
                                         </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="torrent_tab">
@@ -324,58 +323,42 @@
                                                 <br /><br />
                                                 <div id="jstree_demo_div"></div>
                                                 <br />
-
-
-
-
-
-
                                                 <form id="torrent_submit_form" class="form-horizontal" method="POST" action="">
                                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                     <input type="hidden" id="torrent_file_name" name="torrent_file_name" value="">
-                                                        <fieldset>
-                                                            {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
-                                                            <br/><br/>
-                                                            <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="t_submit_name">Torrent Name</label>
-                                                                <div class="col-md-8 pull-left">
-                                                                    <input id="t_submit_name" name="t_submit_name" type="text" class="form-control input-md" required="">
+                                                    <fieldset>
+                                                        <br/><br/>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="t_submit_name">Torrent Name</label>
+                                                            <div class="col-md-8 pull-left">
+                                                                <input id="t_submit_name" name="t_submit_name" type="text" class="form-control input-md" required="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
+                                                            <div class="col-md-5">
+                                                                <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="t_submit_comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="hold"></label>
+                                                            <div class="col-md-3">
+                                                                <div class="checkbox">
+                                                                    <label for="hold">
+                                                                        <input type="checkbox" name="hold" id="hold" value="1">
+                                                                        {{ Lang::get('messages.http.hold') }}
+                                                                    </label>
                                                                 </div>
                                                             </div>
-
-                                                            <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="comment">{{ Lang::get('messages.comment') }}</label>
-                                                                <div class="col-md-5">
-                                                                    <textarea style="max-width: 386px; max-height: 200px; min-height: 70px" class="form-control" id="t_submit_comment" name="comment" placeholder="{{ Lang::get('messages.desired.comment') }}"></textarea>
-                                                                </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="transload"></label>
+                                                            <div class="col-md-1">
+                                                                <button id="transload" name="t_transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
                                                             </div>
-
-                                                            <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="hold"></label>
-                                                                <div class="col-md-3">
-                                                                    <div class="checkbox">
-                                                                        <label for="hold">
-                                                                            <input type="checkbox" name="hold" id="hold" value="1">
-                                                                            {{ Lang::get('messages.http.hold') }}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="transload"></label>
-                                                                <div class="col-md-1">
-                                                                    <button id="transload" name="t_transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
-                                                                </div>
-                                                            </div>
-                                                        </fieldset>
-
+                                                        </div>
+                                                    </fieldset>
                                                 </form>
-
-
-
-
-
                                             </div>
                                             <div id="torrent_div">
                                                 <form id="torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
