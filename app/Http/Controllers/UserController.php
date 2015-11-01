@@ -105,6 +105,9 @@ class UserController extends Controller {
 
             if (Session::has('pre_login_url')) {
                 $redirect_url = Session::get('pre_login_url');
+                if (strpos($redirect_url, '/logout')) {
+                    return Redirect::to('/');
+                }
                 Session::forget('pre_login_url');
                 return Redirect::to($redirect_url);
             } else {
