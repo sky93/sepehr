@@ -282,6 +282,10 @@ class AdminController extends Controller
                 if ( Auth::user()->username == $username) {
                     Auth::logout();
                 }
+            } elseif ($_POST['action'] == 'hard_logout') {
+                $user = User::where('username', '=', $username)->first();
+                $user->login_token = null;
+                $user->save();
             }
         }
         return Redirect::to('/tools/users/' . $username);
