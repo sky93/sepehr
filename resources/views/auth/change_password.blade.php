@@ -12,11 +12,6 @@
                         <div class="alert alert-success">
                             <strong>@lang('messages.yaay')</strong> {{ Session::get('message') }}
                         </div>
-                        <script>
-                            setTimeout(function(){
-                                window.location = '{{ url('logout') }}';
-                            }, 1000);
-                        </script>
 				    @endif
 					@if (count($errors) > 0)
 						<div class="alert alert-danger">
