@@ -53,6 +53,16 @@
 							</div>
 						</div>
 
+                        <div class="form-group">
+                            <div class="col-md-6 col-md-offset-4">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" checked name="hard_logout" <?php echo old('remember') ? 'checked' : ''; ?>>Also log me out from other devices that currently are logged in.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
 						<div class="form-group">
 							<div class="col-md-6 col-md-offset-4">
 								<button type="submit" class="btn btn-primary">
