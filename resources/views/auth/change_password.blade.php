@@ -30,7 +30,7 @@
 					@endif
 					<form class="form-horizontal" role="form" method="POST" action="">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
-
+						@if (Auth::user()->role != 2)
 						<div class="form-group">
                             <label class="col-md-4 control-label">@lang('messages.old_password')</label>
                             <div class="col-md-6">
@@ -38,7 +38,7 @@
                             </div>
                         </div>
                         <hr />
-
+						@endif
 						<div class="form-group">
 							<label class="col-md-4 control-label">@lang('messages.new_password')</label>
 							<div class="col-md-6">
@@ -57,7 +57,7 @@
                             <div class="col-md-6 col-md-offset-4">
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" checked name="hard_logout" <?php echo old('remember') ? 'checked' : ''; ?>>Also log me out from other devices that currently are logged in.
+                                        <input type="checkbox" checked name="hard_logout" <?php echo old('remember') ? 'checked' : ''; ?>>Also log out from other devices that currently are logged in.
                                     </label>
                                 </div>
                             </div>

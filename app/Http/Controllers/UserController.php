@@ -181,6 +181,14 @@ class UserController extends Controller {
      */
     public function password($username)
     {
+        $users = User::where('username', '=', $username)->first();
+
+        if ($users == null) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 404',
+                'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+            ]);
+        }
 
         if (Auth::user()->username == $username || Auth::user()->role == 2) {
             return view('auth.change_password');
@@ -210,18 +218,31 @@ class UserController extends Controller {
                 'error_message' => 'Access Denied']);
         }
 
-        $this->validate($request, [
-            'old_password' => 'required|min:6',
-            'new_password' => 'required|min:6|confirmed:new_password_confirmation',
-        ]);
+        $users = User::where('username', '=', $username)->first();
 
-        if (! Hash::check($request['old_password'], Auth::user()->password)) {
-            return redirect()->back()
-                ->withErrors([
-                    'Password_not_match' => Lang::get('errors.wrong_pass')
-                ]);
+        if ($users == null) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 404',
+                'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+            ]);
         }
 
+        $this->validate($request, [
+            'new_password' => 'required|min:6|confirmed:new_password_confirmation'
+        ]);
+
+        if (Auth::user()->role != 2) {
+            $this->validate($request, [
+                'old_password' => 'required|min:6',
+            ]);
+
+            if (!Hash::check($request['old_password'], Auth::user()->password)) {
+                return redirect()->back()
+                    ->withErrors([
+                        'Password_not_match' => Lang::get('errors.wrong_pass')
+                    ]);
+            }
+        }
 
         if ($request['hard_logout'] !== null) {
             DB::table('users')
@@ -237,7 +258,6 @@ class UserController extends Controller {
                     'password' => Hash::make($request['new_password'])
                 ]);
         }
-
 
         return redirect()->back()
             ->withInput($request->only('old_password', 'new_password', 'new_password_confirmation'))
