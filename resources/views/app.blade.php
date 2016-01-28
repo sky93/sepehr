@@ -173,6 +173,35 @@ if (!Auth::guest()){
     ga('send', 'pageview');
 </script>
 @endif
+<link href="{{ asset('/css/banner-rotator.css') }}" rel="stylesheet">
+<script src="{{ asset('/js/cookie.js') }}"></script>
+<script src="{{ asset('/js/banners-rotator.js') }}"></script>
+<script>bannersRotator.init()</script>
 
+<script>
+
+$(document).ready(function() {
+
+    var doResizing = function (increaseWith) {
+     if ($('#xxxx').length == 0) {
+            $('body').css('margin', 0).css('padding', 0);
+            $('body > *').wrapAll('<iframe id="xxxx" src="' + window.location.href  + '" /></iframe>');
+            $('#xxxx').css('background-color', 'red').css('overflow', 'scroll').css('padding', 0).css('margin', 0).css('position', 'absolute').width('100%');
+    }
+    $('#xxxx').height(parseInt($(window).height()) + 'px').width(parseInt($('#xxxx').width()) + increaseWith + 'px');
+}
+
+    $(document).keypress(function(e) {
+        if (e.which == 45) {
+            doResizing (-10);
+        }
+
+        if (e.which == 43) {
+            doResizing (+10);
+        }
+    });
+});
+
+</script>
 </body>
 </html>
