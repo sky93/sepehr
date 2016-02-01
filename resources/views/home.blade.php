@@ -185,6 +185,48 @@
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="advanced_multi_fetch"></label>
+                                                        <div class="col-md-4">
+                                                            <div class="checkbox">
+                                                                <label for="advanced_multi_fetch">
+                                                                    <input type="checkbox" name="advanced_multi_fetch" id="advanced_multi_fetch" value="1">
+                                                                    {{ Lang::get('messages.advanced') }} <span class="label label-danger">NEW</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <script type="text/javascript">
+                                                        $(document).ready(function () {
+                                                            $('#advanced_multi_fetch').click(function () {
+                                                                $("#advanced_panel_multi_fetch").slideToggle(150);
+                                                            });
+                                                        });
+                                                    </script>
+                                                    <div id="advanced_panel_multi_fetch" style="display: none;">
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="custom_user_agent">{{ Lang::get('messages.custom.user.agent') }}</label>
+                                                            <div class="col-md-8">
+                                                                <input id="custom_user_agent" name="custom_user_agent" type="text" placeholder="{{ env('APP_NAME', 'SEPEHR') }}/{{ env('VERSION', '2.0') }}" class="form-control input-md courier_font">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="custom_cookie">{{ Lang::get('messages.custom.cookie') }}</label>
+                                                            <div class="col-md-8">
+                                                                <input id="custom_cookie" name="custom_cookie" type="text" id="custom_cookie" placeholder="session=4245434341; token=7f2422a1d" class="form-control input-md courier_font">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="custom_headers">{{ Lang::get('messages.custom.header') }}</label>
+
+                                                            <div class="col-md-6">
+                                                                <textarea style="max-width: 386px; max-height: 300px; min-height: 70px" class="form-control courier_font" id="custom_headers" name="custom_headers" placeholder="header1: Details&#10;header2: Details"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <br />
+                                                    <div class="form-group">
                                                         <label class="col-md-3 control-label" for="fetch_submit"></label>
                                                         <div class="col-md-1">
                                                             <button id="fetch_submit" name="fetch_submit" class="btn btn-success btn-sm"><i class="fa fa-search"></i> {{ Lang::get('messages.find.all.matches') }}</button>
@@ -236,7 +278,7 @@
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <label id="http_auth_multil" class="col-md-3 control-label" for="http_auth1"></label>
+                                                        <label class="col-md-3 control-label" for="advanced_multi"></label>
                                                         <div class="col-md-4">
                                                             <div class="checkbox">
                                                                 <label for="advanced_multi">

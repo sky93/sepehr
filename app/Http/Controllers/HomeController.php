@@ -542,7 +542,32 @@ class HomeController extends Controller
                 ]);
             }
 
-            $link = $main->get_info($input['link']);
+            if (! $input['custom_user_agent']) {
+                $custom_user_agent = 'User-Agent: ' . env('APP_NAME', 'SEPEHR') . '/' . env('VERSION', '2.0') . "\n\r";
+            } else {
+                $input['custom_user_agent'] = trim(preg_replace('/\s+/', ' ', $input['custom_user_agent']));
+                $custom_user_agent = 'User-Agent: ' . $input['custom_user_agent'] . "\n\r";
+            }
+
+            if (! $input['custom_cookie']) {
+                $custom_cookie = '';
+            } else {
+                $input['custom_cookie'] = trim(preg_replace('/\s+/', ' ', $input['custom_cookie']));
+                $custom_cookie = 'Cookie: ' . $input['custom_cookie'] . "\n\r";
+            }
+
+            if (! $input['custom_headers']) {
+                $custom_headers = '';
+            } else {
+                $input['custom_headers'] = str_replace("\n", "\n\r", $input['custom_headers']);
+                $custom_headers = $input['custom_cookie'];
+            }
+
+            $header = $custom_user_agent . $custom_cookie . $custom_headers;
+            $header = preg_replace("/[\r\n]+/", "\n", $header);
+            $header = rtrim($header, "\n\r");
+
+            $link = $main->get_info($input['link'], $header);
 
             if (isset($link['full_headers']['content-type'])){
                 if (is_array($link['full_headers']['content-type'])) {
