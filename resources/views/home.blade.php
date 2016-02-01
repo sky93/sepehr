@@ -43,7 +43,7 @@
                                 <ul class="nav nav-tabs" role="tablist">
                                     <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Link</a></li>
                                     <li role="presentation"><a href="#multi" aria-controls="multi" role="tab" data-toggle="tab">Multiple Links</a></li>
-                                    <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent <span class="label label-danger">NEW</span></a></li>
+                                    <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent</a></li>
                                     <li role="presentation"><a href="#check_tab" aria-controls="check_tab" role="tab" data-toggle="tab">Link Checker</a></li>
                                 </ul>
 
@@ -96,7 +96,7 @@
                                                         <div class="checkbox">
                                                             <label for="advanced">
                                                                 <input type="checkbox" name="advanced" id="advanced" value="1">
-                                                                {{ Lang::get('messages.advanced') }}
+                                                                {{ Lang::get('messages.advanced') }} <span class="label label-danger">NEW</span>
                                                             </label>
                                                         </div>
                                                     </div>
@@ -202,8 +202,8 @@
                                                     <br/>
                                                     <script type="text/javascript">
                                                         $(document).ready(function () {
-                                                            $('#http_auth_multi').click(function () {
-                                                                $("#HTTP_multi").slideToggle(150);
+                                                            $('#advanced_multi').click(function () {
+                                                                $("#advanced_panel_multi").slideToggle(150);
                                                             });
                                                         });
                                                     </script>
@@ -213,34 +213,6 @@
                                                                for="links">{{ Lang::get('messages.links.to.transload') }}</label>
                                                         <div class="col-md-8">
                                                             <textarea style="max-width: 486px; max-height: 500px; min-height: 100px" class="form-control" id="links" name="links" wrap="off" placeholder="{{ Lang::get('messages.links') }}"></textarea>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label id="http_auth_multil" class="col-md-3 control-label" for="http_auth1"></label>
-                                                        <div class="col-md-3">
-                                                            <div class="checkbox">
-                                                                <label for="http_auth">
-                                                                    <input type="checkbox" name="http_auth" id="http_auth_multi" value="1">
-                                                                    {{ Lang::get('messages.http.authorization') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div id="HTTP_multi" style="display: none;">
-                                                        <div class="form-group">
-                                                            <label class="col-md-3 control-label" for="http_username">{{ Lang::get('messages.http.username') }}</label>
-                                                            <div class="col-md-3">
-                                                                <input id="http_username" name="http_username" type="text" placeholder="{{ Lang::get('messages.http.username') }}" class="form-control input-md" required="">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <label class="col-md-3 control-label" for="http_password">{{ Lang::get('messages.http.password') }}</label>
-                                                            <div class="col-md-3">
-                                                                <input id="http_password" name="http_password" type="password" placeholder="{{ Lang::get('messages.http.password') }}" class="form-control input-md" required="">
-                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -262,6 +234,43 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    <div class="form-group">
+                                                        <label id="http_auth_multil" class="col-md-3 control-label" for="http_auth1"></label>
+                                                        <div class="col-md-4">
+                                                            <div class="checkbox">
+                                                                <label for="advanced_multi">
+                                                                    <input type="checkbox" name="advanced_multi" id="advanced_multi" value="1">
+                                                                    {{ Lang::get('messages.advanced') }} <span class="label label-danger">NEW</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="advanced_panel_multi" style="display: none;">
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="custom_user_agent">{{ Lang::get('messages.custom.user.agent') }}</label>
+                                                            <div class="col-md-8">
+                                                                <input id="custom_user_agent" name="custom_user_agent" type="text" placeholder="{{ env('APP_NAME', 'SEPEHR') }}/{{ env('VERSION', '2.0') }}" class="form-control input-md courier_font">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="custom_cookie">{{ Lang::get('messages.custom.cookie') }}</label>
+                                                            <div class="col-md-8">
+                                                                <input id="custom_cookie" name="custom_cookie" type="text" id="custom_cookie" placeholder="session=4245434341; token=7f2422a1d" class="form-control input-md courier_font">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="col-md-3 control-label" for="custom_headers">{{ Lang::get('messages.custom.header') }}</label>
+
+                                                            <div class="col-md-6">
+                                                                <textarea style="max-width: 386px; max-height: 300px; min-height: 70px" class="form-control courier_font" id="custom_headers" name="custom_headers" placeholder="header1: Details&#10;header2: Details"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <br />
 
                                                     <div class="form-group">
                                                         <label class="col-md-3 control-label" for="transload"></label>
