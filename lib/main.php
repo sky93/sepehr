@@ -8,19 +8,19 @@ class main
      *
      * @param $url
      * @param int $timeout
-     * @param string $http_username
-     * @param string $http_password
+     * @param string $custom_headers
      *
      * @return array|bool(false)
      */
-    public function get_info($url, $timeout = 10, $http_username = '', $http_password = '')
+    public function get_info($url, $timeout = 10, $custom_headers = '')
     {
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
         stream_context_set_default(
             [
                 'http' => [
-                    'method' => 'GET'
+                    'method' => 'GET',
+                    'header' => $custom_headers
                 ]
             ]
         );

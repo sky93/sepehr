@@ -498,9 +498,9 @@ class HomeController extends Controller
     {
         $input = $request->only(
             'link',
-            'http_auth',
-            'http_username',
-            'http_password',
+            'custom_user_agent',
+            'custom_cookie',
+            'custom_headers',
             'comment',
             'hold',
             'id',
@@ -522,6 +522,11 @@ class HomeController extends Controller
             }
         }
 
+        /**
+         *
+         * Fetch Links Section
+         *
+         */
         if ($request->ajax() && $input['type'] == 'fetch') {
 
             $v = Validator::make(
@@ -537,14 +542,7 @@ class HomeController extends Controller
                 ]);
             }
 
-            //echo $html = file_get_contents($input['link']);
-
-            //get_headers($input['link'], 1)
-
-
             $link = $main->get_info($input['link']);
-           // echo $link['content_type'];
-           // print_r($link['full_headers']['content-type']);
 
             if (isset($link['full_headers']['content-type'])){
                 if (is_array($link['full_headers']['content-type'])) {
@@ -597,7 +595,15 @@ class HomeController extends Controller
             }
 
 
-        }elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents
+        }
+
+
+        /**
+         *
+         * Torrent Section
+         *
+         */
+        elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents
 
             $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . Auth::user()->username . '_' . $input['torrent_file_name'];
             if (! file_exists($path)) {
@@ -756,7 +762,15 @@ class HomeController extends Controller
             ]);
             }
 
-        } elseif ($request->ajax() && $input['type'] == 'check') {
+        }
+
+
+        /**
+         *
+         * Check Links Section
+         *
+         */
+        elseif ($request->ajax() && $input['type'] == 'check') {
             $v = Validator::make(
                 $input,
                 [
@@ -811,6 +825,13 @@ class HomeController extends Controller
                 return redirect::back()->withErrors('sth is wrong.');
             }
         }
+
+
+        /**
+         *
+         * Main Download Section
+         *
+         */
         else
         {
             $v = Validator::make(
@@ -834,30 +855,6 @@ class HomeController extends Controller
                 }
             }
 
-
-            if ($input['http_auth']) {
-                $v = Validator::make(
-                    $input,
-                    [
-                        'http_username' => 'required|max:64',
-                        'http_password' => 'required|max:64'
-                    ]
-                );
-
-                if ($v->fails()) {
-                    $message = $v->messages();
-                    if ($request->ajax()) {
-                        return response()->json([
-                            'type' => 'error',
-                            'id' => $input['id'],
-                            'message' => 'Input Error. HTTP Auth'
-                        ]);
-                    } else {
-                        return redirect::back()->withErrors($message);
-                    }
-
-                }
-            }
 
             if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
                 if ($request->ajax()) {
@@ -886,7 +883,31 @@ class HomeController extends Controller
                 }
             }
 
-            $url_inf = $main->get_info($input['link']);
+            if (! $input['custom_user_agent']) {
+                $custom_user_agent = 'User-Agent: ' . env('APP_NAME', 'SEPEHR') . '/' . env('VERSION', '2.0') . '\n\r';
+            } else {
+                $input['custom_user_agent'] = trim(preg_replace('/\s+/', ' ', $input['custom_user_agent']));
+                $custom_user_agent = 'User-Agent: ' . $input['custom_user_agent'] . '\n\r';
+            }
+
+            if (! $input['custom_cookie']) {
+                $custom_cookie = '';
+            } else {
+                $input['custom_cookie'] = trim(preg_replace('/\s+/', ' ', $input['custom_cookie']));
+                $custom_cookie = 'Cookie: ' . $input['custom_cookie'] . '\n\r';
+            }
+
+            if (! $input['custom_headers']) {
+                $custom_headers = '';
+            } else {
+                $input['custom_headers'] = preg_replace("/[\r\n]+/", "\n", $input['custom_headers']);
+                $input['custom_headers'] = str_replace("\n", '\n\r', $input['custom_headers']);
+                $custom_headers = $input['custom_cookie'];
+            }
+
+            $header = $custom_user_agent . $custom_cookie . $custom_headers;
+
+            $url_inf = $main->get_info($input['link'], $header);
 
             $fileSize = $url_inf['filesize'];
             $filename = $url_inf['filename'];
@@ -979,20 +1000,8 @@ class HomeController extends Controller
                 }
             }
 
-//        DB::table('users')
-//            ->where('id', Auth::user()->id)
-//            ->update([
-//                'queue_credit' => $q_credit
-//            ]);
 
             $hold = $input['hold'] ? -2 : null;
-
-            if ($input['http_auth']) {
-                $http_user = $input['http_username'];
-                $http_pass = $input['http_password'];
-            } else {
-                $http_user = $http_pass = null;
-            }
 
             DB::table('download_list')->insertGetId(
                 [
@@ -1001,8 +1010,9 @@ class HomeController extends Controller
                     'length' => $fileSize,
                     'file_name' => $filename,
                     'state' => $hold,
-                    'http_user' => $http_user,
-                    'http_password' => $http_pass,
+                    'custom_headers' => $header,
+                    'http_user' => null,
+                    'http_password' => null,
                     'comment' => $input['comment'],
                     'torrent' => 0,
                     'date_added' => date('Y-m-d H:i:s', time())

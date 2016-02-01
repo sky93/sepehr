@@ -93,6 +93,10 @@ body {
     font-family: "Varela Round", Tahoma, Arial, sans-serif;
 }
 
+.courier_font {
+    font-family: "Courier New", Menlo, Monaco, Consolas, monospace;
+}
+
 
 .pace {
     -webkit-pointer-events: none;

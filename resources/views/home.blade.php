@@ -53,14 +53,11 @@
                                         <form id="frm_single" class="form-horizontal" method="POST" action="" novalidate="">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <fieldset>
-                                                {{--<legend>{{ Lang::get('messages.home.title') }}</legend>--}}
                                                 <br/><br/>
                                                 <script type="text/javascript">
                                                     $(document).ready(function () {
-                                                        $('#http_auth').click(function () {
-                                                            $("#HTTP").slideToggle(150);
-                                                            $('#http_password').prop('required', true);
-                                                            $('#http_username').prop('required', true);
+                                                        $('#advanced').click(function () {
+                                                            $("#advanced_panel").slideToggle(100);
                                                         });
                                                     });
                                                 </script>
@@ -68,36 +65,8 @@
                                                 <div class="form-group">
                                                     <label class="col-md-3 control-label"
                                                            for="link">{{ Lang::get('messages.link.to.transload') }}</label>
-                                                    <div class="col-md-8 pull-left">
-                                                        <input id="link" name="link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md" required="">
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <label class="col-md-3 control-label" for="http_auth"></label>
-                                                    <div class="col-md-4">
-                                                        <div class="checkbox">
-                                                            <label for="http_auth">
-                                                                <input type="checkbox" name="http_auth" id="http_auth" value="1">
-                                                                {{ Lang::get('messages.http.authorization') }}
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div id="HTTP" style="display: none;">
-                                                    <div class="form-group">
-                                                        <label class="col-md-3 control-label" for="http_username">{{ Lang::get('messages.http.username') }}</label>
-                                                        <div class="col-md-3">
-                                                            <input id="http_username" name="http_username" type="text" placeholder="{{ Lang::get('messages.http.username') }}" class="form-control input-md" required="">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label class="col-md-3 control-label" for="http_password">{{ Lang::get('messages.http.password') }}</label>
-                                                        <div class="col-md-3">
-                                                            <input id="http_password" name="http_password" type="password" placeholder="{{ Lang::get('messages.http.password') }}" class="form-control input-md" required="">
-                                                        </div>
+                                                    <div class="col-md-8">
+                                                        <input id="link" name="link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md courier_font" required="">
                                                     </div>
                                                 </div>
 
@@ -120,6 +89,42 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <div class="form-group">
+                                                    <label class="col-md-3 control-label" for="advanced"></label>
+                                                    <div class="col-md-4">
+                                                        <div class="checkbox">
+                                                            <label for="advanced">
+                                                                <input type="checkbox" name="advanced" id="advanced" value="1">
+                                                                {{ Lang::get('messages.advanced') }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="advanced_panel" style="display: none">
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="custom_user_agent">{{ Lang::get('messages.custom.user.agent') }}</label>
+                                                        <div class="col-md-8">
+                                                            <input id="custom_user_agent" name="custom_user_agent" type="text" placeholder="{{ env('APP_NAME', 'SEPEHR') }}/{{ env('VERSION', '2.0') }}" class="form-control input-md courier_font">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="custom_cookie">{{ Lang::get('messages.custom.cookie') }}</label>
+                                                        <div class="col-md-8">
+                                                            <input id="custom_cookie" name="custom_cookie" type="text" id="custom_cookie" placeholder="session=4245434341; token=7f2422a1d" class="form-control input-md courier_font">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="col-md-3 control-label" for="custom_headers">{{ Lang::get('messages.custom.header') }}</label>
+
+                                                        <div class="col-md-6">
+                                                            <textarea style="max-width: 386px; max-height: 300px; min-height: 70px" class="form-control courier_font" id="custom_headers" name="custom_headers" placeholder="header1: Details&#10;header2: Details"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br />
 
                                                 <div class="form-group">
                                                     <label class="col-md-3 control-label" for="transload"></label>
