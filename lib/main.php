@@ -12,7 +12,7 @@ class main
      *
      * @return array|bool(false)
      */
-    public function get_info($url, $timeout = 10, $custom_headers = '')
+    public function get_info($url, $custom_headers = '', $timeout = 10)
     {
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
