@@ -89,7 +89,7 @@
                                                     </label>
                                                     <div class="col-md-8">
                                                         <input id="link" name="link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md courier_font" required="">
-                                                        <span id="link_size" class="help-block"  style="display: none">help</span>
+                                                        <span id="link_size" class="help-block"  style="width: 100%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; display: none"></span>
                                                     </div>
                                                 </div>
 
