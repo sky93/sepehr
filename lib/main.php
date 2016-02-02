@@ -454,4 +454,74 @@ class main
         $header = rtrim($header, "\n\r");
         return $header;
     }
+
+
+    /**
+     *
+     * Get all torrent information
+     *
+     * @param $path
+     * @return array
+     */
+    function torrent_info($path){
+        $full_path = $path;
+        $torrent = new Torrent($path);
+
+        $main = new main();
+
+        $new_content = [];
+        foreach($torrent->content() as $key => $value) {
+            $key = str_replace('\\', '/', $key);
+            $new_content[] = $key . ' (' . $main->formatBytes($value,2) . ')';
+        }
+
+        $paths = $new_content;
+        sort($paths);
+        $array = [];
+        foreach ($paths as $path) {
+            $path = trim($path, '/');
+            $list = explode('/', $path);
+            $n = count($list);
+
+            $arrayRef = &$array; // start from the root
+            for ($i = 0; $i < $n; $i++) {
+                $key = $list[$i];
+                $arrayRef = &$arrayRef[$key]; // index into the next level
+            }
+        }
+
+        $GLOBALS['rec'] = '{ "core" : { "data" : [';
+        function rec ($array) {
+            $c = count($array);
+            foreach ($array as $key => $value) {
+                if (is_array($value)) {
+                    $GLOBALS['rec'] .= '{"text": "' . $key . '"';
+                    $GLOBALS['rec'] .= ', "children": [';
+                    rec($value);
+                    $GLOBALS['rec'] .= ']}';
+                } else {
+                    $GLOBALS['rec'] .= '"' . $key . '"';
+                    $c--;
+                    if($c) $GLOBALS['rec'] .= ",";
+                }
+            }
+        }
+        rec($array);
+        $GLOBALS['rec'] .= ']}}';
+        $JSTreeContent = $GLOBALS['rec'];
+        unset($GLOBALS['rec']);
+
+        return [
+            'result' => 'ok',
+            'size' => $main->formatBytes($torrent->size(), 1) ,
+            'name' =>  $torrent->name(),
+            'file_name' => basename($full_path),
+            'hash' => $torrent->hash_info(),
+            'comment' => $torrent->comment(),
+            'piece_length' => $main->formatBytes($torrent->piece_length(),3),
+            'content' => $JSTreeContent,
+            'ttt' => $full_path
+        ];
+
+    }
 }

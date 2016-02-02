@@ -525,10 +525,63 @@ class HomeController extends Controller
 
         /**
          *
+         * Get Magnet Links
+         *
+         */
+        elseif ($request->ajax() && $input['type'] == 'magnet') {
+            $link = $input['link'];
+
+            $link = urldecode($link);
+            $link = str_replace('magnet:?','',$link);
+
+            parse_str($link, $link_parsed);
+
+            if (array_key_exists('xt', $link_parsed)) {
+                $xt = explode(':', $link_parsed['xt']);
+                $xt = $xt[count($xt)-1];
+
+                $url = 'http://torcache.net/torrent/' . $xt . '.torrent';
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_SSLVERSION,3);
+                curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+                curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+                $data = curl_exec ($ch);
+
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close ($ch);
+
+                if ($httpcode == 200) {
+                    $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . Auth::user()->username . '_magnet_' . $xt . '.torrent';
+                    $file = fopen($path, "w+");
+                    fputs($file, $data);
+                    fclose($file);
+                    return response()->json($main->torrent_info($path));
+                } else {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'Magnet link not found (404) or server is busy.'
+                    ]);
+                }
+
+            } else {
+                return response()->json([
+                    'result' => 'er',
+                    'message' => 'Wrong magnet format provided.'
+                ]);
+            }
+        }
+
+
+        /**
+         *
          * Get Size Of The Links Section
          *
          */
-        if ($request->ajax() && $input['type'] == 'size') {
+        elseif ($request->ajax() && $input['type'] == 'size') {
 
             $v = Validator::make(
                 $input,
@@ -647,7 +700,7 @@ class HomeController extends Controller
          */
         elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents
 
-            $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . Auth::user()->username . '_' . $input['torrent_file_name'];
+            $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . $input['torrent_file_name'];
             if (! file_exists($path)) {
                 return redirect::back()->withErrors('Couldn\'t get your request');
             }
@@ -738,64 +791,7 @@ class HomeController extends Controller
 
                 move_uploaded_file($_FILES[0]['tmp_name'], $path);
 
-                $torrent = new Torrent($path);
-
-                $torrent->name();
-                $main = new main();
-
-                $new_content = [];
-                foreach($torrent->content() as $key => $value) {
-                    $key = str_replace('\\', '/', $key);
-                    $new_content[] = $key . ' (' . $main->formatBytes($value,2) . ')';
-                }
-
-                $paths = $new_content;
-                sort($paths);
-                $array = [];
-                foreach ($paths as $path) {
-                    $path = trim($path, '/');
-                    $list = explode('/', $path);
-                    $n = count($list);
-
-                    $arrayRef = &$array; // start from the root
-                    for ($i = 0; $i < $n; $i++) {
-                        $key = $list[$i];
-                        $arrayRef = &$arrayRef[$key]; // index into the next level
-                    }
-                }
-
-                $GLOBALS['rec'] = '{ "core" : { "data" : [';
-                function rec ($array) {
-                    $c = count($array);
-                    foreach ($array as $key => $value) {
-                        if (is_array($value)) {
-                            $GLOBALS['rec'] .= '{"text": "' . $key . '"';
-                            $GLOBALS['rec'] .= ', "children": [';
-                                rec($value);
-                            $GLOBALS['rec'] .= ']}';
-                        } else {
-                            $GLOBALS['rec'] .= '"' . $key . '"';
-                            $c--;
-                            if($c) $GLOBALS['rec'] .= ",";
-                        }
-                    }
-                }
-                rec($array);
-                $GLOBALS['rec'] .= ']}}';
-                $JSTreeContent = $GLOBALS['rec'];
-                unset($GLOBALS['rec']);
-
-                return response()->json([
-                    'result' => 'ok',
-                    'size' => $main->formatBytes($torrent->size(), 1) ,
-                    'name' =>  $torrent->name(),
-                    'file_name' => $_FILES[0]['name'],
-                    'hash' => $torrent->hash_info(),
-                    'comment' => $torrent->comment(),
-                    'piece_length' => $main->formatBytes($torrent->piece_length(),3),
-                    'content' => $JSTreeContent
-                ]);
-
+                return response()->json($main->torrent_info($path));
 
             } else {
                 return response()->json([

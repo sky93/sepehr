@@ -358,6 +358,61 @@
                                             <br/>
                                             <div class="alert alert-info" role="alert" style="text-align: center"><span style="font-weight: bold"><i class="fa fa-exclamation"></i> @lang('messages.notice'): </span>@lang('messages.torrent_disabled')</div>
                                         @else
+                                        <ul class="nav nav-pills" id="magnet_torrent_tab">
+                                            <li class="active"><a data-toggle="pill" href="#torrent_file" style="padding: 2px 10px"><i class="fa fa-upload"></i> Torrent File</a></li>
+                                            <li> <a data-toggle="pill" href="#magnet" style="padding: 2px 10px"><i class="fa fa-magnet"></i> Magnet</a></li>
+                                        </ul>
+
+                                        <div class="tab-content">
+                                            <div id="torrent_file" class="tab-pane fade in active">
+                                                <div id="torrent_div">
+                                                    <form id="torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                        <fieldset>
+                                                            <br/>
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="torrent_file_upload">Torrent File Name: </label>
+                                                                <div class="col-md-8 pull-left">
+                                                                    <input id="torrent_upload_form_files" name="torrent_file_upload" type="file" class="input-file" required="">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="submit"></label>
+                                                                <div class="col-md-1">
+                                                                    <button id="torrent_upload_form_submit" name="submit" class="btn btn-primary"><i class="fa fa fa-check"></i> Get Info</button>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                        <br />
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <div id="magnet" class="tab-pane fade">
+                                                <div id="magnet_torrent_div">
+                                                    <form id="magnet_torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
+                                                        <fieldset>
+                                                            <br/>
+                                                            <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}">
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label"
+                                                                       for="magnet_uri">Your Magnet URI
+                                                                </label>
+                                                                <div class="col-md-8">
+                                                                    <input id="magnet_uri" name="link" type="text" placeholder="magnet:?xt=urn:btih:c12fe1c06bba254a9dc9f519b335aa7c1367a88a&dn" class="form-control input-md courier_font" required="">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-md-3 control-label" for="submit"></label>
+                                                                <div class="col-md-1">
+                                                                    <button id="magnet_torrent_upload_form_submit" name="submit" class="btn btn-primary"><i class="fa fa-check"></i> Get Info</button>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                        <br />
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                             <div id="torrent_res_div">
                                                 <div class="row">
                                                     <div class="col-md-3">
@@ -404,7 +459,7 @@
                                                 <br />
                                                 <form id="torrent_submit_form" class="form-horizontal" method="POST" action="">
                                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                    <input type="hidden" id="torrent_file_name" name="torrent_file_name" value="">
+                                                    <input  id="torrent_file_name" name="torrent_file_name" value="">
                                                     <fieldset>
                                                         <br/><br/>
                                                         <div class="form-group">
@@ -439,27 +494,7 @@
                                                     </fieldset>
                                                 </form>
                                             </div>
-                                            <div id="torrent_div">
-                                                <form id="torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                    <fieldset>
-                                                        <br/>
-                                                        <div class="form-group">
-                                                            <label class="col-md-3 control-label" for="torrent_file_upload">Torrent File Name: </label>
-                                                            <div class="col-md-8 pull-left">
-                                                                <input id="torrent_upload_form_files" name="torrent_file_upload" type="file" class="input-file" required="">
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="col-md-3 control-label" for="submit"></label>
-                                                            <div class="col-md-1">
-                                                                <button id="torrent_upload_form_submit" name="submit" class="btn btn-primary"><i class="fa fa fa-check"></i> Get Info</button>
-                                                            </div>
-                                                        </div>
-                                                    </fieldset>
-                                                    <br />
-                                                </form>
-                                            </div>
+
                                         @endif
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="check_tab">
