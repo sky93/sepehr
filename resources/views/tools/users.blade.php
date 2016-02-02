@@ -82,12 +82,14 @@
                                 <td>{{ $user->username }}</td>
                                 <td data-text="{{ $user->credit }}">{{ $main->formatBytes($user->credit,1) }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td data-text="{{ date( 'd/m/Y H:i', strtotime( $user->last_seen ) ) }}">
-                                @if ($user->last_seen)
-                                <time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $user->last_seen ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $user->last_seen ) ) }}</time>
-                                @else
-                                Never
-                                @endif
+                                <td data-text="{{ strtotime( $user->last_seen ) }}">
+                                    @if (time() - strtotime($user->last_seen) <= 30)
+                                        <span style="color: #2ca02c; font-weight: bold">Online</span>
+                                    @elseif ($user->last_seen)
+                                        <time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $user->last_seen ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $user->last_seen ) ) }}</time>
+                                    @else
+                                        Never
+                                    @endif
                                 </td>
                                 <td>
                                     @if($user->role == 1)

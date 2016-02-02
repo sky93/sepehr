@@ -43,7 +43,10 @@ class Authenticate
                 return redirect()->guest('/login');
             }
         }
-        if(! $request->user()->active) {
+
+        $login_token = $request->cookie('login_token');
+
+        if(! ($request->user()->active) || $request->user()->login_token != $login_token || $login_token === null) {
             $this->auth->logout();
 
             if ($request->ajax()) {

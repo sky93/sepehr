@@ -87,7 +87,7 @@
                                     });
                                     @if (! isset($_GET['showall']))
                                     $('.pagination-demo').twbsPagination({
-                                        totalPages: {{ ceil ($files_count / 20) }},
+                                        totalPages: {{ ceil ($files_count / 100) }},
                                         visiblePages: 10,
                                         href: <?= "'?page={{number}}#page'" ?>
                                     });

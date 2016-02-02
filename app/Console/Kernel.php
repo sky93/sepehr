@@ -32,8 +32,11 @@ class Kernel extends ConsoleKernel
                 $time = date("Y-m-d H:i:s", time() - (config('leech.auto_delete_time') * 60 * 60));
 
                 $old_files = DB::table('download_list')
+                    ->leftjoin('users', 'download_list.user_id', '=', 'users.id')
+                    ->select('download_list.*', 'users.role')
                     ->where('date_completed', '<', $time)
                     ->where('keep', '=', 0)
+                    ->where('role', '!=', 2)
                     ->where('deleted', '=', 0)
                     ->get();
 

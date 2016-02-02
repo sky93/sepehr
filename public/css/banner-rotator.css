@@ -1,0 +1,323 @@
+/* Slide up banner */
+.jb-slideup-promotion {
+font-family: inherit !important;
+    position: fixed;
+    z-index: 9999;
+    width: 0;
+    height: 0;
+    left: 50%;
+    bottom: 10px;
+    transition: all 0.5s;
+    margin-left: -1px;
+}
+
+.jb-slideup-promotion.is_hidden {
+font-family: inherit !important;
+    bottom: -200px;
+}
+
+.jb-slideup-promotion__body {
+font-family: inherit !important;
+    position: absolute;
+    -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+    bottom: 0;
+    background-repeat: no-repeat;
+}
+
+.jb-slideup-promotion__close-button {
+font-family: inherit !important;
+    position: absolute;
+    z-index: 2;
+    cursor: pointer;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.jb-slideup-promotion__link {
+font-family: inherit !important;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+
+/* In place banner */
+.jb-inplace-promotion {
+}
+
+.jb-inplace-promotion.is_hidden {
+    display: none;
+}
+
+.jb-inplace-promotion__body {
+font-family: inherit !important;
+    margin-bottom: 30px;
+    padding: 12px 35px 6px;
+    position: relative;
+    font-size: 12px;
+    color: #fff;
+    clear: both;
+
+    
+    background-color: #f2f2f2;
+}
+
+.jb-inplace-promotion__close-button {
+font-family: inherit !important;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 11px;
+    height: 11px;
+    background: url(../../img/country_offer_close.png) no-repeat left bottom;
+}
+
+.jb-inplace-promotion._subscription {
+    margin: -12px -35px;
+    padding: 0;
+    width: 984px;
+    height: 138px;
+    background: url(../banners/subscription/buy_page_banner@2x.png) no-repeat 0 0;
+    background-size: 100% auto;
+    }
+    .jb-inplace-promotion._subscription a {
+        display: block;
+        height: 138px;
+    }
+    .jb-inplace-promotion .jb-inplace-promotion__close-button {
+        top: 0;
+        right: -14px;
+    }
+
+
+.country-visitors {
+font-family: inherit !important;
+    position: relative;
+    font-size: 12px;
+    color: #474747;
+    clear: both;
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+.country-visitors h6 {
+font-family: inherit !important;
+    padding: 12px 10px 0 85px;
+    min-height: 70px;
+    font-size: 14px;
+    line-height: 1.3;
+    position: relative;
+}
+.country-visitors h6:before {
+font-family: inherit !important;
+    margin-left: -85px;
+    content: "";
+    position: absolute;
+    top: 4px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: transparent;
+}
+.country-visitors._germany h6:before {
+    background: linear-gradient(to bottom,  #000000 0%,#000000 33.3%,#dd0000 33.3%,#dd0000 66.6%,#ffce00 66.6%,#ffce00 100%); /* W3C */
+}
+.country-visitors._china h6 {
+font-family: inherit !important;
+    padding-top: 0;
+    padding-left: 146px;
+    font-size: 24px;
+}
+
+._china .paypal {
+    margin-top: 5px;
+    display: block;
+    width: 100px;
+    height: 50px;
+    background: url("../../img/logos/partners-china-banner.svg") no-repeat -65px 0;
+}
+.country-visitors._china h6:before {
+    margin-left: -146px;
+    width: 120px;
+    border-radius: 0;
+    background-color: #de2910;
+}
+.country-visitors._china h6:after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 43px;
+    height: 35px;
+    background: url("../../img/logos/partners-china-banner.svg") no-repeat 0 0;
+}
+.country-visitors p {
+    margin-bottom: 5px;
+}
+
+
+/* + cookies-notify */
+.jb-slideup-promotion.id_cookies {
+font-family: inherit !important;
+    position: fixed;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    z-index: 1001;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    }
+.jb-slideup-promotion.id_cookies.is_hidden {
+font-family: inherit !important;
+    bottom: -450px;
+    opacity: 0;
+    }
+    .id_cookies .jb-slideup-promotion__body {
+	font-family: inherit !important;
+        position: static;
+        -webkit-transform: none;
+                transform: none;
+        }
+    .id_cookies .jb-promotion__close-button {
+	font-family: inherit !important;
+        z-index: 5;
+        background-color: #000;
+        }
+        .id_cookies .jb-promotion__close-button:before {
+		font-family: inherit !important;
+            display: inline-block;
+            width: 1.4em;
+            height: 1.4em;
+            background: transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-388.5%20313.5%2014%2014%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M-388.5%20327.281v-1.181l5.709-5.709-5.709-5.709v-1.182h1.181l5.709%205.709%205.708-5.709h1.182v1.182l-5.708%205.709%205.708%205.709v1.182h-1.182l-5.708-5.709-5.709%205.709h-1.181z%22%2F%3E%3C%2Fsvg%3E") no-repeat 50%/.6em;
+            content: '';
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.2;
+            text-align: center;
+            -webkit-transition: background-color .4s;
+                    transition: background-color .4s;
+            }
+        .id_cookies .jb-promotion__close-button:hover:before {
+		font-family: inherit !important;
+            background-color: red;
+            }
+
+.cookies-notify {
+font-family: inherit !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 23px 23px 0;
+    width: 380px;
+    height: 150px;
+    background: #000;
+    color: #ccc;
+    font: 12px/1.2 Menlo, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace  !important;
+
+    -webkit-transition: height .4s;
+            transition: height .4s;
+    }
+    .cookies-notify:before {
+	font-family: inherit !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 15px;
+        box-shadow: inset #000 0 5px 10px;
+        content: '';
+        }
+    .cookies-notify__paragraph {
+        margin: 0 0 1em;
+		font-family: inherit !important;
+        }
+    .cookies-notify__link {
+	font-family: inherit !important;
+        color: inherit;
+        text-decoration: underline;
+        }
+
+.jquery-console-focus span.jquery-console-cursor {
+font-family: inherit !important;
+    background: #eee;
+    color: #eee;
+    font-weight: bold;
+    }
+    .win .jquery-console-focus span.jquery-console-cursor {
+	font-family: inherit !important;
+        background: transparent;
+        border-bottom: 2px solid;
+        -webkit-animation: blink 1s steps(2, start) infinite;
+                animation: blink 1s steps(2, start) infinite;
+        }
+    @keyframes blink {
+        to      { visibility: hidden }
+    }
+    @-webkit-keyframes blink {
+        to      { visibility: hidden }
+    }
+.jquery-console-inner { padding-bottom: 1em;font-family: inherit !important; }
+.jquery-console-message { margin-bottom: 1em;font-family: inherit !important; }
+.jquery-console-message-error {}
+.jquery-console-message-success {}
+/* - cookies-notify */
+
+/*Special*/
+
+.jb-promotion.id_toolbox-popup {
+font-family: inherit !important;
+    width: 100%;
+    height: 70px;
+    margin-bottom: -10px;
+
+    left: auto;
+
+    background: rgba(230, 109, 29, .9);
+}
+
+.id_toolbox-popup .jb-slideup-promotion__body{
+font-family: inherit !important;
+
+    position: relative;
+    left: auto;
+
+    margin: auto;
+    -webkit-transform: translate(0, 0);
+    -moz-transform:    translate(0, 0);
+    -ms-transform:     translate(0, 0);
+    -o-transform:      translate(0, 0);
+    transform:         translate(0, 0);
+}
+
+.jb-toolbox-popup {
+font-family: inherit !important;
+    font-size: 18px;
+
+    padding-top: 10px;
+
+    line-height: 26px;
+    color: #fff;
+}
+
+.id_toolbox-popup .jb-promotion__close-button{
+font-family: inherit !important;
+    background-image: url('/inc/banners/toolbox-popup/close.svg');
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.id_cookies{
+font-family: Menlo, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace  !important;
+font: 12px/1.2 Menlo, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace  !important;
+}
+
+.jquery-console-prompt-label{
+font-family: Menlo, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace  !important;
+font: 12px/1.2 Menlo, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace  !important;
+}

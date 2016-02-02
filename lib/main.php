@@ -8,19 +8,19 @@ class main
      *
      * @param $url
      * @param int $timeout
-     * @param string $http_username
-     * @param string $http_password
+     * @param string $custom_headers
      *
      * @return array|bool(false)
      */
-    public function get_info($url, $timeout = 10, $http_username = '', $http_password = '')
+    public function get_info($url, $custom_headers = '', $timeout = 10)
     {
         $current_timeout = ini_get('default_socket_timeout');
         ini_set("default_socket_timeout", $timeout);
         stream_context_set_default(
             [
                 'http' => [
-                    'method' => 'GET'
+                    'method' => 'GET',
+                    'header' => $custom_headers
                 ]
             ]
         );
@@ -368,6 +368,8 @@ class main
     }
 
 
+
+
     /**
      *
      * Checks if the string contains blocked words.
@@ -385,5 +387,71 @@ class main
 
 
 
+    private function crypto_rand_secure($min, $max)
+    {
+        $range = $max - $min;
+        if ($range < 1) return $min; // not so random...
+        $log = ceil(log($range, 2));
+        $bytes = (int) ($log / 8) + 1; // length in bytes
+        $bits = (int) $log + 1; // length in bits
+        $filter = (int) (1 << $bits) - 1; // set all lower bits to 1
+        do {
+            $rnd = hexdec(bin2hex(openssl_random_pseudo_bytes($bytes)));
+            $rnd = $rnd & $filter; // discard irrelevant bits
+        } while ($rnd >= $range);
+        return $min + $rnd;
+    }
 
+    function getToken($length)
+    {
+        $token = '';
+        $codeAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $codeAlphabet.= 'abcdefghijklmnopqrstuvwxyz';
+        $codeAlphabet.= '0123456789';
+        $max = strlen($codeAlphabet) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $main = new main();
+            $token .= $codeAlphabet[$main->crypto_rand_secure(0, $max)];
+        }
+        return $token;
+    }
+
+
+
+    /**
+     *
+     * Convert unsafe headers to standard headers
+     *
+     * @param $user_agent
+     * @param $cookie
+     * @param $headers
+     * @return string
+     */
+    function convert_header($user_agent, $cookie, $headers) {
+        if (! $user_agent) {
+            $custom_user_agent = 'User-Agent: ' . env('APP_NAME', 'SEPEHR') . '/' . env('VERSION', '2.0') . "\n\r";
+        } else {
+            $user_agent = trim(preg_replace('/\s+/', ' ', $user_agent));
+            $custom_user_agent = 'User-Agent: ' . $user_agent . "\n\r";
+        }
+
+        if (! $cookie) {
+            $custom_cookie = '';
+        } else {
+            $cookie = trim(preg_replace('/\s+/', ' ', $cookie));
+            $custom_cookie = 'Cookie: ' . $cookie . "\n\r";
+        }
+
+        if (! $headers) {
+            $custom_headers = '';
+        } else {
+            $headers = str_replace("\n", "\n\r", $headers);
+            $custom_headers = $headers;
+        }
+
+        $header = $custom_user_agent . $custom_cookie . $custom_headers;
+        $header = preg_replace("/[\r\n]+/", "\n", $header);
+        $header = rtrim($header, "\n\r");
+        return $header;
+    }
 }

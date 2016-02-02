@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -67,7 +68,6 @@ class UserController extends Controller {
             ->get();
 
         if (count($ip) >= Config::get('leech.password_retry_count')) {
-
             $diffrence_mins = Config::get('leech.ip_block_duration') - round(abs(time() - strtotime($ip[0]->date)) / 60);
 
             if($diffrence_mins > 0) {
@@ -84,15 +84,30 @@ class UserController extends Controller {
         ]);
 
         $main = new main();
-        if (!$main->trusted_ip($_SERVER['REMOTE_ADDR'])) {
+        if (! $main->trusted_ip($_SERVER['REMOTE_ADDR'])) {
             $this->validate($request, [
                 'g-recaptcha-response' => 'required|captcha'
             ]);
         }
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
+            if (Auth::user()->login_token === null) {
+                $token = $main->getToken(32);
+                DB::table('users')
+                    ->where('id', '=', Auth::user()->id)
+                    ->update([
+                        'login_token' => $token,
+                    ]);
+                Cookie::queue('login_token', $token, 129600); //2592000 = 60 * 24 * 30 * 3 = 3 months
+            }else {
+                Cookie::queue('login_token', Auth::user()->login_token, 129600); //2592000 = 60 * 24 * 30 * 3 = 3 months
+            }
+
             if (Session::has('pre_login_url')) {
                 $redirect_url = Session::get('pre_login_url');
+                if (strpos($redirect_url, '/logout')) {
+                    return Redirect::to('/');
+                }
                 Session::forget('pre_login_url');
                 return Redirect::to($redirect_url);
             } else {
@@ -169,6 +184,15 @@ class UserController extends Controller {
      */
     public function password($username)
     {
+        $users = User::where('username', '=', $username)->first();
+
+        if ($users == null) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 404',
+                'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+            ]);
+        }
+
         if (Auth::user()->username == $username || Auth::user()->role == 2) {
             return view('auth.change_password');
         } else {
@@ -190,30 +214,53 @@ class UserController extends Controller {
 	 */
     public function post_password(Request $request, $username)
     {
+        // If you remove this line an unauthorized user can change other users password.
         if (! (Auth::user()->username == $username || Auth::user()->role == 2)) {
             return view('errors.general', [
                 'error_title' => 'ERROR 401',
                 'error_message' => 'Access Denied']);
         }
 
-        $this->validate($request, [
-            'old_password' => 'required|min:6',
-            'new_password' => 'required|min:6|confirmed:new_password_confirmation',
-        ]);
+        $users = User::where('username', '=', $username)->first();
 
-        if (!Hash::check($request['old_password'], Auth::user()->password)) {
-            return redirect()->back()
-                ->withInput($request->only('username', 'remember', 'password'))
-                ->withErrors([
-                    'Password_not_match' => Lang::get('errors.wrong_pass')
-                ]);
+        if ($users == null) {
+            return view('errors.general', [
+                'error_title' => 'ERROR 404',
+                'error_message' => 'The user you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+            ]);
         }
 
-        DB::table('users')
-            ->where('id', Auth::user()->id)
-            ->update([
-                'password' => Hash::make($request['new_password'])
+        $this->validate($request, [
+            'new_password' => 'required|min:6|confirmed:new_password_confirmation'
+        ]);
+
+        if (Auth::user()->role != 2) {
+            $this->validate($request, [
+                'old_password' => 'required|min:6',
             ]);
+
+            if (!Hash::check($request['old_password'], Auth::user()->password)) {
+                return redirect()->back()
+                    ->withErrors([
+                        'Password_not_match' => Lang::get('errors.wrong_pass')
+                    ]);
+            }
+        }
+
+        if ($request['hard_logout'] !== null) {
+            DB::table('users')
+                ->where('username', $username)
+                ->update([
+                    'password' => Hash::make($request['new_password']),
+                    'login_token' => null
+                ]);
+        } else {
+            DB::table('users')
+                ->where('username', $username)
+                ->update([
+                    'password' => Hash::make($request['new_password'])
+                ]);
+        }
 
         return redirect()->back()
             ->withInput($request->only('old_password', 'new_password', 'new_password_confirmation'))

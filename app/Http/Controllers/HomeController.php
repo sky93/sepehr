@@ -256,7 +256,7 @@ class HomeController extends Controller
         } elseif ($input['action'] == 'pause') { //Pause action
             if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
             $aria2 = new aria2();
-            if ($file_details->state == -1) {
+            if ($file_details->state == -1 || $file_details->state === null) {
                 $aria2->forcePause(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
                 DB::table('download_list')
                     ->where('id', $file_details->id)
@@ -498,9 +498,9 @@ class HomeController extends Controller
     {
         $input = $request->only(
             'link',
-            'http_auth',
-            'http_username',
-            'http_password',
+            'custom_user_agent',
+            'custom_cookie',
+            'custom_headers',
             'comment',
             'hold',
             'id',
@@ -522,7 +522,53 @@ class HomeController extends Controller
             }
         }
 
-        if ($request->ajax() && $input['type'] == 'fetch') {
+
+        /**
+         *
+         * Get Size Of The Links Section
+         *
+         */
+        if ($request->ajax() && $input['type'] == 'size') {
+
+            $v = Validator::make(
+                $input,
+                [
+                    'link' => 'required|url'
+                ]
+            );
+            if ($v->fails()) {
+                return response()->json([
+                    'result' => 'er',
+                ]);
+            }
+
+            $header = $main->convert_header($input['custom_user_agent'], $input['custom_cookie'], $input['custom_headers']);
+            $url_inf = $main->get_info($input['link'], $header);
+
+            $fileSize = $url_inf['filesize'];
+            $fileName = $url_inf['filename'];
+
+            if ($url_inf['status'] != 200  || $fileSize < 1) {
+                return response()->json([
+                    'result' => 'er',
+                ]);
+            }
+
+            return response()->json([
+                'result' => 'ok',
+                'size' => $main->formatBytes($fileSize),
+                'name' => $fileName
+            ]);
+
+        }
+
+
+        /**
+         *
+         * Fetch Links Section
+         *
+         */
+        elseif ($request->ajax() && $input['type'] == 'fetch') {
 
             $v = Validator::make(
                 $input,
@@ -537,14 +583,8 @@ class HomeController extends Controller
                 ]);
             }
 
-            //echo $html = file_get_contents($input['link']);
-
-            //get_headers($input['link'], 1)
-
-
-            $link = $main->get_info($input['link']);
-           // echo $link['content_type'];
-           // print_r($link['full_headers']['content-type']);
+            $header = $main->convert_header($input['custom_user_agent'], $input['custom_cookie'], $input['custom_headers']);
+            $link = $main->get_info($input['link'], $header);
 
             if (isset($link['full_headers']['content-type'])){
                 if (is_array($link['full_headers']['content-type'])) {
@@ -597,7 +637,15 @@ class HomeController extends Controller
             }
 
 
-        }elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents
+        }
+
+
+        /**
+         *
+         * Torrent Section
+         *
+         */
+        elseif (! empty($input['torrent_file_name']) && ! empty($input['t_submit_name'])) { // Final Submit for torrents
 
             $path = public_path() . '/' . Config::get('leech.save_to') . '/torrent/' . Auth::user()->username . '_' . $input['torrent_file_name'];
             if (! file_exists($path)) {
@@ -658,7 +706,8 @@ class HomeController extends Controller
             if (isset($_FILES[0])) {
                 $maxsize    = 5 * 1024 * 1024; //5 MB
                 $acceptable = [
-                    'application/x-bittorrent'
+                    'application/x-bittorrent',
+                    'application/octet-stream'
                 ];
                 if(($_FILES[0]['size'] >= $maxsize) || ($_FILES[0]['size'] == 0)) {
                     return response()->json([
@@ -666,6 +715,14 @@ class HomeController extends Controller
                         'message' => 'File too large. File must be less than 5 megabytes.'
                         ]);
                 }
+
+                if( pathinfo($_FILES[0]['name'], PATHINFO_EXTENSION) != 'torrent') {
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => 'Your file is not a Torrent file!'
+                    ]);
+                }
+
                 if(! in_array($_FILES[0]['type'], $acceptable) && !empty($_FILES[0]['type']) ) {
                     return response()->json([
                         'result' => 'error',
@@ -747,7 +804,15 @@ class HomeController extends Controller
             ]);
             }
 
-        } elseif ($request->ajax() && $input['type'] == 'check') {
+        }
+
+
+        /**
+         *
+         * Check Links Section
+         *
+         */
+        elseif ($request->ajax() && $input['type'] == 'check') {
             $v = Validator::make(
                 $input,
                 [
@@ -802,6 +867,13 @@ class HomeController extends Controller
                 return redirect::back()->withErrors('sth is wrong.');
             }
         }
+
+
+        /**
+         *
+         * Main Download Section
+         *
+         */
         else
         {
             $v = Validator::make(
@@ -825,30 +897,6 @@ class HomeController extends Controller
                 }
             }
 
-
-            if ($input['http_auth']) {
-                $v = Validator::make(
-                    $input,
-                    [
-                        'http_username' => 'required|max:64',
-                        'http_password' => 'required|max:64'
-                    ]
-                );
-
-                if ($v->fails()) {
-                    $message = $v->messages();
-                    if ($request->ajax()) {
-                        return response()->json([
-                            'type' => 'error',
-                            'id' => $input['id'],
-                            'message' => 'Input Error. HTTP Auth'
-                        ]);
-                    } else {
-                        return redirect::back()->withErrors($message);
-                    }
-
-                }
-            }
 
             if (strpos($input['link'], '.torrent') !== false && Auth::user()->role != 2) { //I'll delete this 'if' very soon.
                 if ($request->ajax()) {
@@ -877,7 +925,8 @@ class HomeController extends Controller
                 }
             }
 
-            $url_inf = $main->get_info($input['link']);
+            $header = $main->convert_header($input['custom_user_agent'], $input['custom_cookie'], $input['custom_headers']);
+            $url_inf = $main->get_info($input['link'], $header);
 
             $fileSize = $url_inf['filesize'];
             $filename = $url_inf['filename'];
@@ -970,20 +1019,8 @@ class HomeController extends Controller
                 }
             }
 
-//        DB::table('users')
-//            ->where('id', Auth::user()->id)
-//            ->update([
-//                'queue_credit' => $q_credit
-//            ]);
 
             $hold = $input['hold'] ? -2 : null;
-
-            if ($input['http_auth']) {
-                $http_user = $input['http_username'];
-                $http_pass = $input['http_password'];
-            } else {
-                $http_user = $http_pass = null;
-            }
 
             DB::table('download_list')->insertGetId(
                 [
@@ -992,8 +1029,9 @@ class HomeController extends Controller
                     'length' => $fileSize,
                     'file_name' => $filename,
                     'state' => $hold,
-                    'http_user' => $http_user,
-                    'http_password' => $http_pass,
+                    'custom_headers' => $header,
+                    'http_user' => null,
+                    'http_password' => null,
                     'comment' => $input['comment'],
                     'torrent' => 0,
                     'date_added' => date('Y-m-d H:i:s', time())

@@ -282,6 +282,10 @@ class AdminController extends Controller
                 if ( Auth::user()->username == $username) {
                     Auth::logout();
                 }
+            } elseif ($_POST['action'] == 'hard_logout') {
+                $user = User::where('username', '=', $username)->first();
+                $user->login_token = null;
+                $user->save();
             }
         }
         return Redirect::to('/tools/users/' . $username);
@@ -441,8 +445,8 @@ class AdminController extends Controller
             ->select('download_list.*', 'users.username', 'users.first_name', 'users.last_name')
             ->where('download_list.id', '>' , 0)
             ->orderBy('id','DEC')
-            ->skip(($page - 1) * 20)
-            ->take(20)
+            ->skip(($page - 1) * 100)
+            ->take(100)
             ->get();
 
         return view('tools.all_files', ['files' => $files, 'main' => $main, 'files_count' => $files_count]);

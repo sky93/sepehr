@@ -28,6 +28,29 @@
                             @else
                                 <p style="text-align: center">User is <span style="color: #b92c28; font-weight: bold">Inactive</span>.</p>
                             @endif
+                            <hr />
+                            <form class="form-horizontal" role="form" method="POST" action="">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                                <div style="padding: 5px" class="col-md-12">
+                                    <a  href="{{ asset('user/' . $user->username . '/payments/history') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-money fa-lg"></i> @lang('messages.usr_pay_hist')</a>
+                                </div>
+                                <div style="padding: 5px" class="col-md-12">
+                                    <a  href="{{ asset('tools/users/' . $user->username . '/credits') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-bars fa-lg"></i> @lang('messages.clog')</a>
+                                </div>
+                                <div style="padding: 5px" class="col-md-12">
+                                    <a  href="{{ asset('user/' . $user->username . '/password') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-unlock fa-lg"></i> @lang('messages.change_password')</a>
+                                </div>
+                                <div style="padding: 5px" class="col-md-12">
+                                    <button type="submit" name="action" value="hard_logout" style="width: 100%" class="btn btn-warning"><i class="fa fa-sign-out fa-lg" ></i> @lang('messages.logout')</button>
+                                </div>
+                                <div style="padding: 5px" class="col-md-12">
+                                    <button {{ Config::get('leech.user_delete') == false ? 'disabled ' : '' }}type="submit" name="action" value="delete" style="width: 100%" class="btn btn-danger"><i class="fa fa-trash-o fa-lg" ></i> @lang('messages.delete_user')</button>
+                                </div>
+                                <div style="padding: 5px" class="col-md-12">
+                                    <button type="submit" name="action" value="ban" style="width: 100%" class="btn {{ ($user->active == 1 ? 'btn-danger' : 'btn-success') }}"><i class="fa fa-lg {{ ($user->active == 1 ? 'fa-ban' : 'fa-check') }}"></i> {{ ($user->active == 1 ? 'Ban' : 'Active') }}</button>
+                                </div>
+                            </form>
                         </div>
                         <div class="col-sm-9">
                             <h4>General Info:</h4><legend></legend>
@@ -74,6 +97,22 @@
                                         @endif
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>Last Seen:</td>
+
+                                    <td class="bld">
+                                        @if (time() - strtotime($user->last_seen) <= 30)
+                                            <span style="color: #2ca02c; font-weight: bold">Online</span>
+                                        @elseif ($user->last_seen)
+                                            <time class="timeago" datetime="{{ date( DATE_ISO8601, strtotime( $user->last_seen ) ) }}">{{ date( 'd/m/Y H:i', strtotime( $user->last_seen ) ) }}</time> <span style="font-size: x-small">({{ date( 'd/m/Y H:i', strtotime( $user->last_seen ) ) }})</span>
+                                        @else
+                                            Never
+                                        @endif
+                                    </td>
+                                </tr>
+
+
+
                             </table><br /><br />
                             <h4>Bandwidth Info:</h4><legend></legend>
                             <table style="width:100%" class="ud">
@@ -144,25 +183,7 @@
                     </div>
 
                 </div>
-                <div class="panel-footer">
-                    <form class="form-horizontal" role="form" method="POST" action="">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <div class="row">
-                            <div style="padding: 5px" class="col-md-offset-4 col-md-2">
-                                <a  href="{{ asset('user/' . $user->username . '/payments/history') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-money fa-lg"></i> @lang('messages.usr_pay_hist')</a>
-                            </div>
-                            <div style="padding: 5px" class="col-md-2">
-                                <a  href="{{ asset('tools/users/' . $user->username . '/credits') }}" style=" width: 100%" class="btn btn-warning"><i class="fa fa-bars fa-lg"></i> @lang('messages.clog')</a>
-                            </div>
-                            <div style="padding: 5px" class="col-md-2">
-                                <button {{ Config::get('leech.user_delete') == false ? 'disabled ' : '' }}type="submit" name="action" value="delete" style="width: 100%" class="btn btn-danger"><i class="fa fa-trash-o fa-lg" ></i> @lang('messages.delete_user')</button>
-                            </div>
-                            <div style="padding: 5px" class="col-md-2">
-                                <button type="submit" name="action" value="ban" style="width: 100%" class="btn {{ ($user->active == 1 ? 'btn-danger' : 'btn-success') }}"><i class="fa fa-lg {{ ($user->active == 1 ? 'fa-ban' : 'fa-check') }}"></i> {{ ($user->active == 1 ? 'Ban' : 'Active') }}</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+
             </div>
         </div>
     </div>
