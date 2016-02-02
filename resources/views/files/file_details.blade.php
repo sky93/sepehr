@@ -135,20 +135,10 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-md-4 control-label"
-                                               for="http_username">{{ Lang::get('messages.http.username') }}</label>
+                                               for="comment">{{ Lang::get('messages.custom.header') }}</label>
 
-                                        <div class="col-md-2">
-                                            <input style="cursor: default" type="text" class="form-control input-md"
-                                                   readonly>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-md-4 control-label"
-                                               for="http_password">{{ Lang::get('messages.http.password') }}</label>
-
-                                        <div class="col-md-2">
-                                            <input style="cursor: default" type="password" class="form-control input-md"
-                                                   readonly>
+                                        <div class="col-md-5">
+                                        <textarea style="cursor: default; max-width: 330px; max-height: 200px; min-height: 70px; white-space: pre; word-wrap: normal; overflow-x: scroll;" class="form-control courier_font" readonly>{{ $file->custom_headers }}</textarea>
                                         </div>
                                     </div>
                                     @endif
