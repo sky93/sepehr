@@ -51,7 +51,7 @@
                                 <div class="tab-content">
                                     <div role="tabpanel" class="tab-pane fade in active" id="single">
                                         <form id="frm_single" class="form-horizontal" method="POST" action="" novalidate="">
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="_token" id="m_token" value="{{ csrf_token() }}">
                                             <fieldset>
                                                 <br/><br/>
                                                 <script type="text/javascript">
@@ -59,14 +59,37 @@
                                                         $('#advanced').click(function () {
                                                             $("#advanced_panel").slideToggle(100);
                                                         });
+
+                                                        $('#link').change(function () {
+                                                            $.ajax({
+                                                                url: "",
+                                                                type: "POST",
+                                                                data: 'type=size&' + $("#frm_single").find('input[name!=comment]').serialize(),
+                                                                dataType: 'json',
+
+                                                                success: function (response) {
+                                                                    if (response['result'] == 'ok') {
+                                                                        var a = $('#link_size').html("<kbd><span style='font-weight: 700'>Size: </span>" + response['size'] + "</kbd><br /><kbd><span style='font-weight: 700'>Name: </span>" + response['name'] + "</kbd>");
+                                                                        a.slideDown(150);
+                                                                    } else {
+                                                                        $("#link_size").slideUp(150);
+                                                                    }
+                                                                },
+                                                                error: function () {
+                                                                    $("#link_size").slideUp(150);
+                                                                }
+                                                            });
+                                                        });
                                                     });
                                                 </script>
 
                                                 <div class="form-group">
                                                     <label class="col-md-3 control-label"
-                                                           for="link">{{ Lang::get('messages.link.to.transload') }}</label>
+                                                           for="link">{{ Lang::get('messages.link.to.transload') }}
+                                                    </label>
                                                     <div class="col-md-8">
                                                         <input id="link" name="link" type="text" placeholder="{{ Lang::get('messages.your.link') }}" class="form-control input-md courier_font" required="">
+                                                        <span id="link_size" class="help-block"  style="display: none">help</span>
                                                     </div>
                                                 </div>
 

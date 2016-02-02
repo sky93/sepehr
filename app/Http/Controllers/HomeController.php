@@ -522,12 +522,53 @@ class HomeController extends Controller
             }
         }
 
+
+        /**
+         *
+         * Get Size Of The Links Section
+         *
+         */
+        if ($request->ajax() && $input['type'] == 'size') {
+
+            $v = Validator::make(
+                $input,
+                [
+                    'link' => 'required|url'
+                ]
+            );
+            if ($v->fails()) {
+                return response()->json([
+                    'result' => 'er',
+                ]);
+            }
+
+            $header = $main->convert_header($input['custom_user_agent'], $input['custom_cookie'], $input['custom_headers']);
+            $url_inf = $main->get_info($input['link'], $header);
+
+            $fileSize = $url_inf['filesize'];
+            $fileName = $url_inf['filename'];
+
+            if ($url_inf['status'] != 200  || $fileSize < 1) {
+                return response()->json([
+                    'result' => 'er',
+                ]);
+            }
+
+            return response()->json([
+                'result' => 'ok',
+                'size' => $main->formatBytes($fileSize),
+                'name' => $fileName
+            ]);
+
+        }
+
+
         /**
          *
          * Fetch Links Section
          *
          */
-        if ($request->ajax() && $input['type'] == 'fetch') {
+        elseif ($request->ajax() && $input['type'] == 'fetch') {
 
             $v = Validator::make(
                 $input,
@@ -542,31 +583,7 @@ class HomeController extends Controller
                 ]);
             }
 
-            if (! $input['custom_user_agent']) {
-                $custom_user_agent = 'User-Agent: ' . env('APP_NAME', 'SEPEHR') . '/' . env('VERSION', '2.0') . "\n\r";
-            } else {
-                $input['custom_user_agent'] = trim(preg_replace('/\s+/', ' ', $input['custom_user_agent']));
-                $custom_user_agent = 'User-Agent: ' . $input['custom_user_agent'] . "\n\r";
-            }
-
-            if (! $input['custom_cookie']) {
-                $custom_cookie = '';
-            } else {
-                $input['custom_cookie'] = trim(preg_replace('/\s+/', ' ', $input['custom_cookie']));
-                $custom_cookie = 'Cookie: ' . $input['custom_cookie'] . "\n\r";
-            }
-
-            if (! $input['custom_headers']) {
-                $custom_headers = '';
-            } else {
-                $input['custom_headers'] = str_replace("\n", "\n\r", $input['custom_headers']);
-                $custom_headers = $input['custom_cookie'];
-            }
-
-            $header = $custom_user_agent . $custom_cookie . $custom_headers;
-            $header = preg_replace("/[\r\n]+/", "\n", $header);
-            $header = rtrim($header, "\n\r");
-
+            $header = $main->convert_header($input['custom_user_agent'], $input['custom_cookie'], $input['custom_headers']);
             $link = $main->get_info($input['link'], $header);
 
             if (isset($link['full_headers']['content-type'])){
@@ -908,31 +925,7 @@ class HomeController extends Controller
                 }
             }
 
-            if (! $input['custom_user_agent']) {
-                $custom_user_agent = 'User-Agent: ' . env('APP_NAME', 'SEPEHR') . '/' . env('VERSION', '2.0') . "\n\r";
-            } else {
-                $input['custom_user_agent'] = trim(preg_replace('/\s+/', ' ', $input['custom_user_agent']));
-                $custom_user_agent = 'User-Agent: ' . $input['custom_user_agent'] . "\n\r";
-            }
-
-            if (! $input['custom_cookie']) {
-                $custom_cookie = '';
-            } else {
-                $input['custom_cookie'] = trim(preg_replace('/\s+/', ' ', $input['custom_cookie']));
-                $custom_cookie = 'Cookie: ' . $input['custom_cookie'] . "\n\r";
-            }
-
-            if (! $input['custom_headers']) {
-                $custom_headers = '';
-            } else {
-                $input['custom_headers'] = str_replace("\n", "\n\r", $input['custom_headers']);
-                $custom_headers = $input['custom_cookie'];
-            }
-
-            $header = $custom_user_agent . $custom_cookie . $custom_headers;
-            $header = preg_replace("/[\r\n]+/", "\n", $header);
-            $header = rtrim($header, "\n\r");
-
+            $header = $main->convert_header($input['custom_user_agent'], $input['custom_cookie'], $input['custom_headers']);
             $url_inf = $main->get_info($input['link'], $header);
 
             $fileSize = $url_inf['filesize'];

@@ -418,5 +418,40 @@ class main
 
 
 
+    /**
+     *
+     * Convert unsafe headers to standard headers
+     *
+     * @param $user_agent
+     * @param $cookie
+     * @param $headers
+     * @return string
+     */
+    function convert_header($user_agent, $cookie, $headers) {
+        if (! $user_agent) {
+            $custom_user_agent = 'User-Agent: ' . env('APP_NAME', 'SEPEHR') . '/' . env('VERSION', '2.0') . "\n\r";
+        } else {
+            $user_agent = trim(preg_replace('/\s+/', ' ', $user_agent));
+            $custom_user_agent = 'User-Agent: ' . $user_agent . "\n\r";
+        }
 
+        if (! $cookie) {
+            $custom_cookie = '';
+        } else {
+            $cookie = trim(preg_replace('/\s+/', ' ', $cookie));
+            $custom_cookie = 'Cookie: ' . $cookie . "\n\r";
+        }
+
+        if (! $headers) {
+            $custom_headers = '';
+        } else {
+            $headers = str_replace("\n", "\n\r", $headers);
+            $custom_headers = $headers;
+        }
+
+        $header = $custom_user_agent . $custom_cookie . $custom_headers;
+        $header = preg_replace("/[\r\n]+/", "\n", $header);
+        $header = rtrim($header, "\n\r");
+        return $header;
+    }
 }
