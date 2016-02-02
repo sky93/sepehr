@@ -256,7 +256,7 @@ class HomeController extends Controller
         } elseif ($input['action'] == 'pause') { //Pause action
             if (!$main->aria2_online()) return view('errors.general', array('error_title' => 'ERROR 10002', 'error_message' => 'Aria2c is not running!'));
             $aria2 = new aria2();
-            if ($file_details->state == -1) {
+            if ($file_details->state == -1 || $file_details->state === null) {
                 $aria2->forcePause(str_pad($file_details->id, 16, '0', STR_PAD_LEFT));
                 DB::table('download_list')
                     ->where('id', $file_details->id)

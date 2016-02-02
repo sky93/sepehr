@@ -33,7 +33,7 @@
 @endsection
 
 @section('pause')
-    <button type="submit" name="action" value="pause" class="btn btn-success"><i class="fa fa-{{ $file->state == -1 ? 'pause' : 'play' }} fa-lg"></i> {{ $file->state == -1 ? 'Pause' : 'Resume' }}</button>
+    <button type="submit" name="action" value="pause" class="btn btn-success"><i class="fa fa-{{ ($file->state == -1 || $file->state === null) ? 'pause' : 'play' }} fa-lg"></i> {{ ($file->state == -1 || $file->state === null) ? 'Pause' : 'Resume' }}</button>
 @endsection
 
 @section('retry')
@@ -88,6 +88,9 @@
                     @elseif($file->state == -1)
                         <div class="alert alert-info" role="alert"><span style="font-weight: bold"><i
                                         class="fa fa-spinner fa-pulse"></i> Wait more! </span>@lang('errors.-1')</div>
+                    @elseif($file->state == -2)
+                        <div class="alert alert-warning" role="alert"><span style="font-weight: bold"><i
+                                        class="fa fa-pause"></i> Ops! </span>@lang('errors.-2')</div>
                     @elseif ($file->state != -3)
                         @if(Lang::has('errors.' . $file->state))
                             <div class="alert alert-danger" role="alert"><span
@@ -175,7 +178,7 @@
                                                 @yield('remove')
                                                 @yield('more_actions')
                                                 @endif
-                                            @elseif($file->state == -1 || $file->state == -2 || $file->state == null)
+                                            @elseif($file->state == -1 || $file->state == -2 || $file->state === null)
                                                 @yield('pause')
                                                 @yield('edit')
                                                 @yield('remove')
