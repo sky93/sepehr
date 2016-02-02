@@ -519,8 +519,7 @@ class main
             'hash' => $torrent->hash_info(),
             'comment' => $torrent->comment(),
             'piece_length' => $main->formatBytes($torrent->piece_length(),3),
-            'content' => $JSTreeContent,
-            'ttt' => $full_path
+            'content' => $JSTreeContent
         ];
 
     }

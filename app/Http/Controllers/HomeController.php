@@ -63,9 +63,9 @@ class HomeController extends Controller
                     'last_seen' => date('Y-m-d H:i:s', time())
                 ]);
 
-                return response()->json([
-                    'r' => 'k',
-                ]);
+            return response()->json([
+                'r' => 'k',
+            ]);
         }
 
         return response()->json([
@@ -289,17 +289,17 @@ class HomeController extends Controller
             }
         } elseif ($input['action'] == 'rename' && $file_details->state == 0 && isset($input['new_name']) && !empty($input['new_name'])){
             if(preg_match(Config::get('leech.rename_regex'), $input['new_name'])) {
-            $blocked_ext = Config::get('leech.blocked_ext');
-            $ext = pathinfo($input['new_name'], PATHINFO_EXTENSION);
-            if (array_key_exists($ext, $blocked_ext)) {
-                if ($blocked_ext[$ext] === false){
-                    return redirect::back()->withErrors('.' . $ext . ' files are blocked by the system administrator. Sorry.');
+                $blocked_ext = Config::get('leech.blocked_ext');
+                $ext = pathinfo($input['new_name'], PATHINFO_EXTENSION);
+                if (array_key_exists($ext, $blocked_ext)) {
+                    if ($blocked_ext[$ext] === false){
+                        return redirect::back()->withErrors('.' . $ext . ' files are blocked by the system administrator. Sorry.');
+                    } else {
+                        $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $blocked_ext[$ext];
+                    }
                 } else {
-                    $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $blocked_ext[$ext];
+                    $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $ext;
                 }
-            } else {
-                $filename = pathinfo($input['new_name'],PATHINFO_FILENAME) . '.' . $ext;
-            }
                 $result = @rename(public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $file_details->file_name, public_path() . '/' . Config::get('leech.save_to') . '/' . $file_details->id . '_' . $filename);
                 if ($result) {
                     DB::table('download_list')
@@ -379,7 +379,7 @@ class HomeController extends Controller
                 ->get();
         } else {
             $users = DB::table('download_list') //Normal users just see their downloads
-                ->whereRaw('(state != 0 OR state IS NULL)')
+            ->whereRaw('(state != 0 OR state IS NULL)')
                 ->where('user_id', '=', Auth::user()->id)
                 ->where('deleted', '=', 0)
                 ->orderBy('date_added', 'DESC')
@@ -548,6 +548,9 @@ class HomeController extends Controller
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_SSLVERSION,3);
                 curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_REFERER, $url);
+                curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-bittorrent','Referer: '. $url));
                 curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
                 $data = curl_exec ($ch);
 
@@ -766,7 +769,7 @@ class HomeController extends Controller
                     return response()->json([
                         'result' => 'error',
                         'message' => 'File too large. File must be less than 5 megabytes.'
-                        ]);
+                    ]);
                 }
 
                 if( pathinfo($_FILES[0]['name'], PATHINFO_EXTENSION) != 'torrent') {
@@ -795,9 +798,9 @@ class HomeController extends Controller
 
             } else {
                 return response()->json([
-                'result' => 'error',
-                'message' => 'Nothing uploaded to the server.'
-            ]);
+                    'result' => 'error',
+                    'message' => 'Nothing uploaded to the server.'
+                ]);
             }
 
         }

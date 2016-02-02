@@ -4,7 +4,7 @@
     <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
     <link href="{{ asset('/css/jstree/style.min.css') }}" rel="stylesheet">
     <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
-    <script src="{{ asset('/js/torrent.js') }}"></script>
+    <script src="{{ asset('/js/torrent.js?v2') }}"></script>
     <script src="{{ asset('/js/jstree.min.js') }}"></script>
     <script>
         $(function () {
