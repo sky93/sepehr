@@ -2,3 +2,9 @@
 /vendor
 /.idea
 public/storage/*
+public/assets/*
+!public/assets/*.js
+!public/assets/*.css
+!public/assets/*.jsp
+public/assets/bootbox.js
+

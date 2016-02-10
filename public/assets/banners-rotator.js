@@ -198,7 +198,7 @@
 
     bannersRotator.loadBanners = function (path) {
         var path = path || window.location.pathname;
-		var r = $('meta[property="root"]').attr("content") + 'js/banners.jsp?path=' + encodeURIComponent(path);
+		var r = $('meta[property="root"]').attr("content") + 'assets/banners.jsp?path=' + encodeURIComponent(path);
         return $.getScript(r);
     };
 

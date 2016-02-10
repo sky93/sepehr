@@ -3,12 +3,15 @@
 @section('title', Lang::get('messages.all_files') . ' - ')
 
 @section('content')
-    <script type="text/javascript" src="{{ asset('/js/jquery.twbsPagination.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/assets/twbs-pagination/jquery.twbsPagination.min.js') }}"></script>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">@lang('messages.all_files')</div>
                 <div class="panel-body">
+                        <div class="alert alert-danger">
+                            THIS PAGE IS FOR DEBUGGING PURPOSES ONLY. Showing file names is against site's rules. You should not view file names.
+                        </div><hr />
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">

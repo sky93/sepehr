@@ -1,11 +1,12 @@
 @extends('app')
 
 @section('content')
-    <link href="{{ asset('/css/bootstrap-combobox.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/jstree/style.min.css') }}" rel="stylesheet">
-    <script src="{{ asset('/js/bootstrap-combobox.js') }}"></script>
-    <script src="{{ asset('/js/torrent.js?v2') }}"></script>
-    <script src="{{ asset('/js/jstree.min.js') }}"></script>
+    <link href="{{ asset('/assets/bootstrap-combobox/css/bootstrap-combobox.css') }}" rel="stylesheet">
+    <link href="{{ asset('/assets/jstree/dist/themes/default/style.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('/assets/bootstrap-combobox/js/bootstrap-combobox.js') }}"></script>
+    <script src="{{ asset('/assets/torrent.js?v2') }}"></script>
+    <script src="{{ asset('/assets/jstree/dist/jstree.min.js') }}"></script>
+    <script src="{{ asset('/assets/bootstrap-tabcollapse/bootstrap-tabcollapse.js') }}"></script>
     <script>
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()

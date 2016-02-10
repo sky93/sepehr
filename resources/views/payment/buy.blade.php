@@ -3,8 +3,8 @@
 @section('title', Lang::get('messages.buy_credit') . ' - ')
 
 @section('content')
-    <link href="{{ asset('/css/iCheck/square/green.css') }}" rel="stylesheet">
-    <script type="text/javascript" src="{{ asset('/js/icheck.min.js') }}"></script>
+    <link href="{{ asset('/assets/iCheck/skins/square/green.css') }}" rel="stylesheet">
+    <script type="text/javascript" src="{{ asset('/assets/iCheck/icheck.min.js') }}"></script>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">

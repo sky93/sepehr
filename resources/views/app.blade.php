@@ -22,28 +22,20 @@ if (!Auth::guest()){
     <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com AND Pejman Yaghmaie | yaghmaie.p@gmail.com">
     <meta property="root" content="{{ asset('/') }}" />
     <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
-    <script src="{{ asset('/js/pace.min.js') }}"></script>
-    <link href="{{ asset('/css/bootstrap.min.css') }}" rel="stylesheet">
-    {{--<link href="{{ asset('/css/bootstrap-theme.min.css') }}" rel="stylesheet">--}}
-    <link href="{{ asset('/css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('/css/main.css?v=5') }}" rel="stylesheet">
+    <script src="{{ asset('/assets/PACE/pace.min.js') }}"></script>
+    <link href="{{ asset('/assets/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('/assets/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('/assets/main.css') }}" rel="stylesheet">
     <link href="{{ asset('/favicon.ico?v=1') }}" type="image/x-icon" rel="favicon">
-    <link href="{{ asset('/css/toastr.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('/assets/toastr/toastr.min.css') }}" rel="stylesheet">
 
-    <!--[if lt IE 9]>
-    <script type="text/javascript" src="{{ asset('/js/html5shiv.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/respond.js') }}"></script>
-
-    <![endif]-->
-
-    <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/bootstrap.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/bootbox.min.js') }}"></script>
-
-    <script type="text/javascript" src="{{ asset('/js/smoothie.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/toastr.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/jquery.timeago.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('/js/ping.js') }}"></script>
+    <script src="{{ asset('/assets/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ asset('/assets/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('/assets/bootbox.js/bootbox.js') }}"></script>
+    <script src="{{ asset('/assets/smoothie/smoothie.js') }}"></script>
+    <script src="{{ asset('/assets/toastr/toastr.min.js') }}"></script>
+    <script src="{{ asset('/assets/jquery-timeago/jquery.timeago.js') }}"></script>
+    <script src="{{ asset('/assets/ping.js') }}"></script>
 </head>
 <body>
 @if($show_message == true)
@@ -173,35 +165,9 @@ if (!Auth::guest()){
     ga('send', 'pageview');
 </script>
 @endif
-<link href="{{ asset('/css/banner-rotator.css') }}" rel="stylesheet">
-<script src="{{ asset('/js/cookie.js') }}"></script>
-<script src="{{ asset('/js/banners-rotator.js') }}"></script>
+<link href="{{ asset('/assets/banner-rotator.css') }}" rel="stylesheet">
+<script src="{{ asset('/assets/cookie.js') }}"></script>
+<script src="{{ asset('/assets/banners-rotator.js') }}"></script>
 <script>bannersRotator.init()</script>
-
-<script>
-
-$(document).ready(function() {
-
-    var doResizing = function (increaseWith) {
-     if ($('#xxxx').length == 0) {
-            $('body').css('margin', 0).css('padding', 0);
-            $('body > *').wrapAll('<iframe id="xxxx" src="' + window.location.href  + '" /></iframe>');
-            $('#xxxx').css('background-color', 'red').css('overflow', 'scroll').css('padding', 0).css('margin', 0).css('position', 'absolute').width('100%');
-    }
-    $('#xxxx').height(parseInt($(window).height()) + 'px').width(parseInt($('#xxxx').width()) + increaseWith + 'px');
-}
-
-    $(document).keypress(function(e) {
-        if (e.which == 45) {
-            doResizing (-10);
-        }
-
-        if (e.which == 43) {
-            doResizing (+10);
-        }
-    });
-});
-
-</script>
 </body>
 </html>

@@ -445,3 +445,39 @@ body {
 .well{
     margin-bottom:0!important;
 }
+
+@media (min-width: 858px) {
+    * {
+        font-size: small;
+    }
+}
+
+@media (max-width: 780px) {
+    * {
+        font-size: small;
+    }
+}
+
+@media (max-width: 702px) {
+    * {
+        font-size: small;
+    }
+}
+
+@media (max-width: 724px) {
+    * {
+        font-size: small ;
+    }
+}
+
+@media (max-width: 623px) {
+    * {
+        font-size: small;
+    }
+}
+
+@media (max-width: 500px) {
+    .nav-tabs > li > a{
+        font-size: .2em;
+    }
+}
