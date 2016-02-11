@@ -6,7 +6,7 @@
         $result = json_encode(Session::get('result'));
     ?>
     <link href="{{ asset('/assets/bootstrap-combobox/css/bootstrap-combobox.css') }}" rel="stylesheet">
-    <script src="{{ asset('/assets/bootstrap-combobox/js/tests/bootstrap-combobox.js') }}"></script>
+    <script src="{{ asset('/assets/bootstrap-combobox/js/bootstrap-combobox.js') }}"></script>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -103,7 +103,7 @@
 
                     <legend></legend>
                     <div id="results"></div>
-                    <script src="{{ asset('/js/prettyprint.js') }}"></script>
+                    <script src="{{ asset('/assets/prettyprint/prettyprint.js') }}"></script>
                     <script>
                     $(document).ready(function () {
 
