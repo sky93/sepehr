@@ -15,7 +15,7 @@ Download your links to your server for local use!
     Python >= 2
     Aria2c >= 1.18
     
-    Don't forget to run 'composer install'
+    Don't forget to run 'composer install' and 'bower install'
 
 
 ###License
