@@ -35,6 +35,7 @@ if (!Auth::guest()){
     <script src="{{ asset('/assets/smoothie/smoothie.js') }}"></script>
     <script src="{{ asset('/assets/toastr/toastr.min.js') }}"></script>
     <script src="{{ asset('/assets/jquery-timeago/jquery.timeago.js') }}"></script>
+    <script src="{{ asset('/assets/sepehr.js') }}"></script>
     <script src="{{ asset('/assets/ping.js') }}"></script>
 </head>
 <body>
