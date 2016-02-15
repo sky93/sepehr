@@ -18,7 +18,7 @@ if (!Auth::guest()){
 <head>
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="author" content="Sepehr Mohaghegh | BECCA4EVA@live.com AND Pejman Yaghmaie | yaghmaie.p@gmail.com">
     <meta property="root" content="{{ asset('/') }}" />
     <title>@yield('title'){{ env('APP_TITLE', 'Sepehr') }}</title>
@@ -45,6 +45,7 @@ if (!Auth::guest()){
             title: "{{$change_title1}}",
             message: '<img style="display: block; margin-left: auto; margin-right: auto" class="img-responsive" src="{{ asset(Config::get('leech.logo_address')) }}"/><br/><h4><strong>{{$change_title2}}</strong><h4><hr /> <span style="font-size:15px; line-height: 160%;"><?=$message_content?></span>'
         });
+
     </script>
 @endif
 <div class="container">
@@ -58,10 +59,10 @@ if (!Auth::guest()){
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" rel="home" href="{{ asset('') }}" title="@lang('messages.slogan')"><img style="max-width:50px; margin-top: -17px; margin-right: -10px" src="{{ asset('/img/logo_small.png') }}"></a>
-                <a class="navbar-brand" href="{{ asset('') }}" title="@lang('messages.slogan')">{{ env('APP_NAME', 'SEPEHR') }}</a>
+                <a class="navbar-brand navbar-brand-sepehr" href="{{ asset('') }}" title="@lang('messages.slogan')">{{ env('APP_NAME', 'SEPEHR') }}</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
+                <ul class="nav navbar-nav padding-top">
                     @if (!Auth::guest())
                         @if (Auth::user()->role != 2)
                         <li><a href="{{ asset('') }}"><i class="fa fa-download"></i> @lang('messages.home')</a></li>
@@ -77,13 +78,12 @@ if (!Auth::guest()){
                         </li>
                     @endif
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
+                <ul class="nav navbar-nav navbar-right padding-bottom">
                     @if (!Auth::guest())
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                aria-expanded="false"><span>Credits </span><span class="user-credit label{{ Auth::user()->credit / 1024 / 1024 /1024 < 10 ? ' label-danger ': ' label-success '  }}maincredit">{{ $main->formatBytes(Auth::user()->credit, 1) }}</span><span class="caret"></span></a>
                             <ul class="dropdown-menu bw" role="menu">
-                                {{--<li class="divider"></li>--}}
                                 <li><a href="{{  url('user/'. Auth::user()->username) . '/payments/history' }}"><i class="fa fa-credit-card"></i> @lang('messages.peyment_history')</a></li>
                                 <li><a href="{{ url('user/'. Auth::user()->username) . '/credit/history' }}"><i class="fa fa-history"></i> @lang('messages.credit_history')</a></li>
                                 <li class="divider"></li>

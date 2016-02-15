@@ -446,33 +446,68 @@ body {
     margin-bottom:0!important;
 }
 
+.main-panel-padding {
+    padding-top: 30px;
+}
+
 @media (min-width: 858px) {
-    * {
+    body {
         font-size: small;
     }
 }
 
 @media (max-width: 780px) {
-    * {
+    body {
         font-size: small;
     }
 }
 
 @media (max-width: 702px) {
-    * {
+    body {
         font-size: small;
     }
 }
 
 @media (max-width: 724px) {
-    * {
+    body {
         font-size: small ;
     }
 }
 
-@media (max-width: 623px) {
-    * {
-        font-size: small;
+@media (max-width: 450px) {
+    body, a, div, p, button, input, textarea  {
+        font-size: x-small!important;
+    }
+    .navbar-brand-sepehr {
+        font-size: large!important;
+        padding-left: 0;
+    }
+    .navbar-collapse > ul > li > a{
+        padding: 5px 10px;
+    }
+    .navbar-collapse > ul {
+        margin: 0!important;
+    }
+    .dropdown-toggle {
+        padding: 0 auto!important;
+    }
+    .padding-top {
+        padding-top: 10px;
+    }
+    .padding-bottom {
+        padding-bottom: 10px;
+    }
+    .main-panel-padding {
+        padding-top: 0;
+    }
+    label.checkbox-label input[type=checkbox]{
+        position: relative;
+        vertical-align: middle;
+        bottom: 3px;
+    }
+    .form-group {
+        position: relative;
+        vertical-align: middle;
     }
 }
 
@@ -481,3 +516,5 @@ body {
         font-size: .2em;
     }
 }
+
+
