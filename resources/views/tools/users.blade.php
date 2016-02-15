@@ -4,7 +4,7 @@
 
 @section('content')
 <script type="text/javascript" src="{{ asset('/assets/twbs-pagination/jquery.twbsPagination.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('/assets/tablesorter/jquery.tablesorter.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/assets/tablesorter/dist/js/jquery.tablesorter.min.js') }}"></script>
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
