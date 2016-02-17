@@ -61,7 +61,7 @@
                                                     $("#advanced_panel").slideToggle(100);
                                                 });
 
-                                                $('#link').change(function () {
+                                                $('#link').on('input',function(){
                                                     $.ajax({
                                                         url: "",
                                                         type: "POST",
