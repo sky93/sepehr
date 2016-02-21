@@ -7,15 +7,6 @@
     <script src="{{ asset('/assets/torrent.js?v2') }}"></script>
     <script src="{{ asset('/assets/jstree/dist/jstree.min.js') }}"></script>
     <script src="{{ asset('/assets/bootstrap-tabcollapse/bootstrap-tabcollapse.js') }}"></script>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-            $('#mainTabs').tabCollapse({
-                tabsClass: 'hidden-xs',
-                accordionClass: ' visible-xs'
-            });
-        });
-    </script>
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -43,7 +34,6 @@
                     <div class="row">
                         <div class="col-md-offset-2 col-md-8">
                             <div role="tabpanel">
-
                                 <!-- Nav tabs -->
                                 <ul id="mainTabs" class="nav nav-tabs" role="tablist">
                                     <li role="presentation" class="active"><a href="#single" aria-controls="single" role="tab" data-toggle="tab">Single Link</a></li>
@@ -51,50 +41,9 @@
                                     <li role="presentation"><a href="#torrent_tab" aria-controls="torrent_tab" role="tab" data-toggle="tab">Torrent</a></li>
                                     <li role="presentation"><a href="#check_tab" aria-controls="check_tab" role="tab" data-toggle="tab">Link Checker</a></li>
                                 </ul>
-
                                 <!-- Tab panes -->
                                 <div class="tab-content">
                                     <div role="tabpanel" class="tab-pane fade in active" id="single">
-                                        <script type="text/javascript">
-                                            $(document).ready(function () {
-                                                $('#advanced').click(function () {
-                                                    $("#advanced_panel").slideToggle(100);
-                                                });
-
-                                                $('#link').on('input',function(){
-                                                    $.ajax({
-                                                        url: "",
-                                                        type: "POST",
-                                                        data: 'type=size&' + $("#frm_single").find('input[name!=comment]').serialize(),
-                                                        dataType: 'json',
-
-                                                        success: function (response) {
-                                                            if (response['result'] == 'ok') {
-                                                                var a = $('#link_size').html("<kbd><span style='font-weight: 700'>Size: </span>" + response['size'] + "</kbd><br /><kbd><span style='font-weight: 700'>Name: </span>" + response['name'] + "</kbd>");
-                                                                a.slideDown(150);
-                                                            } else {
-                                                                $("#link_size").slideUp(150);
-                                                            }
-                                                        },
-                                                        error: function () {
-                                                            $("#link_size").slideUp(150);
-                                                        }
-                                                    });
-                                                });
-                                                $('#transload').on('click', function () {
-                                                    var $btn = $(this).button('loading');
-                                                });
-                                                $('#advanced_multi_fetch').click(function () {
-                                                    $("#advanced_panel_multi_fetch").slideToggle(150);
-                                                });
-                                                $('#advanced_multi').click(function () {
-                                                    $("#advanced_panel_multi").slideToggle(150);
-                                                });
-                                                $('#transload').on('click', function () {
-                                                    var $btn = $(this).button('loading');
-                                                });
-                                            });
-                                        </script>
                                         <form id="frm_single" class="form-horizontal main-panel-padding" method="POST" action="" novalidate="">
                                             <input type="hidden" name="_token" id="m_token" value="{{ csrf_token() }}">
                                             <fieldset>
@@ -115,8 +64,7 @@
                                                     <div class="col-md-9 col-md-offset-3">
                                                         <div class="checkbox">
                                                             <label for="hold" class="checkbox-label">
-                                                                <input type="checkbox" name="hold" id="hold" value="1">
-                                                                {{ Lang::get('messages.http.hold') }}
+                                                                <input type="checkbox" name="hold" id="hold" value="1">{{ Lang::get('messages.http.hold') }}
                                                             </label>
                                                         </div>
                                                     </div>
@@ -153,8 +101,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label class="col-md-3 control-label" for="transload"></label>
-                                                    <div class="col-md-1">
+                                                    <div class="col-md-1 col-md-offset-3">
                                                         <button id="transload" name="transload" class="btn btn-primary" data-loading-text="Loading..."><i class="fa fa-cloud-download"></i> {{ Lang::get('messages.transload') }}</button>
                                                     </div>
                                                 </div>
@@ -253,8 +200,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label class="col-md-3 control-label" for="hold"></label>
-                                                        <div class="col-md-3">
+                                                        <div class="col-md-3 col-md-offset-3">
                                                             <div class="checkbox">
                                                                 <label for="hold" class="checkbox-label">
                                                                     <input type="checkbox" name="hold" id="hold" value="1">{{ Lang::get('messages.http.hold') }}
@@ -308,53 +254,44 @@
                                             <li class="active"><a data-toggle="pill" href="#torrent_file" style="padding: 2px 10px"><i class="fa fa-upload"></i> Torrent File</a></li>
                                             <li> <a data-toggle="pill" href="#magnet" style="padding: 2px 10px"><i class="fa fa-magnet"></i> Magnet</a></li>
                                         </ul>
-
                                         <div class="tab-content">
-                                            <div id="torrent_file" class="tab-pane fade in active">
+                                            <div id="torrent_file" class="tab-pane fade in active" style="padding: 30px 0">
                                                 <div id="torrent_div">
                                                     <form id="torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                         <fieldset>
-                                                            <br/>
                                                             <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="torrent_file_upload">Torrent File Name: </label>
+                                                                <label class="col-md-3 control-label" for="torrent_file_upload">Torrent File Name:</label>
                                                                 <div class="col-md-8 pull-left">
                                                                     <input id="torrent_upload_form_files" name="torrent_file_upload" type="file" class="input-file" required="">
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="submit"></label>
-                                                                <div class="col-md-1">
+                                                                <div class="col-md-1 col-md-offset-3">
                                                                     <button id="torrent_upload_form_submit" name="submit" class="btn btn-primary"><i class="fa fa fa-check"></i> Get Info</button>
                                                                 </div>
                                                             </div>
                                                         </fieldset>
-                                                        <br />
                                                     </form>
                                                 </div>
                                             </div>
                                             <div id="magnet" class="tab-pane fade">
-                                                <div id="magnet_torrent_div">
+                                                <div id="magnet_torrent_div" style="padding: 20px 0">
                                                     <form id="magnet_torrent_upload_form" class="form-horizontal" method="POST" enctype="multipart/form-data"  action="">
                                                         <fieldset>
-                                                            <br/>
                                                             <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}">
                                                             <div class="form-group">
-                                                                <label class="col-md-3 control-label"
-                                                                       for="magnet_uri">Your Magnet URI
-                                                                </label>
+                                                                <label class="col-md-3 control-label" for="magnet_uri">Your Magnet URI</label>
                                                                 <div class="col-md-8">
                                                                     <input id="magnet_uri" name="link" type="text" placeholder="magnet:?xt=urn:btih:c12fe1c06bba254a9dc9f519b335aa7c1367a88a&dn" class="form-control input-md courier_font" required="">
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label class="col-md-3 control-label" for="submit"></label>
-                                                                <div class="col-md-1">
+                                                                <div class="col-md-1 col-md-offset-3">
                                                                     <button id="magnet_torrent_upload_form_submit" name="submit" class="btn btn-primary"><i class="fa fa-check"></i> Get Info</button>
                                                                 </div>
                                                             </div>
                                                         </fieldset>
-                                                        <br />
                                                     </form>
                                                 </div>
                                             </div>
@@ -400,14 +337,11 @@
                                                         <strong><kbd id="t_pl"></kbd></strong>
                                                     </div>
                                                 </div>
-                                                <br /><br />
-                                                <div id="jstree_demo_div"></div>
-                                                <br />
+                                                <div id="jstree_demo_div" style="padding: 40px 0"></div>
                                                 <form id="torrent_submit_form" class="form-horizontal" method="POST" action="">
                                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                    <input  id="torrent_file_name" name="torrent_file_name" value="">
+                                                    <input type="hidden" id="torrent_file_name" name="torrent_file_name" value="">
                                                     <fieldset>
-                                                        <br/><br/>
                                                         <div class="form-group">
                                                             <label class="col-md-3 control-label" for="t_submit_name">Torrent Name</label>
                                                             <div class="col-md-8 pull-left">
@@ -440,15 +374,12 @@
                                                     </fieldset>
                                                 </form>
                                             </div>
-
                                         @endif
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="check_tab">
                                         <div id="checkres_div" class="main-panel-padding">
-                                            <br /><br />
-                                            <table class="users dl-list table table-hover table-bordered enFonts table-striped tableCenter">
-                                                <tbody>
-                                                </tbody>
+                                            <table id="check_res" class="users dl-list table table-hover table-bordered enFonts table-striped tableCenter">
+                                                <tbody></tbody>
                                             </table>
                                             <div class="row">
                                                 <div class="col-sm-offset-9 col-sm-3">
@@ -457,7 +388,7 @@
                                             </div>
                                         </div>
                                         <div id="check_div" class="main-panel-padding">
-                                            <p>@lang('messages.check_link_desc')</p>
+                                            <p style="padding-bottom: 20px">@lang('messages.check_link_desc')</p>
                                             <form id="frm_check" class="form-horizontal" method="POST" action="" novalidate="">
                                                 <input type="hidden" id="check_token" name="_token" value="{{ csrf_token() }}">
                                                 <fieldset>
@@ -473,11 +404,6 @@
                                                             <button id="check" name="check" data-loading-text="Loading..." class="btn btn-primary"><i class="fa fa fa-check"></i> {{ Lang::get('messages.check') }}</button>
                                                         </div>
                                                     </div>
-                                                    <script>
-                                                        $('#check').on('click', function () {
-                                                            var $btn = $(this).button('loading');
-                                                        })
-                                                    </script>
                                                 </fieldset>
                                             </form>
                                         </div>
@@ -499,8 +425,47 @@
     </div>
     <script>
         $( document ).ready(function() {
-            $("#check").click(function (event) {
-                event.preventDefault();
+            $('[data-toggle="tooltip"]').tooltip();
+            $('#mainTabs').tabCollapse({
+                tabsClass: 'hidden-xs',
+                accordionClass: ' visible-xs'
+            });
+            $('#advanced').click(function () {
+                $("#advanced_panel").slideToggle(100);
+            });
+
+            $('#link').on('input',function(){
+                $.ajax({
+                    url: "",
+                    type: "POST",
+                    data: 'type=size&' + $("#frm_single").find('input[name!=comment]').serialize(),
+                    dataType: 'json',
+
+                    success: function (response) {
+                        if (response['result'] == 'ok') {
+                            var a = $('#link_size').html("<kbd><span style='font-weight: 700'>Size: </span>" + response['size'] + "</kbd><br /><kbd><span style='font-weight: 700'>Name: </span>" + response['name'] + "</kbd>");
+                            a.slideDown(150);
+                        } else {
+                            $("#link_size").slideUp(150);
+                        }
+                    },
+                    error: function () {
+                        $("#link_size").slideUp(150);
+                    }
+                });
+            });
+            $('#advanced_multi_fetch').click(function () {
+                $("#advanced_panel_multi_fetch").slideToggle(150);
+            });
+            $('#advanced_multi').click(function () {
+                $("#advanced_panel_multi").slideToggle(150);
+            });
+            $('#transload').on('click', function () {
+                $(this).button('loading');
+            });
+            $("#check").click(function (e) {
+                e.preventDefault();
+                $(this).button('loading');
                 $('#linksres_div table tbody').empty();
 
                 var data = 'type=check&_token=' + $('#check_token').val() + '&link=' +  encodeURIComponent( $('#check_link').val() );
@@ -516,11 +481,11 @@
                             $('#check_div').fadeOut(500);
                             $('#checkres_div').delay(500).fadeIn(500);
                             $('#l' + response.id).attr('class', 'success');
-                            $('#checkres_div table tbody').append('<tr><td><strong>Location:</strong></td><td>' + response.location + '</td></tr>');
-                            $('#checkres_div table tbody').append('<tr><td><strong>File Name:</strong></td><td>' + response.filename + '</td></tr>');
-                            $('#checkres_div table tbody').append('<tr><td><strong>Extension:</strong></td><td>' + response.file_extension + '</td></tr>');
-                            $('#checkres_div table tbody').append('<tr><td><strong>File Size:</strong></td><td>' + response.filesize + '</td></tr>');
-                            $('#checkres_div table tbody').append('<tr><td><strong>Status:</strong></td><td>' + response.status + '</td></tr>');
+                            $('#checkres_div table tbody').append('<tr><td><strong>Location:</strong></td><td>' + response.location + '</td></tr>')
+                            .append('<tr><td><strong>File Name:</strong></td><td>' + response.filename + '</td></tr>')
+                            .append('<tr><td><strong>Extension:</strong></td><td>' + response.file_extension + '</td></tr>')
+                            .append('<tr><td><strong>File Size:</strong></td><td>' + response.filesize + '</td></tr>')
+                            .append('<tr><td><strong>Status:</strong></td><td>' + response.status + '</td></tr>');
                             var $btn = $('#check').html('<i class="fa fa fa-check"></i> {{ Lang::get('messages.check') }}');
                             $btn.button('reset');
                         }
@@ -537,17 +502,16 @@
                         $btn.button('reset');
                     }
                 });
-
             });
 
-            $("#checkmore").click(function (event) {
+            $("#checkmore").click(function () {
                 $('#frm_check')[0].reset();
+                $("#check_res tr").remove();
                 $('#checkres_div').fadeOut(500);
                 $('#check_div').delay(500).fadeIn(500);
-
             });
 
-            $("#addmore").click(function (event) {
+            $("#addmore").click(function () {
                 $('#frm_multi')[0].reset();
                 $('#linksres_div').fadeOut(500);
                 $('#links_div').delay(500).fadeIn(500);
@@ -558,9 +522,8 @@
             $('#checkres_div').hide();
             $('#torrent_res_div').hide();
 
-
-            $("#frm_multi").submit(function (event) {
-                event.preventDefault();
+            $("#frm_multi").submit(function (e) {
+                e.preventDefault();
                 $('#links_div').fadeOut(500);
                 $('#linksres_div').delay(500).fadeIn(500);
                 var lines = $('textarea[name=links]').val().split('\n');
@@ -589,16 +552,14 @@
                                     $('#l' + response.id).attr('class', 'danger');
                             },
 
-                            error: function (jqXHR, textStatus, errorThrown) {
+                            error: function () {
                                 toastr["error"]("Cannot connect to the server. Please check your connection or refresh the page.", "Oh Snap!");
                             }
                         });
                     }, time);
                     time += 500;
                 });
-
             });
         });
     </script>
-
 @endsection
