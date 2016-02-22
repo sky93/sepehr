@@ -263,6 +263,7 @@
                     url: "",
                     type: "POST",
                     data: "" ,
+                    timeout: 1000,
                     dataType: 'json',
 
                     success: function (response) {
