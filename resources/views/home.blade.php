@@ -296,7 +296,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                            <div id="torrent_res_div">
+                                            <div id="torrent_res_div" style="padding-top: 40px">
                                                 <div class="row">
                                                     <div class="col-md-3">
                                                         <span class="pull-right">Torrent Name :</span>
