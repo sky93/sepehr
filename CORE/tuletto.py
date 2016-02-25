@@ -34,7 +34,7 @@ torrentSave = '/mnt/hd0/torrent_save/'
 dbConnection = None
 dbName = 'leech'
 dbUser = 'root'
-dbPassword = 'ff8bdea5d5c9c67097bd51c6d8c8063e'
+dbPassword = 'pass'
 
 # Aria variables
 ariaPort = 'http://127.0.0.1:6800/jsonrpc'
@@ -109,19 +109,13 @@ def send2Aria(method, params=[]):
             cur = dbConnection.cursor()
             cur.execute("""UPDATE download_list SET state=NULL WHERE state = -1 and deleted = 0 """)
         try:
-            c = urllib2.urlopen( ariaPort, jsonreq )
+            c = urllib2.urlopen(ariaPort, jsonreq)
             return json.loads(c.read())
         except urllib2.HTTPError as e:
             error_message = e.read()
-            print ("ERROR START")
-            print (error_message)
-            print ("ERROR FINISHED")
-            # raise Exception(e)
+            log(3, error_message)
             return json.loads(error_message)
     except BaseException as e:
-        # print "Error in send2Aria:: " + method
-        # pprint( params )
-        # print 'Exception error is: %s' % e
         raise Exception(e)
 
 
@@ -169,6 +163,17 @@ def system_diagnosis():
     state = 'stable'
 
 
+def log(error_type, message):
+    if error_type == 1:
+        error_type = 'NOTE'
+    elif error_type == 2:
+        error_type = 'WARN'
+    else:
+        error_type = 'ERRO'
+
+    print (time.ctime() + ' - ' + error_type + ' - ' + message)
+
+
 def main():
     print ("Service started")
 
@@ -207,17 +212,17 @@ def main():
                     except BaseException as e:
                         continue
                     if res['result']['status'] == 'paused':
+                        log(1, 'Pause situation detected.')
                         # Update UserDB, download_list and activeList
                         try:
                             dlListUpdateCursor.execute("""UPDATE download_list SET state=-2, completed_length=%s WHERE id = %s """, (res['result']['completedLength'], id,))
                             dbConnection.commit()
                             activeList.remove(id)
-                            send2Aria( 'aria2.remove', [cid] )
-                            send2Aria( 'aria2.removeDownloadResult', [cid])
-                            # print "Request " + res['result']['gid'] + " paused"
+                            pause_res = send2Aria('aria2.remove', [cid])
+                            log(1, "File with id " + id + " paused successfully and database got updated. Aria2 Message: " + pause_res['result'])
                         except BaseException as e:
                             dbConnection.rollback()
-                            print "Exception in pause procedure: %s" % e
+                            log(3, "Exception in pause procedure: %s" % e)
                             traceback.print_exc()
 
                     elif res['result']['status'] == 'error':
