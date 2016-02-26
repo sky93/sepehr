@@ -35,6 +35,7 @@ torrentList = []
 maxConcurrentDownloads = 10
 torrentDir = '/mnt/hd0/torrent/'
 torrentSave = '/mnt/hd0/torrent_save/'
+dbConnection = None
 
 
 # Aria variables
