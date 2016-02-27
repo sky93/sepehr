@@ -32,19 +32,13 @@ env_config_path = '/usr/share/nginx/sepehr/.env'
 state = 'start'
 activeList = []
 torrentList = []
-maxConcurrentDownloads = 10
-torrentDir = '/mnt/hd0/torrent/'
-torrentSave = '/mnt/hd0/torrent_save/'
 dbConnection = None
 
-
 # Aria variables
-ariaPort = 'http://127.0.0.1:6800/jsonrpc'
 ariaProcess = None
 zipProcesses = []
-workingDirectory = '/mnt/hd0/'
 
-# Other Variables
+# Main Config
 config = {}
 
 
@@ -71,10 +65,9 @@ def zip_dir(zip_file, path):
 
 
 def load_config():
-    global config, env_config_path, force_destruct
+    global config, env_config_path, aria_config_path
     if os.path.isfile(env_config_path) == 0:
         log(3, 'Could not locate .env file or I do not have read permission. Exiting Now . . .')
-        force_destruct = 1
         raise SystemExit(0)
     lines = [line.rstrip('\n') for line in open(env_config_path)]
     for l in lines:
@@ -102,6 +95,7 @@ def is_running(aria2_address='127.0.0.1', aria2_port=6800):
 
 
 def send2Aria(method, params=[]):
+    global config
     jsonreq = json.dumps({'jsonrpc': '2.0', 'id': 'backPy', 'method': method, 'params': params})
     try:
         if ariaProcess.poll() is not None:
@@ -109,7 +103,7 @@ def send2Aria(method, params=[]):
             cur = dbConnection.cursor()
             cur.execute("""UPDATE download_list SET state=NULL WHERE state = -1 and deleted = 0 """)
         try:
-            c = urllib2.urlopen(ariaPort, jsonreq)
+            c = urllib2.urlopen(config['ARIA_PORT'], jsonreq)
             return json.loads(c.read())
         except urllib2.HTTPError as e:
             error_message = e.read()
@@ -120,13 +114,13 @@ def send2Aria(method, params=[]):
 
 
 def runAria2():
-    global ariaProcess
+    global ariaProcess, config
     FLOG = open('arialog.log', 'w')
     FERR = open('ariaerr.log', 'w')
     ariaProcess = subprocess.Popen([
-            "aria2c","--enable-rpc", "--dir=" + workingDirectory, "--download-result=full", "--file-allocation=none",
+            "aria2c","--enable-rpc", "--dir=" + config['WORKING_DIRECTORY'], "--download-result=full", "--file-allocation=none",
             "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0",
-            "--max-concurrent-downloads=" + str(maxConcurrentDownloads), "--max-resume-failure-tries=5", "--follow-metalink=false",
+            "--max-concurrent-downloads=" + str(config['MAX_CONCURRENT_DOWNLOADS']), "--max-resume-failure-tries=5", "--follow-metalink=false",
             "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false"
                                    ], stdout=FLOG, stderr=FERR)
     i = 1
@@ -151,14 +145,14 @@ def runAria2():
 
 
 def system_diagnosis():
-    global state
+    global state, config
     # Zip undone requests
     dlListFetchCursor = dbConnection.cursor()
     dlListFetchCursor.execute("""SELECT id, file_name, completed_length FROM download_list WHERE state = -3 and deleted = 0""")
     row = dlListFetchCursor.fetchone()
     while row is not None:
         id = row['id']
-        t = FuncThread(zip_dir, workingDirectory + str(id) + "_" + row['file_name'], torrentSave + str(id))
+        t = FuncThread(zip_dir, config['WORKING_DIRECTORY'] + str(id) + "_" + row['file_name'], config['TORRENT_SAVE'] + str(id))
         zipProcesses.append({'id': id, 'proc': t, 'size': row['completed_length']})
         t.start()
         print "Zipping request " + str(id) + " to " + row['file_name'].encode('utf-8')
@@ -190,23 +184,30 @@ def main():
     log(1, 'Service started.')
 
     # Load global variables
-    global dbConnection, dbUser, dbPassword, dbName, activeList, torrentList, torrentDir, torrentSave, config
+    global dbConnection, dbUser, dbPassword, dbName, activeList, torrentList, config
 
     # Load config file
     load_config()
+
+    # Shows the most important config
     log(1, 'SEPEHR version: ' + config['VERSION'])
+    log(1, 'Working directory: ' + config['WORKING_DIRECTORY'])
+    log(1, 'Max concurrent downloads: ' + config['MAX_CONCURRENT_DOWNLOADS'])
+    log(1, 'Torrent Directory: ' + config['TORRENT_DIR'])
+    log(1, 'Torrent Saving Directory: ' + config['TORRENT_SAVE'])
+    log(1, 'Aria2c RPC address: ' + config['ARIA_PORT'])
 
     # Checks if Aria2 or tuletto.py is currently running.
     if is_running():
         log(3, "Aria2c is currently running. You have to kill it first. Exiting now . . .")
-        destruct()
+        sys.exit(0)
 
     # Runs Aria2c (child process)
     log(1, 'Starting Aria2c . . .')
     runAria2()
     log(1, 'Aria2c successfully started.')
 
-    # dbConnection
+    # Make database Connection
     try:
         log(1, 'Connecting to database . . .')
         dbConnection = MySQLdb.connect(config['DB_HOST'], config['DB_USERNAME'], config['DB_PASSWORD'], config['DB_DATABASE'], cursorclass=MySQLdb.cursors.DictCursor, charset='utf8')
@@ -217,20 +218,21 @@ def main():
         destruct()
     log(1, 'Connected to database successfully.')
 
-
     # Check for errors
     system_diagnosis()
 
-    dlListFetchCursor.execute("""SELECT min(id) as id, user_id, link, file_name, http_user, http_password, torrent, custom_headers
-                                  FROM download_list
-                                  WHERE state is null and deleted = 0
-                                  GROUP BY user_id
-                                  ORDER BY id
-                               """)
+    queue_query = """
+                      SELECT min(id) as id, user_id, link, file_name, http_user, http_password, torrent, custom_headers
+                      FROM download_list
+                      WHERE state is null and deleted = 0
+                      GROUP BY user_id
+                      ORDER BY id
+                  """
+    
+    dlListFetchCursor.execute(queue_query)
     counter = 1
 
     while True:
-
         dlListUpdateCursor = dbConnection.cursor()
         dbConnection.begin()
 
@@ -245,7 +247,7 @@ def main():
                 log(1, 'Pause situation detected. File id: ' + cid)
                 # Update UserDB, download_list and activeList
                 try:
-                    dlListUpdateCursor.execute("""UPDATE download_list SET state=-2, completed_length=%s WHERE id = %s """, (res['result']['completedLength'], id,))
+                    dlListUpdateCursor.execute("""UPDATE download_list SET state=-2, completed_length=%s WHERE id = %s""", (res['result']['completedLength'], id,))
                     dbConnection.commit()
                     activeList.remove(id)
                     pause_res = send2Aria('aria2.remove', [cid])
@@ -284,7 +286,7 @@ def main():
                     log(1, "Aria2 said:" + remove_res['result'])
                     # remove file
                     if id in torrentList:
-                        shutil.rmtree(torrentSave + str(id))
+                        shutil.rmtree(config['TORRENT_SAVE'] + str(id))
                     else:
                         os.remove(res['result']['files'][0]['path'])
                         os.remove(res['result']['files'][0]['path'] + '.aria2')
@@ -319,7 +321,7 @@ def main():
                         tempCur = dbConnection.cursor()
                         tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""", (str(id)))
                         row = tempCur.fetchone()
-                        t = FuncThread(zip_dir, workingDirectory + str(id) + "_" + row['file_name'], torrentSave + str(id))
+                        t = FuncThread(zip_dir, config['WORKING_DIRECTORY'] + str(id) + "_" + row['file_name'], config['TORRENT_SAVE'] + str(id))
                         zipProcesses.append({'id': id, 'proc': t, 'size': res['result']['completedLength']})
                         t.start()
                         log(1, 'Zipping ' + str(id) + ' to ' + row['file_name'].encode('utf-8'))
@@ -336,7 +338,7 @@ def main():
                     dlListUpdateCursor.execute("""UPDATE download_list SET state=0, date_completed=%s, completed_length=%s WHERE id = %s """, (datetime.now(), field['size'], field['id'],))
                     dlListUpdateCursor.execute("""UPDATE users SET credit = credit - %s WHERE id in ( SELECT user_id FROM download_list WHERE id = %s ) """, ( field['size'], field['id'],))
                     dbConnection.commit()
-                    shutil.rmtree(torrentSave + str(field['id']))
+                    shutil.rmtree(config['TORRENT_SAVE'] + str(field['id']))
                 except BaseException as e:
                     dbConnection.rollback()
                     dlListUpdateCursor.execute("""UPDATE download_list SET state=32 WHERE id = %s """, field['id'])
@@ -352,7 +354,7 @@ def main():
         except BaseException as e:
             continue
 
-        while int(res) < maxConcurrentDownloads:
+        while int(res) < config['MAX_CONCURRENT_DOWNLOADS']:
             # Find next request to be processed
             row = dlListFetchCursor.fetchone()
 
@@ -361,12 +363,12 @@ def main():
                     log(1, 'Adding new torrent (' + "%016d" % row['id'] + '): ' + ntpath.basename(row['link'].encode('utf-8')))
                     # Send request to Aria2
                     torrent = base64.b64encode(open(row['link']).read())
-                    if not os.path.exists( torrentSave + str(row['id'])):
-                        os.makedirs(torrentSave + str(row['id']) )
+                    if not os.path.exists( config['TORRENT_SAVE'] + str(row['id'])):
+                        os.makedirs(config['TORRENT_SAVE'] + str(row['id']) )
                     try:
                         send2Aria('aria2.addTorrent', [torrent, [], {
                                   'follow-torrent': 'false',
-                                  'dir': torrentSave + str(row['id']),
+                                  'dir': config['TORRENT_SAVE'] + str(row['id']),
                                   'seed-time': '0',
                                   'gid': str("%016d" % row['id'])
                                   }
@@ -404,12 +406,7 @@ def main():
             else:
                 dlListFetchCursor = dbConnection.cursor()
                 dbConnection.begin()
-                dlListFetchCursor.execute("""SELECT min(id) as id, user_id, link, file_name, http_user, http_password, torrent, custom_headers
-                                              FROM download_list
-                                              WHERE state is null and deleted = 0
-                                              GROUP BY user_id
-                                              ORDER BY id
-                                           """)
+                dlListFetchCursor.execute(queue_query)
                 break
             try:
                 res = send2Aria('aria2.getGlobalStat')['result']['numActive']
