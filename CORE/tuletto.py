@@ -25,6 +25,7 @@ from datetime import datetime
 # To get database information
 #
 env_config_path = '/usr/share/nginx/sepehr/.env'
+aria_config_path = '/usr/share/nginx/sepehr/config/tuletto.php'
 
 #
 # Global variables
@@ -94,11 +95,11 @@ def is_running(aria2_address='127.0.0.1', aria2_port=6800):
         # Windows...
 
 
-def send2Aria(method, params=[]):
+def send2Aria(method, params=[], first_call=False):
     global config
     jsonreq = json.dumps({'jsonrpc': '2.0', 'id': 'backPy', 'method': method, 'params': params})
     try:
-        if ariaProcess.poll() is not None:
+        if ariaProcess.poll() is not None and first_call == 0:
             runAria2()
             cur = dbConnection.cursor()
             cur.execute("""UPDATE download_list SET state=NULL WHERE state = -1 and deleted = 0 """)
@@ -110,38 +111,42 @@ def send2Aria(method, params=[]):
             log(3, error_message['error']['message'])
             return json.loads(error_message)
     except BaseException as e:
-        raise Exception(e)
+        log(3, 'Error happened when sending query to Aria2c. The Error is: %s' % e)
+        return None
 
 
 def runAria2():
     global ariaProcess, config
     FLOG = open('arialog.log', 'w')
     FERR = open('ariaerr.log', 'w')
-    ariaProcess = subprocess.Popen([
-            "aria2c","--enable-rpc", "--dir=" + config['WORKING_DIRECTORY'], "--download-result=full", "--file-allocation=none",
-            "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0",
-            "--max-concurrent-downloads=" + str(config['MAX_CONCURRENT_DOWNLOADS']), "--max-resume-failure-tries=5", "--follow-metalink=false",
-            "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false"
-                                   ], stdout=FLOG, stderr=FERR)
-    i = 1
+    try:
+        ariaProcess = subprocess.Popen([
+                "aria2c","--enable-rpc", "--dir=" + config['WORKING_DIRECTORY'], "--download-result=full", "--file-allocation=none",
+                "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0", "--allow-overwrite=true",
+                "--max-concurrent-downloads=" + str(config['MAX_CONCURRENT_DOWNLOADS']), "--max-resume-failure-tries=5", "--follow-metalink=false",
+                "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false"
+                                       ], stdout=FLOG, stderr=FERR)
+    except BaseException as e:
+        log(3, 'Exception when running Aria2c subprocess. Passing the exception for now. The exception is: %s' % e)
+        pass
     resp = None
-    while True:
-        try:
-            resp = send2Aria('aria2.getVersion')
-            break
-        except BaseException as e:
-            log(3, 'Aria2 is still not started. Tried ' + str(i) + ' time(s).')
-            pass
 
-        i += 1
-        log(3, 'I will wait for a second and then I will try again.')
-        time.sleep(1)
-        if not (resp is None and i < 10 ):
+    retry = 1
+    while retry < 11:
+        resp = send2Aria('aria2.getVersion', [], True)
+        if resp is None:
+            later = 'I will wait for a second and then will try again.'
+            if retry == 10:
+                later = 'I won\' try anymore.'
+            log(3, 'Aria2 is still not started. Tried ' + str(retry) + '/10 time(s). ' + later)
+            time.sleep(1)
+        else:
             break
+        retry += 1
 
     if resp is None:
-        log(3, 'Could not connect to Aria2. Exiting...')
-        destruct()
+        log(3, 'Could not connect to Aria2. Exiting . . .')
+        sys.exit(0)
 
 
 def system_diagnosis():
@@ -184,7 +189,7 @@ def main():
     log(1, 'Service started.')
 
     # Load global variables
-    global dbConnection, dbUser, dbPassword, dbName, activeList, torrentList, config
+    global dbConnection, activeList, torrentList, config
 
     # Load config file
     load_config()
@@ -235,7 +240,8 @@ def main():
     while True:
         dlListUpdateCursor = dbConnection.cursor()
         dbConnection.begin()
-
+        print(torrentList)
+        print(activeList)
         # For each active ID
         for id in activeList:
             cid = "%016d" % id
@@ -354,7 +360,7 @@ def main():
         except BaseException as e:
             continue
 
-        while int(res) < config['MAX_CONCURRENT_DOWNLOADS']:
+        while int(res) < int(config['MAX_CONCURRENT_DOWNLOADS']):
             # Find next request to be processed
             row = dlListFetchCursor.fetchone()
 
