@@ -26,6 +26,12 @@ EMAIL_TITLE=Sepehr System
 
 GA=UA-60769821-1
 
+MAX_CONCURRENT_DOWNLOADS=10
+TORRENT_DIR=/mnt/hd0/torrent/
+TORRENT_SAVE=/mnt/hd0/torrent_save/
+ARIA_PORT=http://127.0.0.1:6800/jsonrpc
+WORKING_DIRECTORY=/mnt/hd0/
+
 NOCAPTCHA_SECRET=Google Recaptcha
 NOCAPTCHA_SITEKEY=Google Recaptcha
 
