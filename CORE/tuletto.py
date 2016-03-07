@@ -17,6 +17,7 @@ import json
 import base64
 import shutil
 import ntpath
+import atexit
 
 from datetime import datetime
 
@@ -25,7 +26,6 @@ from datetime import datetime
 # To get database information
 #
 env_config_path = '/usr/share/nginx/sepehr/.env'
-aria_config_path = '/usr/share/nginx/sepehr/config/tuletto.php'
 
 #
 # Global variables
@@ -112,6 +112,7 @@ def send2Aria(method, params=[], first_call=False):
             return json.loads(error_message)
     except BaseException as e:
         log(3, 'Error happened when sending query to Aria2c. The Error is: %s' % e)
+        log(3, 'The query is: ' + str(method) + ' params: ' + str(params))
         return None
 
 
@@ -240,8 +241,7 @@ def main():
     while True:
         dlListUpdateCursor = dbConnection.cursor()
         dbConnection.begin()
-        print(torrentList)
-        print(activeList)
+
         # For each active ID
         for id in activeList:
             cid = "%016d" % id
@@ -249,93 +249,104 @@ def main():
                 res = send2Aria( 'aria2.tellStatus', [cid, ['gid','status','completedLength', 'totalLength', 'errorCode', 'files']])
             except BaseException as e:
                 continue
-            if res['result']['status'] == 'paused':
-                log(1, 'Pause situation detected. File id: ' + cid)
-                # Update UserDB, download_list and activeList
-                try:
-                    dlListUpdateCursor.execute("""UPDATE download_list SET state=-2, completed_length=%s WHERE id = %s""", (res['result']['completedLength'], id,))
-                    dbConnection.commit()
-                    activeList.remove(id)
-                    pause_res = send2Aria('aria2.remove', [cid])
-                    log(1, "File with id " + cid + " paused successfully and database got updated. Aria2 said: " + pause_res['result'])
-                except BaseException as e:
-                    dbConnection.rollback()
-                    log(3, "Exception in pause procedure: %s" % e)
-                    traceback.print_exc()
-
-            elif res['result']['status'] == 'error':
-                log(1, 'Error situation detected. File id: ' + cid)
-                # Update UserDB, download_list and activeList
-                try:
-                    dlListUpdateCursor.execute("""UPDATE download_list SET state=%s, completed_length=%s WHERE id = %s """, (str(res['result']['errorCode']), res['result']['completedLength'], id,))
-                    dbConnection.commit()
-                    activeList.remove(id)
-                    remove_res = send2Aria('aria2.removeDownloadResult', [cid])
-                    log(1, 'File with id: ' + cid + ' removed successfully from Error List. Error is: ' + res['result']['errorCode'])
-                    log(1, "Aria2 said:" + remove_res['result'])
-                except BaseException as e:
-                    dbConnection.rollback()
-                    log(3, "Exception in error procedure: %s" % e)
-                    traceback.print_exc()
-
-            elif res['result']['status'] == 'removed':
-                log(1, 'Removed download detected. File id: ' + cid)
-                # Update UserDB, download_list and activeList.
-                try:
-                    dlListUpdateCursor.execute("""INSERT INTO credit_log (user_id, credit_change, agent) SELECT user_id, %s, user_id FROM download_list WHERE id = %s""", (str( -int (res['result']['completedLength'])), id, ))
-                    dlListUpdateCursor.execute("""UPDATE download_list SET state=-3, completed_length=%s, deleted=1 WHERE id = %s """, ( res['result']['completedLength'], id,))
-                    dlListUpdateCursor.execute("""UPDATE users SET credit = credit - %s WHERE id in ( SELECT user_id FROM download_list WHERE id = %s)""", (res['result']['completedLength'], id,))
-                    dbConnection.commit()
-                    activeList.remove(id)
-                    remove_res = send2Aria('aria2.removeDownloadResult', [cid])
-                    log(1, 'Removed file and credit updated successfully. File id: ' + cid)
-                    log(1, "Aria2 said:" + remove_res['result'])
-                    # remove file
-                    if id in torrentList:
-                        shutil.rmtree(config['TORRENT_SAVE'] + str(id))
-                    else:
-                        os.remove(res['result']['files'][0]['path'])
-                        os.remove(res['result']['files'][0]['path'] + '.aria2')
-                except BaseException as e:
-                    dbConnection.rollback()
-                    log(3, "Exception in remove procedure: %s" % e)
-                    traceback.print_exc()
-
-            elif res['result']['status'] == 'complete':
-                log(1, 'Completed download detected. File id: ' + cid)
-                # Update UserDB, download_list and activeList
-                try:
-                    if id in torrentList:
-                        dlListUpdateCursor.execute("""UPDATE download_list SET state=-3, date_completed=%s WHERE id = %s """, (datetime.now(), id,))
-                    else:
-                        dlListUpdateCursor.execute("""INSERT INTO credit_log ( user_id, credit_change, agent ) SELECT user_id, %s, user_id FROM download_list WHERE id = %s""", ( str( -int (res['result']['completedLength'] ) ), id, ) )
-                        dlListUpdateCursor.execute("""UPDATE download_list SET state=0, date_completed=%s, completed_length=%s WHERE id = %s """, (datetime.now(), res['result']['completedLength'], id,))
-                        dlListUpdateCursor.execute("""UPDATE users SET credit = credit - %s WHERE id in ( SELECT user_id FROM download_list WHERE id = %s ) """, (res['result']['completedLength'], id,))
-
-                    dbConnection.commit()
-                    activeList.remove(id)
+            if res is None:
+                log(3, 'Could not get result from Aria2c. Aria2c returned null. Trying next id in active list.')
+                continue
+            else:
+                if res['result']['status'] == 'paused':
+                    log(1, 'Pause situation detected. File id: ' + cid)
+                    # Update UserDB, download_list and activeList
                     try:
-                        complete_res = send2Aria('aria2.removeDownloadResult', [cid])
-                        log(1, 'Removed completed file and credit updated successfully. File id: ' + cid)
-                        log(1, "Aria2 said:" + complete_res['result'])
+                        dlListUpdateCursor.execute("""UPDATE download_list SET state=-2, completed_length=%s WHERE id = %s""", (res['result']['completedLength'], id,))
+                        dbConnection.commit()
+                        activeList.remove(id)
+                        if id in torrentList:
+                            torrentList.remove(id)
+                        pause_res = send2Aria('aria2.remove', [cid])
+                        log(1, "File with id " + cid + " paused successfully and database got updated. Aria2 said: " + pause_res['result'])
                     except BaseException as e:
-                        log(3, 'removeDownloadResult did not successfully executed.')
-                        pass
+                        dbConnection.rollback()
+                        log(3, "Exception in pause procedure: %s" % e)
+                        traceback.print_exc()
 
-                    if id in torrentList:
-                        log(1, 'Completed file is a torrent file. I will zip it now...')
-                        tempCur = dbConnection.cursor()
-                        tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""", (str(id)))
-                        row = tempCur.fetchone()
-                        t = FuncThread(zip_dir, config['WORKING_DIRECTORY'] + str(id) + "_" + row['file_name'], config['TORRENT_SAVE'] + str(id))
-                        zipProcesses.append({'id': id, 'proc': t, 'size': res['result']['completedLength']})
-                        t.start()
-                        log(1, 'Zipping ' + str(id) + ' to ' + row['file_name'].encode('utf-8'))
-                        torrentList.remove(id)
-                except BaseException as e:
-                    dbConnection.rollback()
-                    log(3, "Exception in completion procedure: %s" % e)
-                    traceback.print_exc()
+                elif res['result']['status'] == 'error':
+                    log(1, 'Error situation detected. File id: ' + cid)
+                    # Update UserDB, download_list and activeList
+                    try:
+                        dlListUpdateCursor.execute("""UPDATE download_list SET state=%s, completed_length=%s WHERE id = %s """, (str(res['result']['errorCode']), res['result']['completedLength'], id,))
+                        dbConnection.commit()
+                        activeList.remove(id)
+                        if id in torrentList:
+                            torrentList.remove(id)
+
+                        remove_res = send2Aria('aria2.removeDownloadResult', [cid])
+                        log(1, 'File with id: ' + cid + ' removed successfully from Error List. Error is: ' + res['result']['errorCode'])
+                        log(1, "Aria2 said:" + remove_res['result'])
+                    except BaseException as e:
+                        dbConnection.rollback()
+                        log(3, "Exception in error procedure: %s" % e)
+                        traceback.print_exc()
+
+                elif res['result']['status'] == 'removed':
+                    log(1, 'Removed download detected. File id: ' + cid)
+                    # Update UserDB, download_list and activeList.
+                    try:
+                        dlListUpdateCursor.execute("""INSERT INTO credit_log (user_id, credit_change, agent) SELECT user_id, %s, user_id FROM download_list WHERE id = %s""", (str( -int (res['result']['completedLength'])), id, ))
+                        dlListUpdateCursor.execute("""UPDATE download_list SET state=-3, completed_length=%s, deleted=1 WHERE id = %s """, ( res['result']['completedLength'], id,))
+                        dlListUpdateCursor.execute("""UPDATE users SET credit = credit - %s WHERE id in ( SELECT user_id FROM download_list WHERE id = %s)""", (res['result']['completedLength'], id,))
+                        dbConnection.commit()
+                        activeList.remove(id)
+                        remove_res = send2Aria('aria2.removeDownloadResult', [cid])
+                        log(1, 'Removed file and credit updated successfully. File id: ' + cid)
+                        log(1, "Aria2 said:" + remove_res['result'])
+                        # remove file
+                        if id in torrentList:
+                            shutil.rmtree(config['TORRENT_SAVE'] + str(id))
+                            torrentList.remove(id)
+                        else:
+                            os.remove(res['result']['files'][0]['path'])
+                            os.remove(res['result']['files'][0]['path'] + '.aria2')
+
+                    except BaseException as e:
+                        dbConnection.rollback()
+                        log(3, "Exception in remove procedure: %s" % e)
+                        traceback.print_exc()
+
+                elif res['result']['status'] == 'complete':
+                    log(1, 'Completed download detected. File id: ' + cid)
+                    # Update UserDB, download_list and activeList
+                    try:
+                        if id in torrentList:
+                            dlListUpdateCursor.execute("""UPDATE download_list SET state=-3, date_completed=%s WHERE id = %s """, (datetime.now(), id,))
+                        else:
+                            dlListUpdateCursor.execute("""INSERT INTO credit_log ( user_id, credit_change, agent ) SELECT user_id, %s, user_id FROM download_list WHERE id = %s""", ( str( -int (res['result']['completedLength'] ) ), id, ) )
+                            dlListUpdateCursor.execute("""UPDATE download_list SET state=0, date_completed=%s, completed_length=%s WHERE id = %s """, (datetime.now(), res['result']['completedLength'], id,))
+                            dlListUpdateCursor.execute("""UPDATE users SET credit = credit - %s WHERE id in ( SELECT user_id FROM download_list WHERE id = %s ) """, (res['result']['completedLength'], id,))
+
+                        dbConnection.commit()
+                        activeList.remove(id)
+                        try:
+                            complete_res = send2Aria('aria2.removeDownloadResult', [cid])
+                            log(1, 'Removed completed file and credit updated successfully. File id: ' + cid)
+                            log(1, "Aria2 said:" + complete_res['result'])
+                        except BaseException as e:
+                            log(3, 'removeDownloadResult did not successfully executed.')
+                            pass
+
+                        if id in torrentList:
+                            log(1, 'Completed file is a torrent file. I will zip it now...')
+                            tempCur = dbConnection.cursor()
+                            tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""", (str(id)))
+                            row = tempCur.fetchone()
+                            t = FuncThread(zip_dir, config['WORKING_DIRECTORY'] + str(id) + "_" + row['file_name'], config['TORRENT_SAVE'] + str(id))
+                            zipProcesses.append({'id': id, 'proc': t, 'size': res['result']['completedLength']})
+                            t.start()
+                            log(1, 'Zipping ' + str(id) + ' to ' + row['file_name'].encode('utf-8'))
+                            torrentList.remove(id)
+                    except BaseException as e:
+                        dbConnection.rollback()
+                        log(3, "Exception in completion procedure: %s" % e)
+                        traceback.print_exc()
         # End FOR
         for field in zipProcesses:  # Check for zipping processes
             if not field['proc'].isAlive():
@@ -420,7 +431,7 @@ def main():
                 continue
         # End While
 
-        if counter % 30 == 0:  # Each 5 minutes retry download errors 150
+        if counter % 150 == 0:  # Each 5 minutes retry download errors
             counter = 1
             try:
                 log(1, 'Retrying downloads with errors.')
@@ -433,11 +444,15 @@ def main():
                 log(3, "Exception in retry for error links: %s" % e)
                 traceback.print_exc()
 
-            for id in torrentList:   # Put junk torrents in queue
+            # Put junk torrents out of the queue
+            for id in torrentList:
                 cid = "%016d" % id
                 try:
                     res = send2Aria('aria2.tellStatus', [cid, ['gid', 'status', 'connections', 'numSeeders', 'downloadSpeed', 'completedLength']])
                 except BaseException as e:
+                    continue
+                if res is None:
+                    log(3, 'Could not get result from Aria2c in torrent junk section. Aria2c returned null. Trying next id in torrent list.')
                     continue
                 try:
                     if res['result']['status'] == 'active':
@@ -456,16 +471,15 @@ def main():
                                     dlListUpdateCursor.execute("""UPDATE download_list SET state=%s, completed_length=%s WHERE id = %s """, (str(-4), res['result']['completedLength'], id,))
                                     dbConnection.commit()
                                     activeList.remove(id)
+                                    torrentList.remove(id)
                                     log(1, 'Found junk torrent. I will send them in front of the queue')
                                     try:
                                         resp_junk = send2Aria('aria2.forceRemove', [cid])
                                         log(1, 'Force removed file. Aria2 said: ' + resp_junk['result'])
-                                        # time.sleep(10)
                                         resp_junk1 = send2Aria('aria2.removeDownloadResult', [cid])
                                         log(1, 'Removed download result. Aria2 said: ' + resp_junk1['result'])
                                     except BaseException as e:
                                         log(3, "Exception JUNK: %s" % e)
-                                    torrentList.remove(id)
                                     log(1, "Torrent " + res['result']['gid'] + " successfully suspended as junk" )
                                 except BaseException as e:
                                     dbConnection.rollback()
@@ -535,6 +549,7 @@ def destruct(*args):
 # Clean up when exiting
 signal.signal(signal.SIGINT, destruct)
 signal.signal(signal.SIGTERM, destruct)
+atexit.register(destruct)
 
 if __name__ == "__main__":
     try:
