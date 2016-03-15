@@ -11,7 +11,7 @@ return [
 
 
     'ver'                   => 'Version',
-    'slogan'                => 'Get you files with high speed.',
+    'slogan'                => 'Get your files with high speed.',
     'wops'                  => 'Whoops!',
     'yaay'                  => 'Yaaay!',
     'notice'                => 'Notice',
