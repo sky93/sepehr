@@ -26,6 +26,8 @@ from datetime import datetime
 # To get database information
 #
 env_config_path = '/usr/share/nginx/sepehr/.env'
+save_loop_duration_to_file = True
+save_loop_duration_to_file_location = os.path.dirname(os.path.realpath(__file__)) + '/' + 'last_loop_duration'
 
 #
 # Global variables
@@ -113,19 +115,20 @@ def send2Aria(method, params=[], first_call=False):
     except BaseException as e:
         log(3, 'Error happened when sending query to Aria2c. The Error is: %s' % e)
         log(3, 'The query is: ' + str(method) + ' params: ' + str(params))
+        traceback.print_exc()
         return None
 
 
 def runAria2():
     global ariaProcess, config
-    FLOG = open('arialog.log', 'w')
-    FERR = open('ariaerr.log', 'w')
+    FLOG = open('/usr/share/tuletto/arialog.log', 'w')
+    FERR = open('/usr/share/tuletto/ariaerr.log', 'w')
     try:
         ariaProcess = subprocess.Popen([
                 "aria2c","--enable-rpc", "--dir=" + config['WORKING_DIRECTORY'], "--download-result=full", "--file-allocation=none",
                 "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0", "--allow-overwrite=true",
                 "--max-concurrent-downloads=" + str(config['MAX_CONCURRENT_DOWNLOADS']), "--max-resume-failure-tries=5", "--follow-metalink=false",
-                "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false"
+                "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false", "--console-log-level=error"
                                        ], stdout=FLOG, stderr=FERR)
     except BaseException as e:
         log(3, 'Exception when running Aria2c subprocess. Passing the exception for now. The exception is: %s' % e)
@@ -186,14 +189,26 @@ def log(error_type, message):
         print (time_str + ' - ' + error_type + ' - ' + message)
 
 
+def _chown(path, _uid, _gid):
+    try:
+        os.chown(path, _uid, _gid)
+        if os.path.isdir(path):
+            for item in os.listdir(path):
+                item_path = os.path.join(path, item)
+                if os.path.isfile(item_path):
+                    os.chown(item_path, _uid, _gid)
+                elif os.path.isdir(item_path):
+                    os.chown(item_path, _uid, _gid)
+                    _chown(item_path, _uid, _gid)
+    except BaseException as e:
+        log(3, "Exception in error procedure: %s" % e)
+
+
 def main():
     log(1, 'Service started.')
 
     # Load global variables
-    global dbConnection, activeList, torrentList, config
-
-    # Load config file
-    load_config()
+    global dbConnection, activeList, torrentList, config, user_id, group_id
 
     # Shows the most important config
     log(1, 'SEPEHR version: ' + config['VERSION'])
@@ -234,11 +249,13 @@ def main():
                       GROUP BY user_id
                       ORDER BY id
                   """
-    
+
     dlListFetchCursor.execute(queue_query)
     counter = 1
-
+    time_l = 0
+    tt = 0
     while True:
+        t_start = int(round(time.time() * 1000))
         dlListUpdateCursor = dbConnection.cursor()
         dbConnection.begin()
 
@@ -263,6 +280,7 @@ def main():
                         if id in torrentList:
                             torrentList.remove(id)
                         pause_res = send2Aria('aria2.remove', [cid])
+                        _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                         log(1, "File with id " + cid + " paused successfully and database got updated. Aria2 said: " + pause_res['result'])
                     except BaseException as e:
                         dbConnection.rollback()
@@ -280,6 +298,7 @@ def main():
                             torrentList.remove(id)
 
                         remove_res = send2Aria('aria2.removeDownloadResult', [cid])
+                        _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                         log(1, 'File with id: ' + cid + ' removed successfully from Error List. Error is: ' + res['result']['errorCode'])
                         log(1, "Aria2 said:" + remove_res['result'])
                     except BaseException as e:
@@ -296,6 +315,7 @@ def main():
                         dlListUpdateCursor.execute("""UPDATE users SET credit = credit - %s WHERE id in ( SELECT user_id FROM download_list WHERE id = %s)""", (res['result']['completedLength'], id,))
                         dbConnection.commit()
                         activeList.remove(id)
+                        _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                         remove_res = send2Aria('aria2.removeDownloadResult', [cid])
                         log(1, 'Removed file and credit updated successfully. File id: ' + cid)
                         log(1, "Aria2 said:" + remove_res['result'])
@@ -343,6 +363,8 @@ def main():
                             t.start()
                             log(1, 'Zipping ' + str(id) + ' to ' + row['file_name'].encode('utf-8'))
                             torrentList.remove(id)
+
+                        _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                     except BaseException as e:
                         dbConnection.rollback()
                         log(3, "Exception in completion procedure: %s" % e)
@@ -350,6 +372,7 @@ def main():
         # End FOR
         for field in zipProcesses:  # Check for zipping processes
             if not field['proc'].isAlive():
+                _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                 try:
                     dlListUpdateCursor.execute("""INSERT INTO credit_log ( user_id, credit_change, agent ) SELECT user_id, %s, user_id FROM download_list WHERE id = %s""", ( str( -int (field['size'] ) ), field['id'],))
                     dlListUpdateCursor.execute("""UPDATE download_list SET state=0, date_completed=%s, completed_length=%s WHERE id = %s """, (datetime.now(), field['size'], field['id'],))
@@ -383,15 +406,20 @@ def main():
                     if not os.path.exists( config['TORRENT_SAVE'] + str(row['id'])):
                         os.makedirs(config['TORRENT_SAVE'] + str(row['id']) )
                     try:
+                        torrent_path = config['TORRENT_SAVE'] + str(row['id'])
+                        #print torrent
                         send2Aria('aria2.addTorrent', [torrent, [], {
                                   'follow-torrent': 'false',
-                                  'dir': config['TORRENT_SAVE'] + str(row['id']),
+                                  'dir': torrent_path,
                                   'seed-time': '0',
                                   'gid': str("%016d" % row['id'])
                                   }
                         ])
+
+
                         torrentList.append(row['id'])
                         log(1, 'Torrent file successfully added.')
+                        _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                     except BaseException as e:
                         log(3, "Exception while adding torrent: %s" % e.message)
                         traceback.print_exc()
@@ -401,13 +429,14 @@ def main():
                     gid = "%016d" % row['id']
                     # Send request to Aria2
                     try:
-                        send2Aria('aria2.addUri', [[row['link'].encode('utf-8')], {
+                        send2Aria('aria2.addUri', [[row['link']], {#.encode('utf-8')], {
                                   'out': str(row['id']) + "_" + row['file_name'],
                                   'gid': gid,
                                   'header': row['custom_headers']
                                   }
                         ])
                         log(1, 'Url successfully added.')
+                        _chown(config['WORKING_DIRECTORY'], user_id, group_id)
                     except BaseException as e:
                         log(3, "Exception while adding URL: %s" % e)
                         continue
@@ -444,7 +473,17 @@ def main():
                 log(3, "Exception in retry for error links: %s" % e)
                 traceback.print_exc()
 
+        if counter % 30 == 0:  # Each 1 minute block junk torrents
             # Put junk torrents out of the queue
+            log(1, 'Average time in 1 minute: ' + str(time_l / 30) + 'ms.')
+            if save_loop_duration_to_file:
+                try:
+                    fo = open(save_loop_duration_to_file_location, "w")
+                    fo.write(str(time_l / 30))
+                    fo.close()
+                except BaseException as e:
+                    log(3, "Exception in writing timing loop to file: %s" % e)
+            time_l = 0
             for id in torrentList:
                 cid = "%016d" % id
                 try:
@@ -490,66 +529,82 @@ def main():
                     continue
 
         counter += 1
+        time_l += int(round(time.time() * 1000)) - t_start
         sys.stdout.flush()
         time.sleep(2)
     # End While
 
 
 def destruct(*args):
-    try:
-        log(1, 'Checking if Aria2 is still running. Wait for 5 seconds')
-        time.sleep(5)
-        aria2_running = is_running()
-        if aria2_running:
-            log(1, 'It seems that Aria2 is running so I will say goodbye to him.')
-            log(1, 'Telling Aria2 to pause all downloads by force.')
-            f_pause = send2Aria('aria2.forcePauseAll')
-            log(1, 'Aria2 said: ' + f_pause['result'])
-        else:
-            log(2, 'Ops! Aria2 is not running. Someone sent 9 signal. I can only update database.')
+    global state
+    if state != 'exit':
         try:
-            dlListUpdateCursor = dbConnection.cursor()
-            dbConnection.begin()
-        except BaseException as e:
-            pass
-        for id in activeList:
-            cid = "%016d" % id
+            log(1, 'Checking if Aria2 is still running. Wait for 5 seconds')
+            time.sleep(5)
+            aria2_running = is_running()
             if aria2_running:
-                try:
-                    res = send2Aria('aria2.tellStatus', [cid, ['gid', 'completedLength']])
-                except BaseException as e:
-                    log(3, 'Could not get Completed Length from Aria2')
-                    log(3, 'Aria2 said: ' + res['result'])
-                    pass
+                log(1, 'It seems that Aria2 is running so I will say goodbye to him.')
+                log(1, 'Telling Aria2 to pause all downloads by force.')
+                f_pause = send2Aria('aria2.forcePauseAll')
+                log(1, 'Aria2 said: ' + f_pause['result'])
+            else:
+                log(2, 'Ops! Aria2 is not running. Someone sent 9 signal. I can only update database.')
             try:
-                try:
-                    res
-                except NameError:
-                    dlListUpdateCursor.execute("""UPDATE download_list SET state=NULL WHERE id = %s """, (id,))
-                else:
-                    dlListUpdateCursor.execute("""UPDATE download_list SET state=NULL, completed_length=%s WHERE id = %s """, (res['result']['completedLength'], id,))
-                dbConnection.commit()
-                log(1, 'File ' + cid + ' paused and database updated successfully.')
+                dlListUpdateCursor = dbConnection.cursor()
+                dbConnection.begin()
             except BaseException as e:
-                dbConnection.rollback()
-                log(3, "Exception in pause downloads on exit: %s" % e)
-                traceback.print_exc()
-        if aria2_running:
-            log(1, 'Sending shutdown signal to Aria2')
-            shutdown_res = send2Aria('aria2.forceShutdown')
-            log(1, 'Aria2 said: ' + shutdown_res['result'])
-        try:
-            dbConnection.close()
-        except BaseException as e:
-            pass
-        log(2, "Okay. It's time to go. Bye.")
-    finally:
-        sys.exit(0)
+                pass
+            for id in activeList:
+                cid = "%016d" % id
+                if aria2_running:
+                    try:
+                        res = send2Aria('aria2.tellStatus', [cid, ['gid', 'completedLength']])
+                    except BaseException as e:
+                        log(3, 'Could not get Completed Length from Aria2')
+                        log(3, 'Aria2 said: ' + res['result'])
+                        pass
+                try:
+                    try:
+                        res
+                    except NameError:
+                        dlListUpdateCursor.execute("""UPDATE download_list SET state=NULL WHERE id = %s """, (id,))
+                    else:
+                        dlListUpdateCursor.execute("""UPDATE download_list SET state=NULL, completed_length=%s WHERE id = %s """, (res['result']['completedLength'], id,))
+                    dbConnection.commit()
+                    log(1, 'File ' + cid + ' paused and database updated successfully.')
+                except BaseException as e:
+                    dbConnection.rollback()
+                    log(3, "Exception in pause downloads on exit: %s" % e)
+                    traceback.print_exc()
+            if aria2_running:
+                log(1, 'Sending shutdown signal to Aria2')
+                shutdown_res = send2Aria('aria2.forceShutdown')
+                log(1, 'Aria2 said: ' + shutdown_res['result'])
+            try:
+                dbConnection.close()
+            except BaseException as e:
+                pass
+            log(2, "Okay. It's time to go. Bye.")
+        finally:
+            state = 'exit'
+            sys.exit(0)
+
 
 # Clean up when exiting
 signal.signal(signal.SIGINT, destruct)
 signal.signal(signal.SIGTERM, destruct)
 atexit.register(destruct)
+
+# Load config file
+load_config()
+
+try:
+    import pwd
+    import grp
+    user_id = pwd.getpwnam(config['FILES_USER']).pw_uid
+    group_id = grp.getgrnam(config['FILES_GROUP']).gr_gid
+except ImportError:
+    log(2, 'Tuletto won\'t be able to change files permission as "pwd" and "grp" library could not be found.')
 
 if __name__ == "__main__":
     try:
