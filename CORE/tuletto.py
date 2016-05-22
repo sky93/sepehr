@@ -121,14 +121,14 @@ def send2Aria(method, params=[], first_call=False):
 
 def runAria2():
     global ariaProcess, config
-    FLOG = open('/usr/share/tuletto/arialog.log', 'w')
-    FERR = open('/usr/share/tuletto/ariaerr.log', 'w')
+    FLOG = open('/usr/share/tuletto/llarialog.log', 'w')
+    FERR = open('/usr/share/tuletto/llariaerr.log', 'w')
     try:
         ariaProcess = subprocess.Popen([
                 "aria2c","--enable-rpc", "--dir=" + config['WORKING_DIRECTORY'], "--download-result=full", "--file-allocation=none",
                 "--max-connection-per-server=16", "--min-split-size=1M", "--split=16", "--max-overall-download-limit=0", "--allow-overwrite=true",
                 "--max-concurrent-downloads=" + str(config['MAX_CONCURRENT_DOWNLOADS']), "--max-resume-failure-tries=5", "--follow-metalink=false",
-                "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false", "--console-log-level=error"
+                "--bt-max-peers=16", "--bt-request-peer-speed-limit=1M", "--follow-torrent=false", "--auto-file-renaming=false", "--daemon=false", "--console-log-level=info"
                                        ], stdout=FLOG, stderr=FERR)
     except BaseException as e:
         log(3, 'Exception when running Aria2c subprocess. Passing the exception for now. The exception is: %s' % e)
@@ -402,10 +402,10 @@ def main():
                 if row['torrent'] == 1:
                     log(1, 'Adding new torrent (' + "%016d" % row['id'] + '): ' + ntpath.basename(row['link'].encode('utf-8')))
                     # Send request to Aria2
-                    torrent = base64.b64encode(open(row['link']).read())
-                    if not os.path.exists( config['TORRENT_SAVE'] + str(row['id'])):
-                        os.makedirs(config['TORRENT_SAVE'] + str(row['id']) )
                     try:
+                        torrent = base64.b64encode(open(row['link']).read())
+                        if not os.path.exists( config['TORRENT_SAVE'] + str(row['id'])):
+                            os.makedirs(config['TORRENT_SAVE'] + str(row['id']) )
                         torrent_path = config['TORRENT_SAVE'] + str(row['id'])
                         #print torrent
                         send2Aria('aria2.addTorrent', [torrent, [], {
@@ -415,8 +415,8 @@ def main():
                                   'gid': str("%016d" % row['id'])
                                   }
                         ])
-
-
+                        
+                       
                         torrentList.append(row['id'])
                         log(1, 'Torrent file successfully added.')
                         _chown(config['WORKING_DIRECTORY'], user_id, group_id)
@@ -425,7 +425,7 @@ def main():
                         traceback.print_exc()
                         continue
                 else:
-                    log(1, 'Adding new url (' + "%016d" % row['id'] + '): ' + ntpath.basename(row['link'].encode('utf-8')))
+                    log(1, 'Adding new url (' + "%016d" % row['id'] + '): ' + row['link'] + "\n**UTF8* " + row['link'].encode('utf-8') ) #ntpath.basename(row['link'].encode('utf-8')))
                     gid = "%016d" % row['id']
                     # Send request to Aria2
                     try:
