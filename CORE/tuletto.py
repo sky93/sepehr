@@ -61,6 +61,7 @@ def zip_dir(zip_file, path):
     if os.path.isfile(zip_file):
         os.remove(zip_file)
     zip_h = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_STORED, True)
+    zip_h.comment = 'SEPEHR SYSTEM'
     for root, dirs, files in os.walk(path):
         for file_name in files:
             zip_h.write(os.path.join(root, file_name), os.path.join(root, file_name)[len(path):])
