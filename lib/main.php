@@ -55,18 +55,21 @@ class main
             $file_size = -1;
         }
 
+        $incorrect_url = false;
         $location = null;
         if (array_key_exists('location', $headers)) { //File Location
             if (is_array($headers['location'])) {
-                $location = $headers['location'][count($headers['location']) - 1]; //todo: add FILTER_SANITIZE_URL validate
+                $location = $headers['location'][count($headers['location']) - 1];
                 $location = filter_var($location, FILTER_SANITIZE_URL);
                 if ( filter_var($location, FILTER_VALIDATE_URL) === false ) {
+                    $incorrect_url = $location;
                     $location = $url;
                 }
             } else {
                 $location = $headers['location'];
                 $location = filter_var($location, FILTER_SANITIZE_URL);
                 if ( filter_var($location, FILTER_VALIDATE_URL) === false ) {
+                    $incorrect_url = $location;
                     $location = $url;
                 }
             }
@@ -88,7 +91,7 @@ class main
                 $filename = urldecode($matches[1]);
             }
         } else {
-            $filename = urldecode(basename(preg_replace('/\\?.*/', '', $location)));
+            $filename = urldecode(basename(preg_replace('/\\?.*/', '', $incorrect_url ? $incorrect_url : $location)));
         }
 
         ini_set("default_socket_timeout", $current_timeout); //restore the default socket time out.
