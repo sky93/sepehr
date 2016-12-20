@@ -29,8 +29,6 @@ class main
         if (!$headers)
             return false;
 
-        //$headerso = $headers;
-
         $lastresp = 0;
         foreach ($headers as $key => $value) { //Make every key lowercase
             if (is_array($value))
@@ -59,10 +57,19 @@ class main
 
         $location = null;
         if (array_key_exists('location', $headers)) { //File Location
-            if (is_array($headers['location']))
-                $location = $headers['location'][count($headers['location'])-1]; //todo: add FILTER_SANITIZE_URL validate
-            else
+            if (is_array($headers['location'])) {
+                $location = $headers['location'][count($headers['location']) - 1]; //todo: add FILTER_SANITIZE_URL validate
+                $location = filter_var($location, FILTER_SANITIZE_URL);
+                if ( filter_var($location, FILTER_VALIDATE_URL) === false ) {
+                    $location = $url;
+                }
+            } else {
                 $location = $headers['location'];
+                $location = filter_var($location, FILTER_SANITIZE_URL);
+                if ( filter_var($location, FILTER_VALIDATE_URL) === false ) {
+                    $location = $url;
+                }
+            }
         } else {
             $location = $url;
         }
