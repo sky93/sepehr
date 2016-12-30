@@ -357,7 +357,7 @@ def main():
                         if id in torrentList:
                             log(1, 'Completed file is a torrent file. I will zip it now...')
                             tempCur = dbConnection.cursor()
-                            tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""", (str(id)))
+                            tempCur.execute("""SELECT file_name FROM download_list WHERE id = %s""" % str(id))
                             row = tempCur.fetchone()
                             t = FuncThread(zip_dir, config['WORKING_DIRECTORY'] + str(id) + "_" + row['file_name'], config['TORRENT_SAVE'] + str(id))
                             zipProcesses.append({'id': id, 'proc': t, 'size': res['result']['completedLength']})
